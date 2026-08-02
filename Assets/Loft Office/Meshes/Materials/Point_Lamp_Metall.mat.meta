@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9fed488df717da64a99f0c27ebdb92ef
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Meshes/Materials/Point_Lamp_Metall.mat
+  uploadId: 462350

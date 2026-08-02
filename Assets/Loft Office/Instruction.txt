@@ -1,0 +1,21 @@
+First of all thanks for buying this assets!
+
+Standard project setup:
+
+1. Create a clear project, then download and import the Office package from Unity store.
+
+2. Change color from "Space" to "Linear". You will find it in the top menu - Edit/Project Settings/Player/Color Space.
+
+3. Download Post Processing package - Window/Package Manager/Post Processing.
+
+4. If you open scene and Post Processing dont work - select Main Camera, remove Post-process Layer and Post-process Volume, after add it again to the camera "Add Component/Rendering, in bottom menu". 
+
+In "Post-process Layer" choose layer "Default", "Anti-aliasing" on you chose.
+
+In "Post-process Volume" choose "Profile" that is included in the project folder (3 files for different scenes, Work Space, Kitchen, Office Cabinet), and check "Is Global".
+
+URP and HDRP projects included in as separate unity packages in folder "URP and HDRP packages".
+
+For HDRP setup you will find HDRP Setup Tutorial.pdf in project folder.
+
+You need to create a clear unity project and import the URP or HDRP package - Assets/Import Package/Custom Package. 

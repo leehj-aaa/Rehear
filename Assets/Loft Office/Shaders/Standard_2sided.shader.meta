@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8aff4401af427e04dbde32d828d49e4e
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Shaders/Standard_2sided.shader
+  uploadId: 462350

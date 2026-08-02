@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e8a7b0e39ebd9064f88db8134a9beb1b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Meshes/Materials/Wall_Grey.mat
+  uploadId: 462350

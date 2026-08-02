@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b0ec88bb27b1a0a4c849e321a7758a73
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Prefabs/Clock.prefab
+  uploadId: 462350

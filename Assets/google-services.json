@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "419516463591",
+    "firebase_url": "https://rehear-7b528-default-rtdb.firebaseio.com",
+    "project_id": "rehear-7b528",
+    "storage_bucket": "rehear-7b528.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419516463591:android:7db2ccb71c3120c3ee2542",
+        "android_client_info": {
+          "package_name": "com.audi.rehear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe3PztPFkuoZ5vVMBCs574E9Omtx-47Bk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

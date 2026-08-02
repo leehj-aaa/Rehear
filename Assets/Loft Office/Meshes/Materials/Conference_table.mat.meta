@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dc1d887c1f149b04397f8cc31cda6d85
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Meshes/Materials/Conference_table.mat
+  uploadId: 462350

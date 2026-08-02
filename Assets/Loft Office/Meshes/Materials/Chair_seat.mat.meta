@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 76d6012867c186143bd77c67e85f1c2d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 186002
+  packageName: HQ ArchViz Loft Office (Modular)
+  packageVersion: 1.1
+  assetPath: Assets/Loft Office/Meshes/Materials/Chair_seat.mat
+  uploadId: 462350
