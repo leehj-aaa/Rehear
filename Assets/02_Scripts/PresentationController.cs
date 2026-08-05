@@ -9,6 +9,7 @@ public class PresentationController : MonoBehaviour
     public Button qaButton;           // 타이머 종료 후 나타날 질의응답 버튼
     public GameObject pausePanel;
     public GameObject scriptPanel;
+    [SerializeField] private TextMeshProUGUI scriptButtonText;
     public QuestionAnswerManager qaManager;
 
     private float timeRemaining = 600f;
@@ -17,7 +18,7 @@ public class PresentationController : MonoBehaviour
 
     void Start()
     {
-        scriptPanel.SetActive(false);
+        SetScriptPanelVisible(true);
         pausePanel.SetActive(false);
         qaManager.qaPanel.SetActive(false);
         
@@ -76,11 +77,35 @@ public class PresentationController : MonoBehaviour
     public void StartQA()
     {
         qaManager.StartQAPhase(qaButton); 
-        scriptPanel.SetActive(true);
+        SetScriptPanelVisible(true);
     }
 
-    public void CloseScriptPanel() { if (scriptPanel != null) scriptPanel.SetActive(false); }
-    public void OpenScriptPanel() { if (scriptPanel != null) scriptPanel.SetActive(true); }
+    public void CloseScriptPanel() => SetScriptPanelVisible(false);
+
+    // 현재 Btn_Script의 기존 Inspector 이벤트가 이 메서드를 호출하므로
+    // 별도의 씬 재연결 없이 토글로 동작하게 한다.
+    public void OpenScriptPanel()
+    {
+        if (scriptPanel != null)
+            SetScriptPanelVisible(!scriptPanel.activeSelf);
+    }
+
+    private void SetScriptPanelVisible(bool visible)
+    {
+        if (scriptPanel != null)
+            scriptPanel.SetActive(visible);
+
+        if (scriptButtonText == null)
+        {
+            GameObject scriptButton = GameObject.Find("Btn_Script");
+            if (scriptButton != null)
+                scriptButtonText = scriptButton.GetComponentInChildren<TextMeshProUGUI>(true);
+        }
+
+        // 버튼 텍스트는 누르면 수행될 동작을 표시한다.
+        if (scriptButtonText != null)
+            scriptButtonText.text = visible ? "OFF" : "ON";
+    }
     
     public void SkipPresentation() => timeRemaining = 10f;
     public void PauseGame() { isRunning = false; pausePanel.SetActive(true); }

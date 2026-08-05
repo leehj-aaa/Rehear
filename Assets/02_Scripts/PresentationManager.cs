@@ -1,41 +1,95 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class PresentationManager : MonoBehaviour
 {
     public RawImage deskScreen;
     public RawImage slideScreen;
+    public Texture2D[] slides;
 
-    // 인스펙터에서 사진들을 드래그해서 순서대로 넣으세요
-    public Texture2D[] slides; 
-    private int currentIndex = 0;
+    private int currentIndex;
+    private InputAction nextSlideAction;
+    private InputAction previousSlideAction;
 
-    void Start()
+    private void Awake()
     {
-        if (slides.Length > 0) UpdateDisplay();
+        // Meta Quest 오른쪽 컨트롤러: A = Primary, B = Secondary.
+        nextSlideAction = new InputAction("Next Slide", InputActionType.Button);
+        nextSlideAction.AddBinding("<XRController>{RightHand}/primaryButton");
+        nextSlideAction.AddBinding("<Keyboard>/rightArrow");
+
+        previousSlideAction = new InputAction("Previous Slide", InputActionType.Button);
+        previousSlideAction.AddBinding("<XRController>{RightHand}/secondaryButton");
+        previousSlideAction.AddBinding("<Keyboard>/leftArrow");
+
+        nextSlideAction.performed += OnNextSlidePerformed;
+        previousSlideAction.performed += OnPreviousSlidePerformed;
     }
+
+    private void Start()
+    {
+        if (slides != null && slides.Length > 0)
+            UpdateDisplay();
+    }
+
+    private void OnEnable()
+    {
+        nextSlideAction?.Enable();
+        previousSlideAction?.Enable();
+    }
+
+    private void OnDisable()
+    {
+        nextSlideAction?.Disable();
+        previousSlideAction?.Disable();
+    }
+
+    private void OnDestroy()
+    {
+        if (nextSlideAction != null)
+        {
+            nextSlideAction.performed -= OnNextSlidePerformed;
+            nextSlideAction.Dispose();
+        }
+
+        if (previousSlideAction != null)
+        {
+            previousSlideAction.performed -= OnPreviousSlidePerformed;
+            previousSlideAction.Dispose();
+        }
+    }
+
+    private void OnNextSlidePerformed(InputAction.CallbackContext context) => NextSlide();
+    private void OnPreviousSlidePerformed(InputAction.CallbackContext context) => PrevSlide();
 
     public void NextSlide()
     {
-        if (currentIndex < slides.Length - 1)
-        {
-            currentIndex++;
-            UpdateDisplay();
-        }
+        if (slides == null || currentIndex >= slides.Length - 1)
+            return;
+
+        currentIndex++;
+        UpdateDisplay();
     }
 
     public void PrevSlide()
     {
-        if (currentIndex > 0)
-        {
-            currentIndex--;
-            UpdateDisplay();
-        }
+        if (slides == null || currentIndex <= 0)
+            return;
+
+        currentIndex--;
+        UpdateDisplay();
     }
 
-    void UpdateDisplay()
+    private void UpdateDisplay()
     {
-        deskScreen.texture = slides[currentIndex];
-        slideScreen.texture = slides[currentIndex];
+        if (slides == null || slides.Length == 0)
+            return;
+
+        if (deskScreen != null)
+            deskScreen.texture = slides[currentIndex];
+
+        if (slideScreen != null)
+            slideScreen.texture = slides[currentIndex];
     }
 }

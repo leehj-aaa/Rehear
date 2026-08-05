@@ -1,33 +1,52 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // XR Input System 사용 시
 
 public class ScriptScroller : MonoBehaviour
 {
-    public ScrollRect scrollRect;
-    public float scrollSpeed = 0.1f;
-    
-    // XR 컨트롤러 입력 액션
-    public InputActionProperty verticalScrollAction;
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField, Min(0.01f)] private float scrollSpeed = 0.6f;
+    [SerializeField, Range(0f, 0.95f)] private float deadZone = 0.2f;
 
-    
+    private InputAction scrollAction;
 
-    void Update()
+    private void Awake()
     {
-        float yAxis = Input.GetAxis("Vertical"); // 또는 조이스틱 입력 이름
-        if (yAxis > 0.5f) { 
-    // PPT 넘기는 함수 호출
-            }
-        // 조이스틱의 Y축 입력값 가져오기
-        float scrollInput = verticalScrollAction.action.ReadValue<Vector2>().y;
+        // Quest 오른쪽 스틱과 에디터 확인용 방향키를 같은 Vector2 액션으로 묶는다.
+        scrollAction = new InputAction("Script Scroll", InputActionType.Value, expectedControlType: "Vector2");
+        scrollAction.AddBinding("<XRController>{RightHand}/primary2DAxis");
+        scrollAction.AddBinding("<Gamepad>/rightStick");
 
-        if (Mathf.Abs(scrollInput) > 0.1f) // 조이스틱 움직임이 있을 때만
-        {
-            // 스크롤 위치 조절 (0~1 사이)
-            scrollRect.verticalNormalizedPosition += scrollInput * scrollSpeed * Time.deltaTime;
-            
-            // 0과 1 사이로 값 제한
-            scrollRect.verticalNormalizedPosition = Mathf.Clamp01(scrollRect.verticalNormalizedPosition);
-        }
+        scrollAction.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/upArrow")
+            .With("Down", "<Keyboard>/downArrow");
+    }
+
+    private void OnEnable()
+    {
+        scrollAction?.Enable();
+    }
+
+    private void OnDisable()
+    {
+        scrollAction?.Disable();
+    }
+
+    private void OnDestroy()
+    {
+        scrollAction?.Dispose();
+    }
+
+    private void Update()
+    {
+        if (scrollRect == null || !scrollRect.gameObject.activeInHierarchy)
+            return;
+
+        float y = scrollAction.ReadValue<Vector2>().y;
+        if (Mathf.Abs(y) < deadZone)
+            return;
+
+        scrollRect.verticalNormalizedPosition = Mathf.Clamp01(
+            scrollRect.verticalNormalizedPosition + y * scrollSpeed * Time.unscaledDeltaTime);
     }
 }
