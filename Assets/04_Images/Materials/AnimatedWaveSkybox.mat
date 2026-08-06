@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AnimatedWaveSkybox
-  m_Shader: {fileID: 4800000, guid: e84c5f37ee1274454b26e96d08f83bd2, type: 3}
+  m_Shader: {fileID: 4800000, guid: adedd31a0615e4e38bebcb0b7db4b57a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -151,6 +151,7 @@ Material:
     - _WaveScale: 0.38
     - _WaveSpeed: 0.2
     - _WaveWidth: 0.04
+    - _WhiteIntensity: 0.18
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
