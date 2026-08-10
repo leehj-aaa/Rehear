@@ -5,11 +5,14 @@ using UnityEngine.UI;
 
 public class PresentationController : MonoBehaviour
 {
+    private const string ShowSessionReadyKey = "ShowSessionReadyOnLoad";
+
     public TextMeshProUGUI timerText;
     public Button qaButton;
     public GameObject pausePanel;
     public GameObject scriptPanel;
     [SerializeField] private TextMeshProUGUI scriptButtonText;
+    [SerializeField] private AudioSource sessionAudioSource;
     public QuestionAnswerManager qaManager;
 
     private float timeRemaining = 600f;
@@ -17,36 +20,40 @@ public class PresentationController : MonoBehaviour
     private bool isTimerFinished;
     private bool isQAPhaseStarted;
 
+    public bool IsPaused => !isRunning;
+
     private void Start()
     {
         SetScriptPanelVisible(false);
         pausePanel.SetActive(false);
         qaManager.Prepare(qaButton);
-        if (qaButton != null) qaButton.gameObject.SetActive(false);
+
+        if (qaButton != null)
+            qaButton.gameObject.SetActive(false);
     }
 
     public void OnActionButtonClick()
     {
         if (!isQAPhaseStarted)
-        {
             isQAPhaseStarted = true;
-        }
 
         qaManager.OnActionButtonClick();
     }
 
     private void Update()
     {
-        if (isQAPhaseStarted)
+        if (!isRunning || isQAPhaseStarted)
             return;
 
-        if (isRunning && !isTimerFinished)
+        if (!isTimerFinished)
         {
             timeRemaining -= Time.deltaTime;
             UpdateTimerDisplay();
-            if (timeRemaining <= 0f) FinishTimer();
+
+            if (timeRemaining <= 0f)
+                FinishTimer();
         }
-        else if (isTimerFinished)
+        else
         {
             timeRemaining += Time.deltaTime;
             timerText.text = "+" + FormatTime(timeRemaining);
@@ -65,7 +72,51 @@ public class PresentationController : MonoBehaviour
     private void FinishTimer()
     {
         isTimerFinished = true;
-        if (qaButton != null) qaButton.gameObject.SetActive(true);
+        if (qaButton != null)
+            qaButton.gameObject.SetActive(true);
+    }
+
+    public void TogglePause()
+    {
+        if (IsPaused)
+            ResumeGame();
+        else
+            PauseGame();
+    }
+
+    public void PauseGame()
+    {
+        isRunning = false;
+
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+            pausePanel.transform.SetAsLastSibling();
+        }
+
+        sessionAudioSource?.Pause();
+    }
+
+    public void ResumeGame()
+    {
+        isRunning = true;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        sessionAudioSource?.UnPause();
+    }
+
+    public void RestartSession()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void StopSession()
+    {
+        PlayerPrefs.SetInt(ShowSessionReadyKey, 1);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene("Scene_01_Intro");
     }
 
     public void StartQA()
@@ -78,12 +129,14 @@ public class PresentationController : MonoBehaviour
 
     public void OpenScriptPanel()
     {
-        if (scriptPanel != null) SetScriptPanelVisible(!scriptPanel.activeSelf);
+        if (scriptPanel != null)
+            SetScriptPanelVisible(!scriptPanel.activeSelf);
     }
 
     private void SetScriptPanelVisible(bool visible)
     {
-        if (scriptPanel != null) scriptPanel.SetActive(visible);
+        if (scriptPanel != null)
+            scriptPanel.SetActive(visible);
 
         if (scriptButtonText == null)
         {
@@ -92,12 +145,9 @@ public class PresentationController : MonoBehaviour
                 scriptButtonText = scriptButton.GetComponentInChildren<TextMeshProUGUI>(true);
         }
 
-        if (scriptButtonText != null) scriptButtonText.text = visible ? "OFF" : "ON";
+        if (scriptButtonText != null)
+            scriptButtonText.text = visible ? "OFF" : "ON";
     }
 
     public void SkipPresentation() => timeRemaining = 10f;
-    public void PauseGame() { isRunning = false; pausePanel.SetActive(true); }
-    public void ResumeGame() { isRunning = true; pausePanel.SetActive(false); }
-    public void RestartSession() { timeRemaining = 600f; isTimerFinished = false; ResumeGame(); }
-    public void StopSession() => SceneManager.LoadScene("Scene_01_Intro");
 }

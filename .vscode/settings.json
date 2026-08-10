@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "EVC.slnx"
+    "dotnet.defaultSolution": "Rehear.slnx"
 }
