@@ -12,7 +12,8 @@ using UnityEngine.InputSystem;
 [InitializeOnLoad]
 internal static class RehearCurvedUISetup
 {
-    private const string ScenePath = "Assets/01_Scene/Scene_00.unity";
+    private const string OpeningScenePath = "Assets/01_Scene/Scene_00.unity";
+    private const string FeedbackScenePath = "Assets/01_Scene/Scene_03_Feedback.unity";
     private const string CanvasName = "Canvas";
     private const int CurveAngle = 35;
 
@@ -21,7 +22,7 @@ internal static class RehearCurvedUISetup
         EditorApplication.delayCall += ConfigureOpenScene;
     }
 
-    [MenuItem("Rehear/Apply Curved UI To Scene 00")]
+    [MenuItem("Rehear/Apply Curved UI To Current Supported Scene")]
     private static void ConfigureOpenScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -30,14 +31,14 @@ internal static class RehearCurvedUISetup
         EnsureRequiredDefines();
 
         var scene = EditorSceneManager.GetActiveScene();
-        if (!scene.IsValid() || scene.path != ScenePath)
+        if (!scene.IsValid() || (scene.path != OpeningScenePath && scene.path != FeedbackScenePath))
             return;
 
         var canvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
             .FirstOrDefault(item => item.name == CanvasName);
         if (canvas == null)
         {
-            Debug.LogError("Rehear CurvedUI setup: Scene_00의 Canvas를 찾지 못했습니다.");
+            Debug.LogError($"Rehear CurvedUI setup: {scene.name}의 Canvas를 찾지 못했습니다.");
             return;
         }
 
@@ -55,14 +56,15 @@ internal static class RehearCurvedUISetup
         settings.AddEffectToChildren();
 
         GetOrAdd<CurvedUIRaycaster>(canvas.gameObject);
-        ArrangeOpeningUi(canvas.transform);
+        if (scene.path == OpeningScenePath)
+            ArrangeOpeningUi(canvas.transform);
         ConfigureEventSystem();
 
         EditorUtility.SetDirty(canvas.gameObject);
         EditorUtility.SetDirty(settings);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
-        Debug.Log("Rehear: Scene_00 UI에 CurvedUI(원통형 35°, Unity XR 입력)를 적용했습니다.", canvas);
+        Debug.Log($"Rehear: {scene.name} UI에 CurvedUI(원통형 35°, Unity XR 입력)를 적용했습니다.", canvas);
     }
 
     private static void ConfigureEventSystem()
