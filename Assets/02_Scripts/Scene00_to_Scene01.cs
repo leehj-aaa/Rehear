@@ -7,6 +7,6 @@ public class Scene00_to_Scene01 : MonoBehaviour
     public void ClickGameStart()
     {
         // 지정된 이름의 백업 인트로 씬으로 이동합니다.
-        SceneManager.LoadScene("Scene_01_Intro");
+        SceneManager.LoadScene("Scene_00_5_Tutorial");
     }
 }

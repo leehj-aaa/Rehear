@@ -11,14 +11,28 @@ public class PinInputManager : MonoBehaviour
     public GameObject panel_PinInput;
     public GameObject panel_SessionReady;
     public TMP_Text errorText;
+    private const string ShowSessionReadyKey = "ShowSessionReadyOnLoad";
 
-    void Start()
+    private void Start()
     {
-    // 씬 시작 시 초기화
-    panel_PinInput.SetActive(true);    // 핀 입력 판넬만 켬
-    numberKeyboardPanel.SetActive(false); // 키보드는 처음에 끔
-    panel_SessionReady.SetActive(false);  // 세션 정보 판넬도 처음에 끔
-    }
+        bool returnFromPresentation =
+            PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
+
+        if (returnFromPresentation)
+        {
+            PlayerPrefs.DeleteKey(ShowSessionReadyKey);
+            PlayerPrefs.Save();
+
+            panel_PinInput.SetActive(false);
+            numberKeyboardPanel.SetActive(false);
+            panel_SessionReady.SetActive(true);
+            return;
+        }
+
+    panel_PinInput.SetActive(true);
+    numberKeyboardPanel.SetActive(false);
+    panel_SessionReady.SetActive(false);
+}
 
     // 칸을 눌렀을 때 키보드를 호출하는 함수
     public void OpenKeyboard()
