@@ -15,7 +15,7 @@ public class PresentationController : MonoBehaviour
     [SerializeField] private AudioSource sessionAudioSource;
     public QuestionAnswerManager qaManager;
 
-    private float timeRemaining = 600f;
+    private float timeRemaining = 60f;
     private bool isRunning = true;
     private bool isTimerFinished;
     private bool isQAPhaseStarted;
