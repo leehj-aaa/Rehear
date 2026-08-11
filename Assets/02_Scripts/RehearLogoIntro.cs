@@ -1,6 +1,8 @@
 using System.Collections;
+using CurvedUI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Native four-layer recreation of Logo-Animation.mp4.
@@ -11,15 +13,16 @@ using UnityEngine.SceneManagement;
 public sealed class RehearLogoIntro : MonoBehaviour
 {
     public const float Duration = 4.4f;
+    private const float LogoCanvasSize = 650f;
 
     [SerializeField] private bool playOnEnable = true;
     [SerializeField] private bool useUnscaledTime = true;
 
     private SpriteRenderer source;
-    private SpriteRenderer symbol;
-    private SpriteRenderer re;
-    private SpriteRenderer colon;
-    private SpriteRenderer hear;
+    private Image symbol;
+    private Image re;
+    private Image colon;
+    private Image hear;
     private GameObject startButton;
     private Color sourceColor;
     private float elapsed;
@@ -31,10 +34,10 @@ public sealed class RehearLogoIntro : MonoBehaviour
         source = GetComponent<SpriteRenderer>();
         sourceColor = source.color;
 
-        symbol = CreatePart("LogoPart_Symbol", "RehearLogoParts/Symbol", 3);
-        re = CreatePart("LogoPart_Re", "RehearLogoParts/Re", 1);
         colon = CreatePart("LogoPart_Colon", "RehearLogoParts/Colon", 0);
+        re = CreatePart("LogoPart_Re", "RehearLogoParts/Re", 1);
         hear = CreatePart("LogoPart_Hear", "RehearLogoParts/Hear", 2);
+        symbol = CreatePart("LogoPart_Symbol", "RehearLogoParts/Symbol", 3);
 
         source.enabled = false;
         startButton = GameObject.Find("Btn_Scene00_to_Scene01");
@@ -102,7 +105,7 @@ public sealed class RehearLogoIntro : MonoBehaviour
         SetPart(symbol, 0f, 0.065f);
     }
 
-    private SpriteRenderer CreatePart(string objectName, string resourcePath, int orderOffset)
+    private Image CreatePart(string objectName, string resourcePath, int orderOffset)
     {
         Sprite sprite = Resources.Load<Sprite>(resourcePath);
         if (sprite == null)
@@ -112,13 +115,22 @@ public sealed class RehearLogoIntro : MonoBehaviour
             return null;
         }
 
-        GameObject partObject = new GameObject(objectName);
+        GameObject partObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer));
         partObject.transform.SetParent(transform, false);
-        SpriteRenderer part = partObject.AddComponent<SpriteRenderer>();
+        RectTransform rect = (RectTransform)partObject.transform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        // Bake the visible size into the UI geometry itself. CurvedUI decides how
+        // many segments to create from RectTransform size and does not include a
+        // parent Transform's scale in that tessellation calculation.
+        rect.sizeDelta = new Vector2(sprite.bounds.size.x, sprite.bounds.size.y) * LogoCanvasSize;
+
+        Image part = partObject.AddComponent<Image>();
         part.sprite = sprite;
         part.color = sourceColor;
-        part.sortingLayerID = source.sortingLayerID;
-        part.sortingOrder = source.sortingOrder + orderOffset;
+        part.preserveAspect = true;
+        part.raycastTarget = false;
+        partObject.AddComponent<CurvedUIVertexEffect>();
+        rect.SetSiblingIndex(orderOffset);
         return part;
     }
 
@@ -141,10 +153,11 @@ public sealed class RehearLogoIntro : MonoBehaviour
         SetPart(symbol, symbolT, 0.065f);
     }
 
-    private void SetPart(SpriteRenderer part, float progress, float startOffsetX)
+    private void SetPart(Image part, float progress, float startOffsetX)
     {
         Transform partTransform = part.transform;
-        partTransform.localPosition = Vector3.right * Mathf.LerpUnclamped(startOffsetX, 0f, progress);
+        partTransform.localPosition = Vector3.right *
+                                      Mathf.LerpUnclamped(startOffsetX * LogoCanvasSize, 0f, progress);
         partTransform.localRotation = Quaternion.identity;
         partTransform.localScale = Vector3.one;
 
