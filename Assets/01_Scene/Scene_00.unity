@@ -730,8 +730,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1054504594}
   - component: {fileID: 1054504593}
+  - component: {fileID: 1054504595}
   m_Layer: 0
-  m_Name: Logo_Intro
+  m_Name: Rehear Logo Intro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -763,7 +764,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -806,11 +807,25 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -751.4, y: 1284.7001, z: -105.000015}
-  m_LocalScale: {x: 1000, y: 1000, z: 1000}
+  m_LocalScale: {x: 265, y: 265, z: 265}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 715851537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1054504595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054504592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df5196e3e8441a1a1ba921faf3bda0a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RehearLogoIntro
+  playOnEnable: 1
+  useUnscaledTime: 1
 --- !u!1 &1249617917
 GameObject:
   m_ObjectHideFlags: 0
