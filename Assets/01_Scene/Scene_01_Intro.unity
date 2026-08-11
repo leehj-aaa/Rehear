@@ -2357,7 +2357,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "10\uBD84"
+  m_text: "1\uBD84"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
   m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
@@ -2578,6 +2578,12 @@ MonoBehaviour:
   panel_PinInput: {fileID: 956942702}
   panel_SessionReady: {fileID: 1683167912}
   errorText: {fileID: 109783275}
+  expertiseValueText: {fileID: 1546196893}
+  interestValueText: {fileID: 1438284135}
+  enableDemoFallback: 1
+  demoPin: 1234
+  demoExpertise: "\uBCF4\uD1B5"
+  demoInterest: "\uB192\uC74C"
 --- !u!4 &357191173
 Transform:
   m_ObjectHideFlags: 0
@@ -4225,7 +4231,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "3\uAC1C "
+  m_text: "1\uAC1C "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
   m_sharedMaterial: {fileID: -7805315887953077698, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
