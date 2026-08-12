@@ -408,7 +408,6 @@ public class TutorialManager : MonoBehaviour
 
     private void LoadPinScene()
     {
-            // 튜토리얼에서 PIN 씬으로 갈 때는 반드시 PIN 입력부터 시작
         PlayerPrefs.DeleteKey("ShowSessionReadyOnLoad");
         PlayerPrefs.Save();
 
