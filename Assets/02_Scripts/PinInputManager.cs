@@ -35,6 +35,11 @@ public class PinInputManager : MonoBehaviour
     private bool firebaseReady;
     private bool firebaseInitializing;
     private bool isLoading;
+    private void Awake()
+    {
+        // 씬이 표시되는 첫 프레임부터 PIN 화면을 기본값으로 설정
+        ShowPinInputPanel();
+    }
 
     private void Start()
     {
@@ -43,16 +48,17 @@ public class PinInputManager : MonoBehaviour
         bool returnFromPresentation =
             PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
 
+        PlayerPrefs.DeleteKey(ShowSessionReadyKey);
+        PlayerPrefs.Save();
+
         if (returnFromPresentation)
         {
-            PlayerPrefs.DeleteKey(ShowSessionReadyKey);
-            PlayerPrefs.Save();
-
             ShowSessionReadyPanel();
-            return;
         }
-
-        ShowPinInputPanel();
+        else
+        {
+            ShowPinInputPanel();
+        }
     }
 
     private void InitializeFirebase()
