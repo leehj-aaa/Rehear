@@ -1,161 +1,425 @@
-using UnityEngine;
-using TMPro;
+using Firebase;
 using Firebase.Database;
+using Firebase.Extensions;
+using TMPro;
+using UnityEngine;
 
 public class PinInputManager : MonoBehaviour
 {
-    public TMP_Text[] pinTextSlots;
-    public GameObject numberKeyboardPanel; // 키보드 패널 오브젝트 연결
-    private int currentIndex = 0;
-    private string currentPin = "";
-    public GameObject panel_PinInput;
-    public GameObject panel_SessionReady;
-    public TMP_Text errorText;
+    [Header("PIN 입력")]
+    [SerializeField] private TMP_Text[] pinTextSlots;
+    [SerializeField] private GameObject numberKeyboardPanel;
+    [SerializeField] private GameObject panel_PinInput;
+    [SerializeField] private GameObject panel_SessionReady;
+    [SerializeField] private TMP_Text errorText;
 
-    void Start()
+    [Header("세션 정보 표시")]
+    [SerializeField] private TMP_Text expertiseValueText;
+    [SerializeField] private TMP_Text interestValueText;
+
+    [Header("시연용 Fallback")]
+    [SerializeField] private bool enableDemoFallback = true;
+    [SerializeField] private string demoPin = "1234";
+    [SerializeField] private string demoExpertise = "보통";
+    [SerializeField] private string demoInterest = "높음";
+
+    private const string ShowSessionReadyKey =
+        "ShowSessionReadyOnLoad";
+
+    private const string DatabaseRootPath =
+        "presentation_data";
+
+    private int currentIndex;
+    private string currentPin = "";
+
+    private bool firebaseReady;
+    private bool firebaseInitializing;
+    private bool isLoading;
+    private void Awake()
     {
-    // 씬 시작 시 초기화
-    panel_PinInput.SetActive(true);    // 핀 입력 판넬만 켬
-    numberKeyboardPanel.SetActive(false); // 키보드는 처음에 끔
-    panel_SessionReady.SetActive(false);  // 세션 정보 판넬도 처음에 끔
+        // 씬이 표시되는 첫 프레임부터 PIN 화면을 기본값으로 설정
+        ShowPinInputPanel();
     }
 
-    // 칸을 눌렀을 때 키보드를 호출하는 함수
+    private void Start()
+    {
+        InitializeFirebase();
+
+        bool returnFromPresentation =
+            PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
+
+        PlayerPrefs.DeleteKey(ShowSessionReadyKey);
+        PlayerPrefs.Save();
+
+        if (returnFromPresentation)
+        {
+            ShowSessionReadyPanel();
+        }
+        else
+        {
+            ShowPinInputPanel();
+        }
+    }
+
+    private void InitializeFirebase()
+    {
+        if (firebaseInitializing)
+            return;
+
+        firebaseInitializing = true;
+
+        FirebaseApp.CheckAndFixDependenciesAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                firebaseInitializing = false;
+
+                if (task.IsCanceled)
+                {
+                    firebaseReady = false;
+                    Debug.LogWarning(
+                        "Firebase 초기화가 취소되었습니다."
+                    );
+                    return;
+                }
+
+                if (task.IsFaulted)
+                {
+                    firebaseReady = false;
+
+                    Debug.LogError(
+                        "Firebase 초기화 중 오류가 발생했습니다."
+                    );
+
+                    Debug.LogException(task.Exception);
+                    return;
+                }
+
+                DependencyStatus dependencyStatus =
+                    task.Result;
+
+                if (dependencyStatus ==
+                    DependencyStatus.Available)
+                {
+                    firebaseReady = true;
+                    Debug.Log("Firebase 초기화 완료");
+                }
+                else
+                {
+                    firebaseReady = false;
+
+                    Debug.LogError(
+                        "Firebase 초기화 실패: " +
+                        dependencyStatus
+                    );
+                }
+            });
+    }
+
+    // PIN 입력 영역을 누르면 숫자 키보드를 엽니다.
     public void OpenKeyboard()
     {
         if (numberKeyboardPanel != null)
-        {
-            numberKeyboardPanel.SetActive(true); // 키보드 패널 활성화
-        }
+            numberKeyboardPanel.SetActive(true);
     }
 
+    // 숫자 키보드 버튼에서 문자열 숫자를 전달합니다.
     public void AddNumber(string number)
     {
-        if (currentIndex < 4)
-        {
-            pinTextSlots[currentIndex].text = number;
-            currentPin += number;
-            currentIndex++;
-        }
-        
-        // 4자리가 다 입력되면 키보드를 닫는 로직도 추가 가능
+        if (isLoading)
+            return;
+
         if (currentIndex >= 4)
+            return;
+
+        if (string.IsNullOrEmpty(number))
+            return;
+
+        pinTextSlots[currentIndex].text = number;
+        currentPin += number;
+        currentIndex++;
+
+        ClearError();
+
+        if (currentIndex >= 4 &&
+            numberKeyboardPanel != null)
         {
             numberKeyboardPanel.SetActive(false);
         }
     }
 
-    
-    // "다시 입력하기" 버튼을 눌렀을 때 초기화
+    // PIN 번호를 처음부터 다시 입력합니다.
     public void ResetInput()
     {
+        if (isLoading)
+            return;
+
         currentPin = "";
         currentIndex = 0;
-        
-        // 입력 칸 비우기
-        foreach (var slot in pinTextSlots)
+
+        if (pinTextSlots != null)
         {
-            slot.text = ""; 
+            foreach (TMP_Text slot in pinTextSlots)
+            {
+                if (slot != null)
+                    slot.text = "";
+            }
         }
 
-        // 에러 메시지도 함께 지우기
-        if (errorText != null)
-        {
-            errorText.text = ""; 
-        }
-        
-        // 키보드 패널도 다시 열어주면 사용자가 바로 이어서 입력하기 편합니다
+        ClearError();
+
         if (numberKeyboardPanel != null)
-        {
             numberKeyboardPanel.SetActive(true);
-        }
     }
+
     public string GetFullPin()
     {
         return currentPin;
     }
-// ==================나중에 Firebase 서버 연결 시 쓸 것=============
-    // public void OnSubmitButtonClicked()   
-    // {
-    //     string pin = GetFullPin(); // 현재 입력된 4자리 숫자 가져오기
-        
-    //     if (pin.Length < 4)
-    //     {
-    //         Debug.Log("PIN 번호를 4자리 모두 입력해주세요.");
-    //         return;
-    //     }
 
-    //     string path = "presentation_data/" + pin;
-
-    //     // Firebase 데이터 조회
-    //     FirebaseDatabase.DefaultInstance.GetReference(path).GetValueAsync().ContinueWith(task =>
-    //     {
-    //         if (task.IsCompleted && task.Result.Exists)
-    //         {
-    //             // 성공: PIN 번호가 존재함
-    //             string json = task.Result.GetRawJsonValue();
-                
-    //             // 메인 스레드에서 UI 업데이트 및 다음 단계 처리
-    //            // 성공 로직 부분 수정
-    //             MainThreadDispatcher.Enqueue(() => {
-    //                 Debug.Log("성공! 세션 데이터 로드 시작: " + json);
-                    
-    //                 // 1. 현재 입력 패널 끄기
-    //                 panel_PinInput.SetActive(false);
-    //                 // 2. 키보드도 확실히 끄기
-    //                 if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(false);
-    //                 // 3. 세션 준비 패널 켜기
-    //                 panel_SessionReady.SetActive(true);
-    //             });
-    //         }
-    //         else
-    //         {
-    //             // 실패: 잘못된 PIN 번호
-    //             MainThreadDispatcher.Enqueue(() => {
-    //                 Debug.Log("잘못된 PIN 번호입니다.");
-    //                 // 인스펙터에서 연결한 텍스트 컴포넌트의 내용을 변경
-    //                 if (errorText != null) 
-    //                 {
-    //                     errorText.text = "잘못된 PIN 번호입니다.";
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
-
-    // ========시연영상을 위해 고정값============
+    // 세션 불러오기 버튼에 연결합니다.
     public void OnSubmitButtonClicked()
     {
-        string pin = GetFullPin(); // 현재 입력된 4자리 숫자 가져오기
-        
-        // 1. PIN 번호가 4자리인지 확인
-        if (pin.Length < 4)
+        if (isLoading)
+            return;
+
+        string pin = GetFullPin();
+
+        if (pin.Length != 4)
         {
-            Debug.Log("PIN 번호를 4자리 모두 입력해주세요.");
+            ShowError(
+                "PIN 번호 4자리를 모두 입력해주세요."
+            );
             return;
         }
 
-        // 2. 1234일 때만 성공 처리 (영상 시연용)
-        if (pin == "1234")
+        if (!firebaseReady)
         {
-            Debug.Log("성공! 세션 데이터 로드 시작");
-            
-            // UI 판넬 전환
-            panel_PinInput.SetActive(false);
-            if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(false);
-            panel_SessionReady.SetActive(true);
+            if (TryLoadDemoFallback(pin))
+                return;
+
+            ShowError(
+                "서버에 연결 중입니다. 잠시 후 다시 시도해주세요."
+            );
+
+            InitializeFirebase();
+            return;
         }
-        else
+
+        LoadSessionFromFirebase(pin);
+    }
+
+    private void LoadSessionFromFirebase(string pin)
+    {
+        isLoading = true;
+
+        if (errorText != null)
         {
-            // 3. 그 외 번호는 실패 처리
-            Debug.Log("잘못된 PIN 번호입니다.");
-            
-            // 안내 텍스트가 있다면 변경 (인스펙터에서 연결 필수)
-            if (errorText != null) 
+            errorText.text =
+                "세션 정보를 불러오는 중입니다.";
+        }
+
+        DatabaseReference sessionReference =
+            FirebaseDatabase.DefaultInstance
+                .GetReference(DatabaseRootPath)
+                .Child(pin);
+
+        sessionReference.GetValueAsync()
+            .ContinueWithOnMainThread(task =>
             {
-                errorText.text = "잘못된 PIN 번호입니다.";
+                isLoading = false;
+
+                if (task.IsCanceled)
+                {
+                    if (!TryLoadDemoFallback(pin))
+                    {
+                        ShowError(
+                            "세션 불러오기가 취소되었습니다."
+                        );
+                    }
+
+                    return;
+                }
+
+                if (task.IsFaulted)
+                {
+                    Debug.LogError(
+                        "Firebase 데이터 조회 실패"
+                    );
+
+                    Debug.LogException(task.Exception);
+
+                    if (!TryLoadDemoFallback(pin))
+                    {
+                        ShowError(
+                            "서버 연결에 실패했습니다."
+                        );
+                    }
+
+                    return;
+                }
+
+                DataSnapshot sessionSnapshot =
+                    task.Result;
+
+                if (sessionSnapshot == null ||
+                    !sessionSnapshot.Exists)
+                {
+                    if (!TryLoadDemoFallback(pin))
+                    {
+                        ShowError(
+                            "존재하지 않는 PIN 번호입니다."
+                        );
+                    }
+
+                    return;
+                }
+
+                ReadAudienceInformation(
+                    sessionSnapshot,
+                    pin
+                );
+            });
+    }
+
+    private void ReadAudienceInformation(
+        DataSnapshot sessionSnapshot,
+        string pin)
+    {
+        DataSnapshot page3Snapshot =
+            sessionSnapshot.Child("page_3");
+
+        if (!page3Snapshot.Exists)
+        {
+            if (!TryLoadDemoFallback(pin))
+            {
+                ShowError(
+                    "청중 정보가 없는 세션입니다."
+                );
             }
+
+            return;
+        }
+
+        string expertise = GetSnapshotString(
+            page3Snapshot,
+            "audience_expertise"
+        );
+
+        string interest = GetSnapshotString(
+            page3Snapshot,
+            "audience_interest"
+        );
+
+        if (string.IsNullOrWhiteSpace(expertise))
+            expertise = "미설정";
+
+        if (string.IsNullOrWhiteSpace(interest))
+            interest = "미설정";
+
+        ApplyAudienceInformation(
+            expertise,
+            interest
+        );
+
+        Debug.Log(
+            "세션 불러오기 완료" +
+            "\nPIN: " + pin +
+            "\n청중 전문성: " + expertise +
+            "\n청중 관심도: " + interest
+        );
+    }
+
+    private string GetSnapshotString(
+        DataSnapshot parent,
+        string childName)
+    {
+        if (parent == null)
+            return "";
+
+        DataSnapshot child =
+            parent.Child(childName);
+
+        if (!child.Exists ||
+            child.Value == null)
+        {
+            return "";
+        }
+
+        return child.Value.ToString();
+    }
+
+    private void ApplyAudienceInformation(
+        string expertise,
+        string interest)
+    {
+        if (expertiseValueText != null)
+            expertiseValueText.text = expertise;
+
+        if (interestValueText != null)
+            interestValueText.text = interest;
+
+        ClearError();
+        ShowSessionReadyPanel();
+    }
+
+    private bool TryLoadDemoFallback(string pin)
+    {
+        if (!enableDemoFallback)
+            return false;
+
+        if (pin != demoPin)
+            return false;
+
+        Debug.LogWarning(
+            "Firebase 대신 시연용 로컬 데이터를 사용합니다."
+        );
+
+        ApplyAudienceInformation(
+            demoExpertise,
+            demoInterest
+        );
+
+        return true;
+    }
+
+    private void ShowPinInputPanel()
+    {
+        if (panel_PinInput != null)
+            panel_PinInput.SetActive(true);
+
+        if (numberKeyboardPanel != null)
+            numberKeyboardPanel.SetActive(false);
+
+        if (panel_SessionReady != null)
+            panel_SessionReady.SetActive(false);
+    }
+
+    private void ShowSessionReadyPanel()
+    {
+        if (panel_PinInput != null)
+            panel_PinInput.SetActive(false);
+
+        if (numberKeyboardPanel != null)
+            numberKeyboardPanel.SetActive(false);
+
+        if (panel_SessionReady != null)
+        {
+            panel_SessionReady.SetActive(true);
+            panel_SessionReady.transform.SetAsLastSibling();
         }
     }
-}      
 
+    private void ShowError(string message)
+    {
+        Debug.LogWarning(message);
+
+        if (errorText != null)
+            errorText.text = message;
+    }
+
+    private void ClearError()
+    {
+        if (errorText != null)
+            errorText.text = "";
+    }
+}
