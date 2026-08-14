@@ -17,6 +17,7 @@ public sealed class RehearLogoIntro : MonoBehaviour
     [SerializeField] private bool playOnEnable = true;
     [SerializeField] private bool useUnscaledTime = true;
     [SerializeField] private float buttonFadeDuration = 1f;
+    [SerializeField] private float logoStartDelay = 1.5f;
 
     private SpriteRenderer source;
     private Image symbol;
@@ -124,6 +125,8 @@ public sealed class RehearLogoIntro : MonoBehaviour
         // Game view presents anything. Count completed renders rather than wall time.
         for (int i = 0; i < 30; i++)
             yield return new WaitForEndOfFrame();
+
+            yield return new WaitForSecondsRealtime(logoStartDelay);
 
         delayedPlay = null;
         Play();

@@ -15,6 +15,13 @@ public class PresentationController : MonoBehaviour
     [SerializeField] private AudioSource sessionAudioSource;
     public QuestionAnswerManager qaManager;
 
+    [Header("Timer Warning")]
+    [SerializeField] private float warningStartSeconds = 10f;
+    [SerializeField] private Color warningColor = Color.red;
+    [SerializeField] private float blinkSpeed = 1.5f;
+
+private Color normalTimerColor;
+
     private float timeRemaining = 60f;
     private bool isRunning = true;
     private bool isTimerFinished;
@@ -23,7 +30,9 @@ public class PresentationController : MonoBehaviour
     public bool IsPaused => !isRunning;
 
     private void Start()
-    {
+    {   if (timerText != null)
+            normalTimerColor = timerText.color;
+
         SetScriptPanelVisible(false);
         pausePanel.SetActive(false);
         qaManager.Prepare(qaButton);
@@ -42,6 +51,8 @@ public class PresentationController : MonoBehaviour
 
     private void Update()
     {
+        UpdateTimerWarning();
+
         if (!isRunning || isQAPhaseStarted)
             return;
 
@@ -147,6 +158,32 @@ public class PresentationController : MonoBehaviour
 
         if (scriptButtonText != null)
             scriptButtonText.text = visible ? "OFF" : "ON";
+    }
+    
+    private void UpdateTimerWarning()
+    {
+        if (timerText == null)
+            return;
+
+        bool shouldBlink =
+            !isQAPhaseStarted &&
+            (isTimerFinished || timeRemaining <= warningStartSeconds);
+
+        if (!shouldBlink)
+        {
+            timerText.color = normalTimerColor;
+            return;
+        }
+
+        float blink =
+            (Mathf.Sin(Time.unscaledTime * blinkSpeed * Mathf.PI * 2f) + 1f)
+            * 0.5f;
+
+        timerText.color = Color.Lerp(
+            normalTimerColor,
+            warningColor,
+            blink
+        );
     }
 
     public void SkipPresentation() => timeRemaining = 10f;

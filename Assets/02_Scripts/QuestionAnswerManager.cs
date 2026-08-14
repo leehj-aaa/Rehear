@@ -109,8 +109,15 @@ public class QuestionAnswerManager : MonoBehaviour
 
     private void FinishQuestionAudio()
     {
-        state = QAState.ReadyToAnswer;
-        SetButtonState("답변하기", true);
+        state = QAState.ReadyToFinish;
+
+        if (answerGuideText != null)
+        {
+            answerGuideText.text =
+                "질문에 대한 답변을 마치신 후 \n 발표 종료하기 버튼을 눌러주세요.";
+        }
+
+        SetButtonState("발표 종료하기", true);
     }
 
     private void CompleteAnswerStep()
@@ -120,14 +127,14 @@ public class QuestionAnswerManager : MonoBehaviour
         if (isLastQuestion)
         {
             if (answerGuideText != null)
-                answerGuideText.text = "마지막 답변을 마치셨다면 아래 버튼을 눌러 발표를 종료해주세요.";
+                answerGuideText.text = "마지막 답변을 마치셨다면 아래 버튼을 눌러 \n 발표를 종료해주세요.";
             state = QAState.ReadyToFinish;
             SetButtonState("발표 종료하기", true);
         }
         else
         {
             if (answerGuideText != null)
-                answerGuideText.text = "답변을 마치셨다면 아래 버튼을 눌러 다음 질문을 받아주세요.";
+                answerGuideText.text = "답변을 마치셨다면 아래 버튼을 눌러 \n 다음 질문을 받아주세요.";
             state = QAState.ReadyForNext;
             SetButtonState("질문받기", true);
         }
