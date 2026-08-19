@@ -1,5 +1,4 @@
-using System.Collections;
-using CurvedUI;
+using System.Collections;                                       
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -17,6 +16,8 @@ public sealed class RehearLogoIntro : MonoBehaviour
 
     [SerializeField] private bool playOnEnable = true;
     [SerializeField] private bool useUnscaledTime = true;
+    [SerializeField] private float buttonFadeDuration = 1f;
+    [SerializeField] private float logoStartDelay = 1.5f;
 
     private SpriteRenderer source;
     private Image symbol;
@@ -64,9 +65,41 @@ public sealed class RehearLogoIntro : MonoBehaviour
         elapsed = 0f;
         isPlaying = true;
         if (startButton != null)
-            startButton.SetActive(false);
+            StartCoroutine(FadeInStartButton());    
         Evaluate(0f);
         Debug.Log("[RehearLogoIntro] Visible 4.4 second playback started.", this);
+    }
+
+    private IEnumerator FadeInStartButton()
+    {
+        startButton.SetActive(true);
+
+        CanvasGroup canvasGroup = startButton.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+            canvasGroup = startButton.AddComponent<CanvasGroup>();
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < buttonFadeDuration)
+        {
+            elapsedTime += useUnscaledTime
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
+
+            canvasGroup.alpha =
+                Mathf.Clamp01(elapsedTime / buttonFadeDuration);
+
+            yield return null;
+        }
+
+        canvasGroup.alpha = 1f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
     }
 
     private void Update()
@@ -92,6 +125,8 @@ public sealed class RehearLogoIntro : MonoBehaviour
         // Game view presents anything. Count completed renders rather than wall time.
         for (int i = 0; i < 30; i++)
             yield return new WaitForEndOfFrame();
+
+            yield return new WaitForSecondsRealtime(logoStartDelay);
 
         delayedPlay = null;
         Play();
@@ -129,7 +164,7 @@ public sealed class RehearLogoIntro : MonoBehaviour
         part.color = sourceColor;
         part.preserveAspect = true;
         part.raycastTarget = false;
-        partObject.AddComponent<CurvedUIVertexEffect>();
+        
         rect.SetSiblingIndex(orderOffset);
         return part;
     }

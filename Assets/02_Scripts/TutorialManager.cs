@@ -12,6 +12,7 @@ public class TutorialManager : MonoBehaviour
         PracticeIntro,
         TriggerPractice,
         SlidePractice,
+        RearSlidePractice,
         ScriptPractice,
         PausePractice,
         PauseResumePractice,
@@ -25,15 +26,30 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private TMP_Text primaryButtonText;
     [SerializeField] private Button secondaryButton;
     [SerializeField] private TMP_Text secondaryButtonText;
+    
 
     [Header("Stage Sprites")]
     [SerializeField] private Sprite controllerGuideSprite;
     [SerializeField] private Sprite tutorial1Sprite;
     [SerializeField] private Sprite tutorial2Sprite;
     [SerializeField] private Sprite tutorial3Sprite;
+    [SerializeField] private Sprite tutorial3RearSprite;
     [SerializeField] private Sprite tutorial4Sprite;
     [SerializeField] private Sprite tutorial5Sprite;
     [SerializeField] private Sprite tutorial6Sprite;
+
+    [Header("Tutorial TTS")]
+    [SerializeField] private AudioSource tutorialTtsAudioSource;
+
+    [SerializeField] private AudioClip controllerGuideTts;
+    [SerializeField] private AudioClip tutorial1Tts;
+    [SerializeField] private AudioClip tutorial2Tts;
+    [SerializeField] private AudioClip tutorial3Tts;
+    [SerializeField] private AudioClip tutorial3RearTts;
+    [SerializeField] private AudioClip tutorial4Tts;
+    [SerializeField] private AudioClip tutorial5Tts;
+    [SerializeField] private AudioClip tutorial5_1Tts;
+    [SerializeField] private AudioClip tutorial6Tts;
 
     [Header("Progress Sprites")]
     [SerializeField] private Sprite progress0Sprite;
@@ -48,6 +64,14 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private GameObject scriptPanel;
     [SerializeField] private PresentationManager presentationManager;
     [SerializeField] private ScriptScroller scriptScroller;
+
+    [Header("Practice Feedback Sound")]
+    [SerializeField] private AudioSource practiceAudioSource;
+    [SerializeField] private AudioClip stickInputSound;
+    [SerializeField] private AudioClip gripInputSound;
+    [SerializeField] private AudioClip stepSuccessSound;
+    [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
+    [SerializeField, Range(0f, 1f)] private float successSoundVolume = 0.8f;
 
     [Header("Input")]
     [SerializeField, Range(0.5f, 0.95f)] private float pressThreshold = 0.7f;
@@ -122,10 +146,23 @@ public class TutorialManager : MonoBehaviour
         gripAction?.Dispose();
     }
 
+    private void PlayTutorialTts(AudioClip clip)
+    {
+        if (tutorialTtsAudioSource == null || clip == null)
+            return;
+
+        // 이전 단계 TTS가 아직 재생 중이라면 중단
+        tutorialTtsAudioSource.Stop();
+
+        tutorialTtsAudioSource.clip = clip;
+        tutorialTtsAudioSource.Play();
+    }
+
     private void Update()
     {
         // Stick input is deliberately ignored outside its own practice steps.
         if (currentStep != TutorialStep.SlidePractice &&
+            currentStep != TutorialStep.RearSlidePractice &&
             currentStep != TutorialStep.ScriptPractice)
         {
             stickLatched = false;
@@ -146,19 +183,30 @@ public class TutorialManager : MonoBehaviour
         if (strongestAxis < pressThreshold)
             return;
 
-        if (currentStep == TutorialStep.SlidePractice)
+       if (currentStep == TutorialStep.SlidePractice ||
+            currentStep == TutorialStep.RearSlidePractice)
         {
             if (Mathf.Abs(stick.x) <= Mathf.Abs(stick.y))
                 return;
 
             stickLatched = true;
+            PlayPracticeSound(stickInputSound);
 
             if (stick.x > 0f)
                 presentationManager?.NextSlide();
             else
                 presentationManager?.PrevSlide();
 
-            CountStickPractice(TutorialStep.ScriptPractice);
+             if (currentStep == TutorialStep.SlidePractice)
+            {
+                // 앞 슬라이드 3회 후 뒤 디스플레이 연습으로 이동
+                CountStickPractice(TutorialStep.RearSlidePractice);
+            }
+            else
+            {
+                // 뒤 디스플레이에서도 3회 후 대본 연습으로 이동
+                CountStickPractice(TutorialStep.ScriptPractice);
+            }
             return;
         }
 
@@ -166,6 +214,7 @@ public class TutorialManager : MonoBehaviour
             return;
 
         stickLatched = true;
+        PlayPracticeSound(stickInputSound);
 
         if (stick.y < 0f)
             scriptScroller?.NextPage();
@@ -251,10 +300,18 @@ public class TutorialManager : MonoBehaviour
         if (practiceCount < requiredPracticeCount)
             return;
 
-        if (nextStep == TutorialStep.ScriptPractice)
+        if (nextStep == TutorialStep.RearSlidePractice)
+        {
+            ShowRearSlidePractice();
+        }
+        else if (nextStep == TutorialStep.ScriptPractice)
+        {
             ShowScriptPractice();
+        }
         else
+        {
             ShowPausePractice();
+        }
     }
 
     private void OnGripPerformed(InputAction.CallbackContext context)
@@ -281,12 +338,15 @@ public class TutorialManager : MonoBehaviour
                 tutorial5_1Object.SetActive(true);
                 tutorial5_1Object.transform.SetAsLastSibling();
             }
+            PlayTutorialTts(tutorial5_1Tts);
 
             return;
         }
 
         if (currentStep != TutorialStep.PauseResumePractice)
             return;
+
+        PlayPracticeSound(gripInputSound);
 
         if (timerStopPanel != null)
             timerStopPanel.SetActive(false);
@@ -300,7 +360,7 @@ public class TutorialManager : MonoBehaviour
     private void ShowControllerGuide()
     {
         currentStep = TutorialStep.ControllerGuide;
-        SetStage(controllerGuideSprite, false, null);
+        SetStage(controllerGuideSprite, false, null,controllerGuideTts);
         SetPrimaryButton(true, "튜토리얼 시작하기");
         SetSecondaryButton(true, "건너뛰기");
     }
@@ -308,35 +368,78 @@ public class TutorialManager : MonoBehaviour
     private void ShowPracticeIntro()
     {
         currentStep = TutorialStep.PracticeIntro;
-        SetStage(tutorial1Sprite, false, null);
+        SetStage(tutorial1Sprite, false, null, tutorial1Tts);
         SetPrimaryButton(true, "시작하기");
         SetSecondaryButton(false, string.Empty);
     }
 
+    private void PlayPracticeSound(AudioClip clip)
+    {
+        if (practiceAudioSource == null || clip == null)
+            return;
+
+        practiceAudioSource.PlayOneShot(clip, inputSoundVolume);
+    }
+    private void PlayStepSuccessSound()
+    {
+        if (practiceAudioSource == null || stepSuccessSound == null)
+            return;
+
+        practiceAudioSource.PlayOneShot(
+            stepSuccessSound,
+            successSoundVolume
+        );
+    }
     private void ShowTriggerPractice()
     {
         currentStep = TutorialStep.TriggerPractice;
         practiceCount = 0;
-        SetStage(tutorial2Sprite, true, progress0Sprite);
+        SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
     }
 
     private void ShowSlidePractice()
     {
+        PlayStepSuccessSound();
+
         currentStep = TutorialStep.SlidePractice;
         practiceCount = 0;
         stickLatched = true;
-        SetStage(tutorial3Sprite, true, progress1Sprite);
+        SetStage(tutorial3Sprite, true, progress1Sprite, tutorial3Tts);
+        HideButtons();
+    }
+
+    private void ShowRearSlidePractice()
+    {
+        PlayStepSuccessSound();
+
+        currentStep = TutorialStep.RearSlidePractice;
+
+        // 앞 슬라이드 연습에서 셌던 횟수를 초기화
+        practiceCount = 0;
+
+        // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
+        stickLatched = true;
+
+        SetStage(
+            tutorial3RearSprite,
+            true,
+            progress1Sprite,
+            tutorial3RearTts
+        );
+
         HideButtons();
     }
 
     private void ShowScriptPractice()
     {
+        PlayStepSuccessSound();
+
         currentStep = TutorialStep.ScriptPractice;
         practiceCount = 0;
         stickLatched = true;
-        SetStage(tutorial4Sprite, true, progress2Sprite);
+        SetStage(tutorial4Sprite, true, progress2Sprite, tutorial4Tts);
         HideButtons();
 
         if (scriptPanel != null)
@@ -347,6 +450,8 @@ public class TutorialManager : MonoBehaviour
 
     private void ShowPausePractice()
     {
+        PlayStepSuccessSound();
+
         currentStep = TutorialStep.PausePractice;
         practiceCount = 0;
         stickLatched = false;
@@ -354,19 +459,21 @@ public class TutorialManager : MonoBehaviour
         if (scriptPanel != null)
             scriptPanel.SetActive(false);
 
-        SetStage(tutorial5Sprite, true, progress3Sprite);
+        SetStage(tutorial5Sprite, true, progress3Sprite, tutorial5Tts);
         HideButtons();
     }
 
     private void ShowComplete()
     {
+        PlayStepSuccessSound();
+
         currentStep = TutorialStep.Complete;
-        SetStage(tutorial6Sprite, true, progress4Sprite);
+        SetStage(tutorial6Sprite, true, progress4Sprite, tutorial6Tts);
         SetPrimaryButton(true, "세션 시작하기");
         SetSecondaryButton(true, "처음으로 돌아가기");
     }
 
-    private void SetStage(Sprite sprite, bool showProgress, Sprite progressSprite)
+    private void SetStage(Sprite sprite, bool showProgress, Sprite progressSprite, AudioClip ttsClip)
     {
         if (stageImage != null)
         {
@@ -380,6 +487,7 @@ public class TutorialManager : MonoBehaviour
             if (showProgress)
                 progressImage.sprite = progressSprite;
         }
+         PlayTutorialTts(ttsClip);
     }
 
     private void HideButtons()
