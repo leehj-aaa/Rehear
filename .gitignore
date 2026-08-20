@@ -99,8 +99,16 @@ InitTestScene*.unity*
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
 
-# Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# RE:HEAR Unity build artifacts
+/Rehear_Demo_BackUpThisFolder_ButDontShipItWithYourGame/
+/Rehear_BurstDebugInformation_DoNotShip/
+
+# macOS metadata
+.DS_Store
+/Assets/Resources/DS_Store
+/Assets/Resources/DS_Store.meta
