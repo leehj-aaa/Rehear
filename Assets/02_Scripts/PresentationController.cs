@@ -30,16 +30,43 @@ private Color normalTimerColor;
     public bool IsPaused => !isRunning;
 
     private void Start()
-    {   if (timerText != null)
-            normalTimerColor = timerText.color;
+{
+    if (RuntimeSessionData.IsLoaded &&
+        RuntimeSessionData.DurationMinutes > 0)
+    {
+        timeRemaining =
+            RuntimeSessionData.DurationMinutes * 60f;
 
-        SetScriptPanelVisible(false);
-        pausePanel.SetActive(false);
-        qaManager.Prepare(qaButton);
-
-        if (qaButton != null)
-            qaButton.gameObject.SetActive(false);
+        Debug.Log(
+            "[발표 타이머] Firebase 발표 시간 적용: " +
+            RuntimeSessionData.DurationMinutes + "분"
+        );
     }
+    else
+    {
+        timeRemaining = 60f;
+
+        Debug.LogWarning(
+            "[발표 타이머] 세션 시간이 없어 기본 1분을 사용합니다."
+        );
+    }
+
+    if (timerText != null)
+    {
+        normalTimerColor = timerText.color;
+        UpdateTimerDisplay();
+    }
+
+    SetScriptPanelVisible(false);
+
+    if (pausePanel != null)
+        pausePanel.SetActive(false);
+
+    qaManager.Prepare(qaButton);
+
+    if (qaButton != null)
+        qaButton.gameObject.SetActive(false);
+}
 
     public void OnActionButtonClick()
     {

@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AIIntegrationManager : MonoBehaviour
@@ -5,6 +8,11 @@ public class AIIntegrationManager : MonoBehaviour
     [Header("API")]
     [SerializeField]
     private EvcApiClient apiClient;
+
+    [Header("마이크")]
+    [SerializeField]    
+    private PresentationMicrophoneRecorder
+        microphoneRecorder;
 
     [Header("실행 설정")]
     [SerializeField]
@@ -32,6 +40,47 @@ public class AIIntegrationManager : MonoBehaviour
 
     public string SessionId => sessionId;
     public int CurrentStep => currentStep;
+
+    private readonly Queue<AudioChunk>
+    pendingAudioChunks =
+        new Queue<AudioChunk>();
+
+    private bool isSendingUpdate;
+    private float aiSessionStartedAt;
+
+    private const int MaxUpdateRetries = 2;
+
+    private class AudioChunk
+    {
+        public byte[] wavData;
+        public float duration;
+        public float clientTime;
+        public float utteranceStart;
+        public float utteranceEnd;
+        public string requestId;
+        public int retryCount;
+    }
+
+    private void Awake()
+    {
+        if (microphoneRecorder != null)
+        {
+            microphoneRecorder.ChunkRecorded +=
+                HandleAudioChunkRecorded;
+
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (microphoneRecorder != null)
+        {
+            microphoneRecorder.ChunkRecorded -=
+                HandleAudioChunkRecorded;
+
+            microphoneRecorder.StopRecording();
+        }
+    }
 
     private void Start()
     {
@@ -111,6 +160,23 @@ public class AIIntegrationManager : MonoBehaviour
         sessionToken = response.session_token;
         currentStep = response.step;
         audiences = response.audiences;
+        aiSessionStartedAt =
+            Time.realtimeSinceStartup;
+
+        pendingAudioChunks.Clear();
+        isSendingUpdate = false;
+
+        if (microphoneRecorder != null)
+        {
+            microphoneRecorder.StartRecording();
+        }
+        else
+        {
+            Debug.LogError(
+                "[AI] PresentationMicrophoneRecorder가 " +
+                "연결되지 않았습니다."
+            );
+        }
 
         int audienceCount =
             audiences != null
@@ -145,26 +211,214 @@ public class AIIntegrationManager : MonoBehaviour
         );
     }
 
-    public SmartStartAudience FindAudience(
-        string agentId)
+
+    private void HandleAudioChunkRecorded(
+    byte[] wavData,
+    float duration)
+{
+    if (!HasActiveSession)
     {
-        if (audiences == null)
-            return null;
+        Debug.LogWarning(
+            "[AI] 활성 세션이 없어 음성을 전송하지 않습니다."
+        );
 
-        foreach (SmartStartAudience audience
-                 in audiences)
-        {
-            if (audience != null &&
-                audience.agent_id == agentId)
-            {
-                return audience;
-            }
-        }
-
-        return null;
+        return;
     }
 
-    [ContextMenu("Test - End AI Session")]
+    float endTime =
+        Time.realtimeSinceStartup -
+        aiSessionStartedAt;
+
+    AudioChunk chunk =
+        new AudioChunk
+        {
+            wavData = wavData,
+            duration = duration,
+            clientTime = endTime,
+            utteranceStart =
+                Mathf.Max(0f, endTime - duration),
+            utteranceEnd = endTime,
+            requestId =
+                Guid.NewGuid().ToString(),
+            retryCount = 0
+        };
+
+    pendingAudioChunks.Enqueue(chunk);
+
+    Debug.Log(
+        "[AI] 음성 조각 대기열 추가" +
+        "\n현재 대기 수: " +
+        pendingAudioChunks.Count
+    );
+
+    TrySendNextAudioChunk();
+}
+
+private void TrySendNextAudioChunk()
+{
+    if (isSendingUpdate ||
+        !HasActiveSession ||
+        pendingAudioChunks.Count == 0)
+    {
+        return;
+    }
+
+    AudioChunk chunk =
+        pendingAudioChunks.Peek();
+
+    isSendingUpdate = true;
+
+    Debug.Log(
+        "[AI] Update 요청" +
+        "\nExpected Step: " + currentStep +
+        "\n음성 구간: " +
+        chunk.utteranceStart.ToString("F1") +
+        " ~ " +
+        chunk.utteranceEnd.ToString("F1") +
+        "초"
+    );
+
+    StartCoroutine(
+        apiClient.UpdateSession(
+            sessionId,
+            sessionToken,
+            chunk.requestId,
+            currentStep,
+            chunk.clientTime,
+            chunk.utteranceStart,
+            chunk.utteranceEnd,
+            chunk.wavData,
+            GetServerLanguage(),
+            HandleUpdateSuccess,
+            HandleUpdateError
+        )
+    );
+}
+
+private void HandleUpdateSuccess(
+    EvcUpdateResponse response)
+{
+    if (pendingAudioChunks.Count > 0)
+        pendingAudioChunks.Dequeue();
+
+    isSendingUpdate = false;
+    currentStep = response.step;
+
+    int commandCount =
+        response.commands != null
+            ? response.commands.Length
+            : 0;
+
+    Debug.Log(
+    "[AI] Update 성공" +
+    "\nRequest ID: " + response.request_id +
+    "\nStep: " + currentStep +
+    "\n인식 문장: " + response.latest_speech +
+    "\nNo-op 이유: " + response.no_op_reason +
+    "\n청중 명령 수: " + commandCount +
+    "\n남은 음성 조각: " +
+    pendingAudioChunks.Count
+);    
+
+    if (response.warnings != null)
+    {
+        foreach (string warning
+                 in response.warnings)
+        {
+            Debug.LogWarning(
+                "[AI 서버 경고] " + warning
+            );
+        }
+    }
+
+    // 다음 단계에서 response.commands를
+    // 6명의 청중에게 전달한다.
+
+    TrySendNextAudioChunk();
+}
+
+private void HandleUpdateError(
+    string error)
+{
+    isSendingUpdate = false;
+
+    if (pendingAudioChunks.Count == 0)
+    {
+        Debug.LogError(error);
+        return;
+    }
+
+    AudioChunk chunk =
+        pendingAudioChunks.Peek();
+
+    chunk.retryCount++;
+
+    if (chunk.retryCount <= MaxUpdateRetries)
+    {
+        Debug.LogWarning(
+            "[AI] Update 전송 실패. 같은 요청으로 재시도합니다." +
+            "\n재시도: " +
+            chunk.retryCount +
+            "/" +
+            MaxUpdateRetries +
+            "\n" +
+            error
+        );
+
+        StartCoroutine(
+            RetryUpdateAfterDelay()
+        );
+
+        return;
+    }
+
+    pendingAudioChunks.Dequeue();
+
+    Debug.LogError(
+        "[AI] Update 최종 실패. 해당 음성 조각을 건너뜁니다." +
+        "\n" + error
+    );
+
+    TrySendNextAudioChunk();
+}
+
+private IEnumerator RetryUpdateAfterDelay()
+{
+    yield return new WaitForSecondsRealtime(1f);
+    TrySendNextAudioChunk();
+}
+
+private string GetServerLanguage()
+{
+    if (!RuntimeSessionData.IsLoaded)
+        return "ko-KR";
+
+    string language =
+        RuntimeSessionData.UsedLanguage;
+
+    if (string.IsNullOrWhiteSpace(language))
+        return "ko-KR";
+
+    if (language.Contains("한국") ||
+        language.Equals(
+            "ko",
+            StringComparison.OrdinalIgnoreCase))
+    {
+        return "ko-KR";
+    }
+
+    if (language.Contains("영어") ||
+        language.Equals(
+            "en",
+            StringComparison.OrdinalIgnoreCase))
+    {
+        return "en-US";
+    }
+
+    return language;
+}
+
+[ContextMenu("Test - End AI Session")]
 public void EndAiSession()
 {
     if (apiClient == null)
@@ -193,6 +447,9 @@ public void EndAiSession()
 
         return;
     }
+
+    if (microphoneRecorder != null)
+        microphoneRecorder.StopRecording();
 
     isEndingSession = true;
 
@@ -228,10 +485,17 @@ private void HandleDeleteError(
 
     private void ClearAiSession()
     {
+        if (microphoneRecorder != null)
+            microphoneRecorder.StopRecording();
+
         sessionId = "";
         sessionToken = "";
         currentStep = 0;
         audiences = null;
         isEndingSession = false;
+
+        pendingAudioChunks.Clear();
+        isSendingUpdate = false;
+        aiSessionStartedAt = 0f;
     }
 }

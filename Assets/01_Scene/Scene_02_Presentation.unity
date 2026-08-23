@@ -3323,6 +3323,7 @@ GameObject:
   - component: {fileID: 1230575274}
   - component: {fileID: 1230575273}
   - component: {fileID: 1230575275}
+  - component: {fileID: 1230575276}
   m_Layer: 0
   m_Name: AIIntegrationManager
   m_TagString: Untagged
@@ -3371,10 +3372,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIIntegrationManager
   apiClient: {fileID: 1230575273}
+  microphoneRecorder: {fileID: 1230575276}
   startAutomatically: 1
   fallbackTitle: "Re:hear \uD14C\uC2A4\uD2B8 \uBC1C\uD45C"
   fallbackInterest: "\uB0AE\uC74C"
   fallbackExpertise: "\uC911\uAC04"
+--- !u!114 &1230575276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230575272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab711df4271c64946a182290a76123bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PresentationMicrophoneRecorder
+  chunkSeconds: 5
+  sampleRate: 16000
+  startAutomatically: 0
+  printChunkLog: 1
 --- !u!1 &1242957295
 GameObject:
   m_ObjectHideFlags: 0

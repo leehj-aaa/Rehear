@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Globalization;
 
 public class EvcApiClient : MonoBehaviour
 {
@@ -120,7 +121,208 @@ public class EvcApiClient : MonoBehaviour
         // session_token은 보안 정보이므로 로그로 출력하지 않는다.
         onSuccess?.Invoke(response);
     }
+public IEnumerator UpdateSession(
+    string sessionId,
+    string sessionToken,
+    string requestId,
+    int expectedStep,
+    float clientTimeSeconds,
+    float utteranceStartSeconds,
+    float utteranceEndSeconds,
+    byte[] wavData,
+    string language,
+    Action<EvcUpdateResponse> onSuccess,
+    Action<string> onError)
+{
+    if (config == null)
+    {
+        onError?.Invoke(
+            "AIIntegrationConfig가 연결되지 않았습니다."
+        );
 
+        yield break;
+    }
+
+    if (string.IsNullOrWhiteSpace(sessionId) ||
+        string.IsNullOrWhiteSpace(sessionToken))
+    {
+        onError?.Invoke(
+            "활성화된 AI 세션 정보가 없습니다."
+        );
+
+        yield break;
+    }
+
+    if (wavData == null || wavData.Length == 0)
+    {
+        onError?.Invoke(
+            "전송할 WAV 음성 데이터가 없습니다."
+        );
+
+        yield break;
+    }
+
+    if (config.UseMockServer)
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        EvcUpdateResponse mockResponse =
+            new EvcUpdateResponse
+            {
+                api_version = "2.0",
+                request_id = requestId,
+                session_id = sessionId,
+                step = expectedStep + 1,
+                accepted_client_time_s =
+                    clientTimeSeconds,
+                latest_speech =
+                    "Mock 음성 분석 결과",
+                current_slide_index = 0,
+                commands =
+                    Array.Empty<UnityAudienceCommand>(),
+                warnings = Array.Empty<string>()
+            };
+
+        onSuccess?.Invoke(mockResponse);
+        yield break;
+    }
+
+    string FloatText(float value)
+    {
+        return value.ToString(
+            "0.###",
+            CultureInfo.InvariantCulture
+        );
+    }
+
+    List<IMultipartFormSection> formData =
+        new List<IMultipartFormSection>
+        {
+            new MultipartFormDataSection(
+                "session_id",
+                sessionId
+            ),
+
+            new MultipartFormDataSection(
+                "request_id",
+                requestId
+            ),
+
+            new MultipartFormDataSection(
+                "expected_step",
+                expectedStep.ToString(
+                    CultureInfo.InvariantCulture
+                )
+            ),
+
+            new MultipartFormDataSection(
+                "client_time_s",
+                FloatText(clientTimeSeconds)
+            ),
+
+            new MultipartFormDataSection(
+                "utterance_start_s",
+                FloatText(utteranceStartSeconds)
+            ),
+
+            new MultipartFormDataSection(
+                "utterance_end_s",
+                FloatText(utteranceEndSeconds)
+            ),
+
+            new MultipartFormFileSection(
+                "audio",
+                wavData,
+                $"audio_{expectedStep + 1:000}.wav",
+                "audio/wav"
+            )
+        };
+
+    if (!string.IsNullOrWhiteSpace(language))
+    {
+        formData.Add(
+            new MultipartFormDataSection(
+                "language",
+                language
+            )
+        );
+    }
+
+    using UnityWebRequest request =
+        UnityWebRequest.Post(
+            config.UpdateUrl,
+            formData
+        );
+
+    request.timeout =
+        config.RequestTimeoutSeconds;
+
+    request.SetRequestHeader(
+        "X-EVC-Session-Token",
+        sessionToken
+    );
+
+    yield return request.SendWebRequest();
+
+    if (request.result !=
+        UnityWebRequest.Result.Success)
+    {
+        string responseText =
+            request.downloadHandler != null
+                ? request.downloadHandler.text
+                : "";
+
+        onError?.Invoke(
+            "AI Update 실패" +
+            "\nHTTP: " + request.responseCode +
+            "\n오류: " + request.error +
+            "\n응답: " + responseText
+        );
+
+        yield break;
+    }
+
+    EvcUpdateResponse response;
+
+    try
+    {
+        response =
+            JsonUtility.FromJson<EvcUpdateResponse>(
+                request.downloadHandler.text
+            );
+    }
+    catch (Exception exception)
+    {
+        onError?.Invoke(
+            "Update 응답 JSON 변환 실패: " +
+            exception.Message
+        );
+
+        yield break;
+    }
+
+    if (response == null)
+    {
+        onError?.Invoke(
+            "Update 응답이 비어 있습니다."
+        );
+
+        yield break;
+    }
+
+    if (!IsSupportedApiVersion(
+        response.api_version))
+    {
+        onError?.Invoke(
+            "지원하지 않는 API 버전입니다: " +
+            response.api_version
+        );
+
+        yield break;
+    }
+
+    onSuccess?.Invoke(response);
+}
     public IEnumerator DeleteSession(
     string sessionId,
     string sessionToken,
