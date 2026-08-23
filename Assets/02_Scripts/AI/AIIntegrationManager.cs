@@ -38,6 +38,7 @@ public class AIIntegrationManager : MonoBehaviour
     private int currentStep;
     private SmartStartAudience[] audiences;
     private bool isEndingSession;
+    private Action pendingEndCallback;
 
     public bool HasActiveSession =>
         !string.IsNullOrWhiteSpace(sessionId) &&
@@ -399,6 +400,49 @@ else
             );
     }
 
+    if (response.audiences != null)
+{
+    foreach (
+        UpdateAudience audience
+        in response.audiences)
+    {
+        if (audience == null)
+            continue;
+
+        string coreVariation =
+            audience.core_behavior != null
+                ? audience
+                    .core_behavior
+                    .variation_id
+                : "없음";
+
+        string overlayVariation =
+            audience.action_overlay != null
+                ? audience
+                    .action_overlay
+                    .variation_id
+                : "없음";
+
+        Debug.Log(
+            "[AI 청중 상태]" +
+            "\nAgent: " +
+            audience.agent_id +
+            "\nE: " +
+            audience.state?.E.ToString("F3") +
+            "\nV: " +
+            audience.state?.V.ToString("F3") +
+            "\nC: " +
+            audience.state?.C.ToString("F3") +
+            "\n방향: " +
+            audience.direction +
+            "\nCore: " +
+            coreVariation +
+            "\nOverlay: " +
+            overlayVariation
+        );
+    }
+}
+
     TrySendNextAudioChunk();
 }
 
@@ -486,12 +530,19 @@ private string GetServerLanguage()
 [ContextMenu("Test - End AI Session")]
 public void EndAiSession()
 {
+    EndAiSessionAndThen(null);
+}
+
+public void EndAiSessionAndThen(
+    Action onComplete)
+{
     if (apiClient == null)
     {
         Debug.LogError(
             "[AI] EvcApiClient가 연결되지 않았습니다."
         );
 
+        onComplete?.Invoke();
         return;
     }
 
@@ -501,6 +552,7 @@ public void EndAiSession()
             "[AI] 종료할 EVC 세션이 없습니다."
         );
 
+        onComplete?.Invoke();
         return;
     }
 
@@ -512,6 +564,8 @@ public void EndAiSession()
 
         return;
     }
+
+    pendingEndCallback = onComplete;
 
     if (microphoneRecorder != null)
         microphoneRecorder.StopRecording();
@@ -534,18 +588,34 @@ private void HandleDeleteSuccess()
         "[AI] EVC 세션 종료 성공"
     );
 
-    isEndingSession = false;
+    Action callback =
+        pendingEndCallback;
+
+    pendingEndCallback = null;
+
     ClearAiSession();
+
+    callback?.Invoke();
 }
 
 private void HandleDeleteError(
     string error)
 {
-    isEndingSession = false;
-
     Debug.LogError(
-        "[AI] EVC 세션 종료 실패\n" + error
+        "[AI] EVC 세션 종료 실패\n" +
+        error
     );
+
+    Action callback =
+        pendingEndCallback;
+
+    pendingEndCallback = null;
+
+    // 서버 종료가 실패하더라도 사용자가
+    // 피드백 화면으로 이동하지 못하게 막지는 않는다.
+    ClearAiSession();
+
+    callback?.Invoke();
 }
 
     private void ClearAiSession()
@@ -558,6 +628,7 @@ private void HandleDeleteError(
         currentStep = 0;
         audiences = null;
         isEndingSession = false;
+        pendingEndCallback = null;
 
         pendingAudioChunks.Clear();
         isSendingUpdate = false;

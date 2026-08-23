@@ -14,14 +14,21 @@ public class AudienceCommandDispatcher :
         public string agentId;
 
         [Tooltip(
-            "해당 청중의 RandomAudienceAnimator"
+            "해당 청중의 AudienceAnimationPlayer"
         )]
-        public RandomAudienceAnimator bodyAnimator;
+        public AudienceAnimationPlayer bodyAnimator;
 
         [Tooltip(
             "해당 청중의 AudienceGazeController"
         )]
         public AudienceGazeController gazeController;
+        [Tooltip("다른 청중과 동시에 움직이지 않도록 하는 추가 지연")]
+        [Range(0f, 2f)]
+        public float startOffset;
+
+        [Tooltip("청중별 행동 유지시간 배율")]
+        [Range(0.8f, 1.5f)]
+        public float durationMultiplier = 1f;
     }
 
     [Header("청중 연결")]
@@ -142,12 +149,18 @@ public class AudienceCommandDispatcher :
                 commandKey
             );
 
+            float agentOffset =
+                GetAgentStartOffset(
+                    command.agent_id
+                );
+
             float delay =
                 Mathf.Max(
                     0f,
                     command.start_time -
                     currentSessionTime
-                );
+                ) +
+                agentOffset;
 
             StartCoroutine(
                 ExecuteCommandAfterDelay(
@@ -156,6 +169,21 @@ public class AudienceCommandDispatcher :
                 )
             );
         }
+    }
+    private float GetAgentStartOffset(
+        string agentId)
+    {
+        if (bindingMap.TryGetValue(
+                agentId,
+                out AudienceBinding binding))
+        {
+            return Mathf.Max(
+                0f,
+                binding.startOffset
+            );
+        }
+
+        return 0f;
     }
 
     private IEnumerator ExecuteCommandAfterDelay(
@@ -189,6 +217,13 @@ public class AudienceCommandDispatcher :
             return;
         }
 
+        float adjustedDuration =
+            command.duration *
+            Mathf.Max(
+                0.1f,
+                binding.durationMultiplier
+            );
+
         string layer =
             command.layer != null
                 ? command.layer.Trim()
@@ -207,7 +242,7 @@ public class AudienceCommandDispatcher :
                         .PlayServerVariation(
                             command
                                 .selected_variation_id,
-                            command.duration,
+                            adjustedDuration,
                             command.intensity
                         );
             }
@@ -229,7 +264,7 @@ public class AudienceCommandDispatcher :
                 binding.gazeController
                     .ApplyServerGaze(
                         command.action_id,
-                        command.duration
+                        adjustedDuration
                     );
 
                 executed = true;

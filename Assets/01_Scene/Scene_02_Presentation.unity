@@ -502,42 +502,19 @@ PrefabInstance:
       addedObject: {fileID: 270704683}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 270704682}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 270704684}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 270704685}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 270704686}
   m_SourcePrefab: {fileID: 100100000, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
 --- !u!4 &270704681 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
   m_PrefabInstance: {fileID: 270704680}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &270704682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 106557009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RandomAudienceAnimator
-  targetAnimator: {fileID: 270704683}
-  idleClip: {fileID: 0}
-  reactionClips: []
-  minInitialDelay: 1
-  maxInitialDelay: 5
-  minInterval: 4
-  maxInterval: 9
-  blendDuration: 1.669
-  reactionChance: 0.75
-  minPlaybackSpeed: 0.92
-  maxPlaybackSpeed: 1.08
 --- !u!95 &270704683
 Animator:
   serializedVersion: 7
@@ -567,7 +544,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 106557009}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -629,6 +606,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &270704686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106557009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 270704683}
+  gender: 0
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &347653183
 GameObject:
   m_ObjectHideFlags: 0
@@ -2150,6 +2147,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 976342269}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 976342270}
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
 --- !u!4 &859977382 stripped
 Transform:
@@ -2371,7 +2371,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 976342266}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -2452,6 +2452,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &976342270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976342266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 976342268}
+  gender: 1
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &1007580570
 GameObject:
   m_ObjectHideFlags: 0
@@ -2902,6 +2922,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1825097247}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1825097248}
   m_SourcePrefab: {fileID: 100100000, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
 --- !u!4 &1097466118 stripped
 Transform:
@@ -3652,10 +3675,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1228476764}
+      addedObject: {fileID: 1228476767}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1228476763}
+      addedObject: {fileID: 1228476764}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1228476765}
@@ -3668,29 +3691,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
   m_PrefabInstance: {fileID: 1228476761}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1228476763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 495301385}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RandomAudienceAnimator
-  targetAnimator: {fileID: 1228476764}
-  idleClip: {fileID: 0}
-  reactionClips: []
-  minInitialDelay: 1
-  maxInitialDelay: 5
-  minInterval: 4
-  maxInterval: 9
-  blendDuration: 1.422
-  reactionChance: 0.75
-  minPlaybackSpeed: 0.92
-  maxPlaybackSpeed: 1.08
 --- !u!95 &1228476764
 Animator:
   serializedVersion: 7
@@ -3720,7 +3720,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 495301385}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -3779,6 +3779,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &1228476767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495301385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 1228476764}
+  gender: 0
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &1230575272
 GameObject:
   m_ObjectHideFlags: 0
@@ -3876,23 +3896,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudienceCommandDispatcher
   audienceBindings:
   - agentId: audience_01
-    bodyAnimator: {fileID: 1228476763}
+    bodyAnimator: {fileID: 1228476767}
     gazeController: {fileID: 1228476766}
+    startOffset: 0
+    durationMultiplier: 1
   - agentId: audience_02
-    bodyAnimator: {fileID: 1802298771}
+    bodyAnimator: {fileID: 1802298773}
     gazeController: {fileID: 1802298772}
+    startOffset: 0.18
+    durationMultiplier: 1.1
   - agentId: audience_03
-    bodyAnimator: {fileID: 270704682}
+    bodyAnimator: {fileID: 270704686}
     gazeController: {fileID: 270704685}
+    startOffset: 0.35
+    durationMultiplier: 1.2
   - agentId: audience_04
-    bodyAnimator: {fileID: 1825097246}
+    bodyAnimator: {fileID: 1825097248}
     gazeController: {fileID: 1825097247}
+    startOffset: 0.55
+    durationMultiplier: 1.05
   - agentId: audience_05
-    bodyAnimator: {fileID: 976342267}
+    bodyAnimator: {fileID: 976342270}
     gazeController: {fileID: 976342269}
+    startOffset: 0.75
+    durationMultiplier: 1.15
   - agentId: audience_06
-    bodyAnimator: {fileID: 1617128131}
+    bodyAnimator: {fileID: 1617128134}
     gazeController: {fileID: 1617128133}
+    startOffset: 0.95
+    durationMultiplier: 1.25
   printDispatchLog: 1
 --- !u!1 &1242957295
 GameObject:
@@ -5091,6 +5123,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1617128133}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1617128134}
   m_SourcePrefab: {fileID: 100100000, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
 --- !u!4 &1617128130 stripped
 Transform:
@@ -5104,7 +5139,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1061199091}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -5185,6 +5220,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &1617128134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061199091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 1617128132}
+  gender: 1
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &1619226411
 GameObject:
   m_ObjectHideFlags: 0
@@ -5955,6 +6010,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1802298772}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1802298773}
   m_SourcePrefab: {fileID: 100100000, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
 --- !u!4 &1802298768 stripped
 Transform:
@@ -5990,7 +6048,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 193217807}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -6049,6 +6107,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &1802298773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193217807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 1802298770}
+  gender: 0
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &1825097244 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
@@ -6083,7 +6161,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1825097244}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -6144,6 +6222,26 @@ MonoBehaviour:
   directionSmoothSpeed: 1.2
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
+--- !u!114 &1825097248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825097244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282b4ead451c7904098dd2c7ca402152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationPlayer
+  targetAnimator: {fileID: 1825097245}
+  gender: 1
+  catalog: {fileID: 11400000, guid: c54f216f91584e342b3654d6f587f2fb, type: 2}
+  idleClipOverride: {fileID: 0}
+  defaultIdleVariation: BL_03.quiet_stable_posture
+  randomizeIdleStartTime: 1
+  blendDuration: 0.7
+  printAnimationLog: 1
 --- !u!1 &1831128672
 GameObject:
   m_ObjectHideFlags: 0
