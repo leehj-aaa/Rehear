@@ -3,6 +3,7 @@ using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PinInputManager : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class PinInputManager : MonoBehaviour
     [SerializeField] private TMP_Text errorText;
 
     [Header("세션 정보 표시")]
+    [SerializeField] private TMP_Text sessionTypeValueText;
+    [SerializeField] private TMP_Text durationValueText;
+    [SerializeField] private TMP_Text qaCountValueText;
+    [SerializeField] private TMP_Text audienceScaleValueText;
+    [SerializeField] private TMP_Text environmentValueText;
     [SerializeField] private TMP_Text expertiseValueText;
     [SerializeField] private TMP_Text interestValueText;
 
@@ -60,7 +66,87 @@ public class PinInputManager : MonoBehaviour
             ShowPinInputPanel();
         }
     }
+    private void Update()
+{
+#if UNITY_EDITOR || UNITY_STANDALONE
+    Keyboard keyboard = Keyboard.current;
 
+    if (keyboard == null || isLoading)
+        return;
+
+    for (int number = 0; number <= 9; number++)
+    {
+        if (WasNumberPressed(
+                keyboard,
+                number))
+        {
+            AddNumber(number.ToString());
+            break;
+        }
+    }
+
+    if (keyboard.enterKey.wasPressedThisFrame)
+    {
+        OnSubmitButtonClicked();
+    }
+
+    if (keyboard.backspaceKey.wasPressedThisFrame)
+    {
+        ResetInput();
+    }
+#endif
+}
+
+private bool WasNumberPressed(
+    Keyboard keyboard,
+    int number)
+{
+    switch (number)
+    {
+        case 0:
+            return keyboard.digit0Key.wasPressedThisFrame ||
+                   keyboard.numpad0Key.wasPressedThisFrame;
+
+        case 1:
+            return keyboard.digit1Key.wasPressedThisFrame ||
+                   keyboard.numpad1Key.wasPressedThisFrame;
+
+        case 2:
+            return keyboard.digit2Key.wasPressedThisFrame ||
+                   keyboard.numpad2Key.wasPressedThisFrame;
+
+        case 3:
+            return keyboard.digit3Key.wasPressedThisFrame ||
+                   keyboard.numpad3Key.wasPressedThisFrame;
+
+        case 4:
+            return keyboard.digit4Key.wasPressedThisFrame ||
+                   keyboard.numpad4Key.wasPressedThisFrame;
+
+        case 5:
+            return keyboard.digit5Key.wasPressedThisFrame ||
+                   keyboard.numpad5Key.wasPressedThisFrame;
+
+        case 6:
+            return keyboard.digit6Key.wasPressedThisFrame ||
+                   keyboard.numpad6Key.wasPressedThisFrame;
+
+        case 7:
+            return keyboard.digit7Key.wasPressedThisFrame ||
+                   keyboard.numpad7Key.wasPressedThisFrame;
+
+        case 8:
+            return keyboard.digit8Key.wasPressedThisFrame ||
+                   keyboard.numpad8Key.wasPressedThisFrame;
+
+        case 9:
+            return keyboard.digit9Key.wasPressedThisFrame ||
+                   keyboard.numpad9Key.wasPressedThisFrame;
+
+        default:
+            return false;
+    }
+}
     private void InitializeFirebase()
     {
         if (firebaseInitializing)
@@ -274,113 +360,264 @@ public class PinInputManager : MonoBehaviour
                     return;
                 }
 
-                ReadAudienceInformation(
+                ReadSessionInformation(
                     sessionSnapshot,
                     pin
                 );
             });
     }
 
-    private void ReadAudienceInformation(
-        DataSnapshot sessionSnapshot,
-        string pin)
+    private void ReadSessionInformation(
+    DataSnapshot sessionSnapshot,
+    string pin)
+{
+    string json =
+        sessionSnapshot.GetRawJsonValue();
+
+    if (string.IsNullOrWhiteSpace(json))
     {
-        DataSnapshot page3Snapshot =
-            sessionSnapshot.Child("page_3");
+        if (!TryLoadDemoFallback(pin))
+            ShowError("세션 데이터가 비어 있습니다.");
 
-        if (!page3Snapshot.Exists)
-        {
-            if (!TryLoadDemoFallback(pin))
-            {
-                ShowError(
-                    "청중 정보가 없는 세션입니다."
-                );
-            }
-
-            return;
-        }
-
-        string expertise = GetSnapshotString(
-            page3Snapshot,
-            "audience_expertise"
-        );
-
-        string interest = GetSnapshotString(
-            page3Snapshot,
-            "audience_interest"
-        );
-
-        if (string.IsNullOrWhiteSpace(expertise))
-            expertise = "미설정";
-
-        if (string.IsNullOrWhiteSpace(interest))
-            interest = "미설정";
-
-        ApplyAudienceInformation(
-            expertise,
-            interest
-        );
-
-        Debug.Log(
-            "세션 불러오기 완료" +
-            "\nPIN: " + pin +
-            "\n청중 전문성: " + expertise +
-            "\n청중 관심도: " + interest
-        );
+        return;
     }
 
-    private string GetSnapshotString(
-        DataSnapshot parent,
-        string childName)
+    SessionData session;
+
+    try
     {
-        if (parent == null)
-            return "";
+        session =
+            JsonUtility.FromJson<SessionData>(json);
+    }
+    catch (System.Exception exception)
+    {
+        Debug.LogException(exception);
 
-        DataSnapshot child =
-            parent.Child(childName);
+        if (!TryLoadDemoFallback(pin))
+            ShowError("세션 데이터 형식이 올바르지 않습니다.");
 
-        if (!child.Exists ||
-            child.Value == null)
-        {
-            return "";
-        }
-
-        return child.Value.ToString();
+        return;
     }
 
-    private void ApplyAudienceInformation(
-        string expertise,
-        string interest)
+    if (session == null ||
+        session.page_1 == null ||
+        session.page_3 == null)
     {
-        if (expertiseValueText != null)
-            expertiseValueText.text = expertise;
+        if (!TryLoadDemoFallback(pin))
+            ShowError("필수 세션정보가 없습니다.");
 
-        if (interestValueText != null)
-            interestValueText.text = interest;
-
-        ClearError();
-        ShowSessionReadyPanel();
+        return;
     }
+
+    NormalizeSessionData(session);
+
+    RuntimeSessionData.Load(
+        pin,
+        session
+    );
+
+    ApplySessionInformation(session);
+
+    Debug.Log(
+        "세션 불러오기 완료" +
+        "\nPIN: " + pin +
+        "\n발표 제목: " +
+        RuntimeSessionData.PresentationTitle +
+        "\n발표 시간: " +
+        RuntimeSessionData.DurationMinutes + "분" +
+        "\n발표 환경: " +
+        RuntimeSessionData.EnvironmentType +
+        "\nQ&A 개수: " +
+        RuntimeSessionData.QaCount +
+        "\n청중 규모: " +
+        RuntimeSessionData.AudienceScale + "명" +
+        "\n청중 전문성: " +
+        RuntimeSessionData.AudienceExpertise +
+        "\n청중 관심도: " +
+        RuntimeSessionData.AudienceInterest
+    );
+}
+
+private void NormalizeSessionData(
+    SessionData session)
+{
+    if (session.page_1 == null)
+        session.page_1 = new Page1();
+
+    if (session.page_2 == null)
+        session.page_2 = new Page2();
+
+    if (session.page_3 == null)
+        session.page_3 = new Page3();
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_1.presentation_title))
+    {
+        session.page_1.presentation_title =
+            "Re:hear 발표";
+    }
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_1.presentation_purpose))
+    {
+        session.page_1.presentation_purpose =
+            "발표 모드";
+    }
+
+    if (session.page_1.duration_minutes <= 0)
+        session.page_1.duration_minutes = 1;
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_1.environment_type))
+    {
+        session.page_1.environment_type =
+            "세미나실";
+    }
+
+    if (session.page_1.qa_count < 0)
+        session.page_1.qa_count = 0;
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_1.used_language))
+    {
+        session.page_1.used_language = "ko";
+    }
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_3.audience_expertise))
+    {
+        session.page_3.audience_expertise =
+            "중간";
+    }
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_3.audience_interest))
+    {
+        session.page_3.audience_interest =
+            "중간";
+    }
+
+    if (session.page_3.audience_scale <= 0)
+        session.page_3.audience_scale = 6;
+
+    if (string.IsNullOrWhiteSpace(
+            session.page_3.audience_type))
+    {
+        session.page_3.audience_type =
+            "일반 청중";
+    }
+}
+
+private void ApplySessionInformation(
+    SessionData session)
+{
+    if (sessionTypeValueText != null)
+{
+    sessionTypeValueText.text = "발표 모드";
+}
+
+    if (durationValueText != null)
+    {
+        durationValueText.text =
+            session.page_1.duration_minutes + "분";
+    }
+
+    if (qaCountValueText != null)
+    {
+        qaCountValueText.text =
+            session.page_1.qa_count + "개";
+    }
+
+    if (audienceScaleValueText != null)
+    {
+        audienceScaleValueText.text =
+            session.page_3.audience_scale + "명";
+    }
+
+    if (environmentValueText != null)
+    {
+        environmentValueText.text =
+            session.page_1.environment_type;
+    }
+
+    if (expertiseValueText != null)
+    {
+        expertiseValueText.text =
+            session.page_3.audience_expertise;
+    }
+
+    if (interestValueText != null)
+    {
+        interestValueText.text =
+            session.page_3.audience_interest;
+    }
+
+    ClearError();
+    ShowSessionReadyPanel();
+}
+
+    
 
     private bool TryLoadDemoFallback(string pin)
-    {
-        if (!enableDemoFallback)
-            return false;
+{
+    if (!enableDemoFallback)
+        return false;
 
-        if (pin != demoPin)
-            return false;
+    if (pin != demoPin)
+        return false;
 
-        Debug.LogWarning(
-            "Firebase 대신 시연용 로컬 데이터를 사용합니다."
-        );
+    Debug.LogWarning(
+        "Firebase 대신 시연용 로컬 데이터를 사용합니다."
+    );
 
-        ApplyAudienceInformation(
-            demoExpertise,
-            demoInterest
-        );
+    SessionData demoSession =
+        new SessionData
+        {
+            status = "ready",
 
-        return true;
-    }
+            page_1 = new Page1
+            {
+                presentation_title =
+                    "Re:hear 시연 발표",
+
+                presentation_purpose =
+                    "발표 모드",
+
+                duration_minutes = 1,
+                environment_type = "세미나실",
+                qa_count = 1,
+                used_language = "ko"
+            },
+
+            page_2 = new Page2
+            {
+                presentation_script_content = ""
+            },
+
+            page_3 = new Page3
+            {
+                audience_expertise =
+                    demoExpertise,
+
+                audience_interest =
+                    demoInterest,
+
+                audience_scale = 6,
+                audience_type = "일반 청중"
+            }
+        };
+
+    RuntimeSessionData.Load(
+        pin,
+        demoSession
+    );
+
+    ApplySessionInformation(
+        demoSession
+    );
+
+    return true;
+}
 
     private void ShowPinInputPanel()
     {

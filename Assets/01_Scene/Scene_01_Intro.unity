@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 9780300}
   - component: {fileID: 9780299}
   - component: {fileID: 9780298}
+  - component: {fileID: 9780301}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -144,7 +145,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9780297}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
   m_Name: 
@@ -198,6 +199,39 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9780301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9780297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2e569dc832500047bf4350b4dae9b97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.CurvedUIInputModule
+  m_SendPointerHoverToParent: 1
+  controlMethod: 0
+  usedHand: 1
+  mainEventCamera: {fileID: 0}
+  raycastLayerMask:
+    serializedVersion: 2
+    m_Bits: 32
+  pointerTransformOverride: {fileID: 0}
+  gazeControlMethod:
+    gazeUseTimedClick: 0
+    gazeClickTimer: 2
+    gazeClickTimerDelay: 1
+    gazeTimedClickProgressImage: {fileID: 0}
+  unityXRControlMethod:
+    rightController: {fileID: 0}
+    leftController: {fileID: 0}
+    rightClickActionReference: {fileID: 0}
+    leftClickActionReference: {fileID: 0}
+  metaXRControlMethod:
+    interactionButton: 8192
+    cameraRig: {fileID: 0}
 --- !u!1 &73354433
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,6 +282,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.8000001, y: 0.51159996}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.019607844}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &73354436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,6 +377,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &99222953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -407,6 +455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &109783274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -419,6 +468,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &109783275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -597,6 +653,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &112014378
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -655,6 +718,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.5960513, y: 0.6499101, z: 0.00000072080525}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.27286994, y: 0.07684}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &116635626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -744,6 +814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &125530124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -756,6 +827,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &125530125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,6 +985,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &139810040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -919,6 +998,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &139810041
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1070,6 +1156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &143195698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1082,6 +1169,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &143195699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1232,6 +1326,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &147898917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1348,6 +1449,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.37125117, y: -0.30850005, z: 0.0000009619896}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.71750003, y: 0.11020005}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &151052679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1485,6 +1593,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.5}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.392}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &169656646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1574,6 +1689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &216603512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1586,6 +1702,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &216603513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1764,6 +1887,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &229341097
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1823,6 +1953,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &266027209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1835,6 +1966,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &266027210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1986,6 +2124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &270939210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1998,6 +2137,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &270939211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2178,6 +2324,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &290818930
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2236,6 +2389,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.55874926, y: 0.10640001, z: 0.0000019597717}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.07250002, y: 0.07069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &292364790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2288,7 +2448,7 @@ GameObject:
   - component: {fileID: 307292283}
   - component: {fileID: 307292282}
   m_Layer: 5
-  m_Name: Text_SessionType_Selected
+  m_Name: Text_SessionTime_Selected
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2325,6 +2485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &307292283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2337,6 +2498,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &307292284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2488,6 +2656,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.18624975, y: 0.044399977, z: 0.0000015601231}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &352659195
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2578,6 +2753,11 @@ MonoBehaviour:
   panel_PinInput: {fileID: 956942702}
   panel_SessionReady: {fileID: 1683167912}
   errorText: {fileID: 109783275}
+  sessionTypeValueText: {fileID: 1654437633}
+  durationValueText: {fileID: 307292284}
+  qaCountValueText: {fileID: 602637841}
+  audienceScaleValueText: {fileID: 871226030}
+  environmentValueText: {fileID: 2080744026}
   expertiseValueText: {fileID: 1546196893}
   interestValueText: {fileID: 1438284135}
   enableDemoFallback: 1
@@ -2662,6 +2842,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &366444732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2674,6 +2855,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &366444733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2827,6 +3015,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.55875117, y: 0.044399977, z: 0.0000007608239}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &385481749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2960,6 +3155,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.8000001, y: 0.7252}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.019607844}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &413596451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3012,7 +3214,7 @@ GameObject:
   - component: {fileID: 439357006}
   - component: {fileID: 439357005}
   m_Layer: 5
-  m_Name: Text_QnATime
+  m_Name: Text_QnA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3049,6 +3251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &439357006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3061,6 +3264,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &439357007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3212,6 +3422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &473126987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3224,6 +3435,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &473126988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3375,6 +3593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &484166618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3387,6 +3606,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &484166619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3538,6 +3764,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &484760951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3550,6 +3777,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &484760952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3728,6 +3962,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &486652649
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3787,6 +4028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &534042312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3799,6 +4041,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &534042313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3950,6 +4199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &572282406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3962,6 +4212,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &572282407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4140,6 +4397,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &596824513
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4162,7 +4426,7 @@ GameObject:
   - component: {fileID: 602637840}
   - component: {fileID: 602637839}
   m_Layer: 5
-  m_Name: Text_QnATime_Selected
+  m_Name: Text_QnA_Selected
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4199,6 +4463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &602637840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4211,6 +4476,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &602637841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4424,6 +4696,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &626234413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4649,6 +4928,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &630593585
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4709,6 +4995,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.4999988}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &634147107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4811,6 +5104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &675694310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4823,6 +5117,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &675694311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5036,6 +5337,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &695013572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5294,6 +5602,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &705905425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5490,6 +5805,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &757744906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5502,6 +5818,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &757744907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5700,6 +6023,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.46, y: 0.11169999}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &777487288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6109,6 +6439,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &817673205
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6274,6 +6611,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &850741928
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6317,7 +6661,7 @@ GameObject:
   - component: {fileID: 871226029}
   - component: {fileID: 871226028}
   m_Layer: 5
-  m_Name: Text_SessionType_Selected
+  m_Name: Text_AudienceSize_Selected
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6354,6 +6698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &871226029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6366,6 +6711,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &871226030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6516,6 +6868,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.55875117, y: 0.10640001, z: 0.0000007608239}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.07250002, y: 0.07069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &895129879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6604,6 +6963,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.5}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.78431374}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &897280853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6692,6 +7058,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &900314687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6763,6 +7136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &911961788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6775,6 +7149,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &911961789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6998,6 +7379,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &927699807
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7187,6 +7575,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &956942705
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7246,6 +7641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &957202182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7258,6 +7654,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &957202183
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7408,6 +7811,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.18625167, y: 0.10640001, z: 0.0000011604725}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.07250002, y: 0.07069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1009031578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7498,6 +7908,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.2863986}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1019133403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7634,7 +8051,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1066546173}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 357191172}
+        m_TargetAssemblyTypeName: PinInputManager, Assembly-CSharp
+        m_MethodName: OnSubmitButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1066546172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7647,6 +8076,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.46, y: 0.0987}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1066546173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7859,6 +8295,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.2864}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.392}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1115277262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7947,6 +8390,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.5960513, y: 0.6499101, z: 0.00000072080525}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.27286994, y: 0.07684}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1117280603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8035,6 +8485,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1169384789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8133,6 +8590,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1197611036
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8219,6 +8683,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1202550545
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8432,6 +8903,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.46, y: 0.0987}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1224942167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8521,6 +8999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1227856725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8533,6 +9012,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1227856726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8684,6 +9170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1261521220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8696,6 +9183,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1261521221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8846,6 +9340,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.120000005, y: 0.12205997}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1277316840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8997,6 +9498,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1296480636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9193,6 +9701,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1304008986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9205,6 +9714,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1304008987
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9418,6 +9934,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1320084489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9614,6 +10137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1322011307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9626,6 +10150,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1322011308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9778,6 +10309,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1344019924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9942,6 +10480,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1345339358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10138,6 +10683,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1415520103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10150,6 +10696,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1415520104
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10264,6 +10817,7 @@ GameObject:
   - component: {fileID: 1437182393}
   - component: {fileID: 1437182398}
   - component: {fileID: 1437182397}
+  - component: {fileID: 1437182399}
   m_Layer: 5
   m_Name: Button_Start
   m_TagString: Untagged
@@ -10492,6 +11046,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.461986, y: 0.11429012, z: 0.01}
   m_Center: {x: 0.0005886555, y: 0.0021283627, z: 3.89295e-18}
+--- !u!114 &1437182399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437182391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.46, y: 0.11169999}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!1 &1438284131
 GameObject:
   m_ObjectHideFlags: 0
@@ -10543,6 +11116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1438284134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10555,6 +11129,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1438284135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10705,6 +11286,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.120000005, y: 0.12205997}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1444619334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10794,6 +11382,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.55874926, y: 0.044399977, z: 0.0000019597717}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1445990483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10883,6 +11478,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.46, y: 0.11199999}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1466645394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10971,6 +11573,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1498413593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11061,6 +11670,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1499488319
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11192,6 +11808,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.37124923, y: -0.30850005, z: 0.000001758606}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.71750003, y: 0.11020005}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1516117204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11343,6 +11966,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1538346948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11539,6 +12169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1546196892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11551,6 +12182,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1546196893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11718,6 +12356,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1582502950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11806,6 +12451,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 1.6, y: 1.2864}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.78431374}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1583656441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11895,6 +12547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1619729386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11907,6 +12560,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1619729387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12058,6 +12718,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1638207815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12070,6 +12731,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1638207816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12220,6 +12888,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.18624975, y: 0.10640001, z: 0.0000015601231}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.07250002, y: 0.07069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1646974538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12309,6 +12984,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1654437632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12321,6 +12997,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1654437633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12584,6 +13267,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1683167915
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12755,6 +13445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1741599467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12767,6 +13458,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1741599468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12985,6 +13683,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &1797839640
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13046,6 +13751,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.18624975, y: 0.044399977, z: 0.0000015601231}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1836367928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13135,6 +13847,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1856562753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13147,6 +13860,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1856562754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13345,6 +14065,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.18625167, y: 0.044399977, z: 0.0000011604725}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1877576421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13496,6 +14223,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1898400596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13692,6 +14426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1905634711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13704,6 +14439,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1905634712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13857,6 +14599,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.55875117, y: 0.044399977, z: 0.0000007608239}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1907836098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14053,6 +14802,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &1968346864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14065,6 +14815,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1968346865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14218,6 +14975,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: -0.18625167, y: 0.044399977, z: 0.0000011604725}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &1998230353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14369,6 +15133,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &2002868826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14592,6 +15363,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!222 &2020560987
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -14654,6 +15432,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a783f671592674b589cfc4953e28656b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUISettings
+  shape: 0
+  quality: 1
+  interactable: 1
+  blocksRaycasts: 1
+  useMeshCollider: 0
+  angle: 90
+  preserveAspect: 1
+  vertAngle: 90
+  ringFill: 0.5
+  ringExternalDiamater: 1000
+  ringFlipVertical: 0
 --- !u!114 &2028653239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14768,6 +15557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004b8ec0c25535c409b1f6115963d476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.Core.Integrations.CurvedUITMP
+  Dirty: 0
 --- !u!114 &2080744025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14780,6 +15570,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &2080744026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14938,6 +15735,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0.55874926, y: 0.044399977, z: 0.0000019597717}
+  savedUp: {x: 0, y: 1, z: 0}
+  savedRectSize: {x: 0.34250003, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 1
 --- !u!114 &2123246591
 MonoBehaviour:
   m_ObjectHideFlags: 0
