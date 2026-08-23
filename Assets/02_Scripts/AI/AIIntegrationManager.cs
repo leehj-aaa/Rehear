@@ -331,8 +331,45 @@ private void HandleUpdateSuccess(
         }
     }
 
-    // 다음 단계에서 response.commands를
-    // 6명의 청중에게 전달한다.
+    if (response.commands == null ||
+    response.commands.Length == 0)
+{
+    Debug.Log(
+        "[AI] 이번 Update에는 청중 명령이 없습니다." +
+        "\nNo-op 이유: " +
+        response.no_op_reason
+    );
+}
+else
+{
+    foreach (
+        UnityAudienceCommand command
+        in response.commands)
+    {
+        if (command == null)
+            continue;
+
+        Debug.Log(
+            "[AI 청중 명령]" +
+            "\nAgent ID: " +
+            command.agent_id +
+            "\nAction ID: " +
+            command.action_id +
+            "\nLayer: " +
+            command.layer +
+            "\n시작 지연: " +
+            command.start_time.ToString("F2") +
+            "초" +
+            "\n재생 시간: " +
+            command.duration.ToString("F2") +
+            "초" +
+            "\n강도: " +
+            command.intensity.ToString("F2") +
+            "\nBlend Mode: " +
+            command.blend_mode
+        );
+    }
+}
 
     TrySendNextAudioChunk();
 }
