@@ -14,6 +14,11 @@ public class AIIntegrationManager : MonoBehaviour
     private PresentationMicrophoneRecorder
         microphoneRecorder;
 
+    [Header("청중 명령")]
+    [SerializeField]
+    private AudienceCommandDispatcher
+        audienceCommandDispatcher;
+
     [Header("실행 설정")]
     [SerializeField]
     private bool startAutomatically = true;
@@ -165,6 +170,12 @@ public class AIIntegrationManager : MonoBehaviour
 
         pendingAudioChunks.Clear();
         isSendingUpdate = false;
+
+        if (audienceCommandDispatcher != null)
+        {
+            audienceCommandDispatcher
+                .ClearSessionHistory();
+        }
 
         if (microphoneRecorder != null)
         {
@@ -355,6 +366,8 @@ else
             command.agent_id +
             "\nAction ID: " +
             command.action_id +
+            "\nVariation ID: " +
+            command.selected_variation_id +
             "\nLayer: " +
             command.layer +
             "\n시작 지연: " +
@@ -370,6 +383,21 @@ else
         );
     }
 }
+        if (audienceCommandDispatcher != null &&
+        response.commands != null &&
+        response.commands.Length > 0)
+    {
+        float currentSessionTime =
+            Time.realtimeSinceStartup -
+            aiSessionStartedAt;
+
+        audienceCommandDispatcher
+            .DispatchCommands(
+                response.request_id,
+                response.commands,
+                currentSessionTime
+            );
+    }
 
     TrySendNextAudioChunk();
 }
