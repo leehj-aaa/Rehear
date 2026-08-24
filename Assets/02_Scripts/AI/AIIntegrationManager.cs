@@ -175,6 +175,9 @@ public class AIIntegrationManager : MonoBehaviour
         if (audienceCommandDispatcher != null)
         {
             audienceCommandDispatcher
+                .StopFallbackMode();
+
+            audienceCommandDispatcher
                 .ClearSessionHistory();
         }
 
@@ -214,13 +217,20 @@ public class AIIntegrationManager : MonoBehaviour
     }
 
     private void HandleSmartStartError(
-        string error)
+    string error)
     {
         ClearAiSession();
 
         Debug.LogError(
-            "[AI] Smart Start 실패\n" + error
+            "[AI] Smart Start 실패\n" +
+            error
         );
+
+        if (audienceCommandDispatcher != null)
+        {
+            audienceCommandDispatcher
+                .StartFallbackMode();
+        }
     }
 
 
@@ -315,6 +325,12 @@ private void HandleUpdateSuccess(
 
     isSendingUpdate = false;
     currentStep = response.step;
+
+    if (audienceCommandDispatcher != null)
+    {
+        audienceCommandDispatcher
+            .StopFallbackMode();
+    }
 
     int commandCount =
         response.commands != null
@@ -488,6 +504,12 @@ private void HandleUpdateError(
         "\n" + error
     );
 
+    if (audienceCommandDispatcher != null)
+    {
+        audienceCommandDispatcher
+            .StartFallbackMode();
+    }
+
     TrySendNextAudioChunk();
 }
 
@@ -633,5 +655,11 @@ private void HandleDeleteError(
         pendingAudioChunks.Clear();
         isSendingUpdate = false;
         aiSessionStartedAt = 0f;
+
+        if (audienceCommandDispatcher != null)
+        {
+            audienceCommandDispatcher
+                .StopFallbackMode();
+        }
     }
 }

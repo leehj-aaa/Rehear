@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class AudienceCommandDispatcher :
     MonoBehaviour
@@ -38,6 +39,37 @@ public class AudienceCommandDispatcher :
     [Header("디버그")]
     [SerializeField]
     private bool printDispatchLog = true;
+
+    [Header("통신 실패 Fallback")]
+
+    [SerializeField]
+    private string[] fallbackVariationIds =
+    {
+        "BL_01.neutral_listening",
+        "BL_03.quiet_stable_posture",
+        "AL_01.stable_attention",
+        "AL_01.active_following",
+        "AL_03.passive_acceptance"
+    };
+
+    [SerializeField]
+    private Vector2 fallbackInitialDelayRange =
+        new Vector2(0.5f, 4f);
+
+    [SerializeField]
+    private Vector2 fallbackIntervalRange =
+        new Vector2(5f, 10f);
+
+    [SerializeField]
+    private Vector2 fallbackDurationRange =
+        new Vector2(2f, 3.5f);
+
+    private readonly List<Coroutine>
+        fallbackRoutines =
+            new List<Coroutine>();
+
+    public bool IsFallbackActive =>
+        fallbackRoutines.Count > 0;
 
     private readonly Dictionary<
         string,
@@ -404,6 +436,161 @@ public class AudienceCommandDispatcher :
 
     private void OnDisable()
     {
+        StopFallbackMode();
         StopAllCoroutines();
+    }
+    public void StartFallbackMode()
+    {
+        if (IsFallbackActive)
+            return;
+
+        if (audienceBindings == null ||
+            audienceBindings.Length == 0)
+        {
+            Debug.LogWarning(
+                "[AI Fallback] 연결된 청중이 없습니다."
+            );
+
+            return;
+        }
+
+        Debug.LogWarning(
+            "[AI Fallback] 서버 반응을 사용할 수 없어 " +
+            "로컬 청중 애니메이션을 시작합니다."
+        );
+
+        for (int index = 0;
+            index < audienceBindings.Length;
+            index++)
+        {
+            AudienceBinding binding =
+                audienceBindings[index];
+
+            if (binding == null ||
+                binding.bodyAnimator == null)
+            {
+                continue;
+            }
+
+            Coroutine routine =
+                StartCoroutine(
+                    FallbackAgentRoutine(
+                        binding,
+                        index
+                    )
+                );
+
+            fallbackRoutines.Add(routine);
+        }
+    }
+
+    public void StopFallbackMode()
+    {
+        if (!IsFallbackActive)
+            return;
+
+        foreach (Coroutine routine
+                in fallbackRoutines)
+        {
+            if (routine != null)
+                StopCoroutine(routine);
+        }
+
+        fallbackRoutines.Clear();
+
+        Debug.Log(
+            "[AI Fallback] 서버 연결이 복구되어 " +
+            "로컬 애니메이션을 중지합니다."
+        );
+    }
+
+    private IEnumerator FallbackAgentRoutine(
+        AudienceBinding binding,
+        int agentIndex)
+    {
+        float initialDelay =
+            Random.Range(
+                fallbackInitialDelayRange.x,
+                fallbackInitialDelayRange.y
+            );
+
+        // 배열 순서에 따른 작은 추가 시차
+        initialDelay += agentIndex * 0.15f;
+
+        yield return new WaitForSecondsRealtime(
+            initialDelay
+        );
+
+        int previousIndex = -1;
+
+        while (true)
+        {
+            if (fallbackVariationIds != null &&
+                fallbackVariationIds.Length > 0)
+            {
+                int selectedIndex =
+                    GetDifferentFallbackIndex(
+                        previousIndex
+                    );
+
+                previousIndex = selectedIndex;
+
+                string variationId =
+                    fallbackVariationIds[
+                        selectedIndex
+                    ];
+
+                float duration =
+                    Random.Range(
+                        fallbackDurationRange.x,
+                        fallbackDurationRange.y
+                    );
+
+                float intensity =
+                    Random.Range(
+                        0.4f,
+                        0.7f
+                    );
+
+                binding.bodyAnimator
+                    .PlayServerVariation(
+                        variationId,
+                        duration,
+                        intensity
+                    );
+            }
+
+            float interval =
+                Random.Range(
+                    fallbackIntervalRange.x,
+                    fallbackIntervalRange.y
+                );
+
+            yield return new WaitForSecondsRealtime(
+                interval
+            );
+        }
+    }
+
+    private int GetDifferentFallbackIndex(
+        int previousIndex)
+    {
+        if (fallbackVariationIds.Length <= 1)
+            return 0;
+
+        int selectedIndex =
+            previousIndex;
+
+        while (selectedIndex ==
+            previousIndex)
+        {
+            selectedIndex =
+                Random.Range(
+                    0,
+                    fallbackVariationIds.Length
+                );
+        }
+
+        return selectedIndex;
     }
 }

@@ -5650,6 +5650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e819fd4a78d74d44487bda9f9ce47375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestionAnswerManager
+  aiIntegrationManager: {fileID: 1230575275}
   qaPanel: {fileID: 1435535654}
   questionText: {fileID: 410824756}
   answerGuideText: {fileID: 2050827497}
