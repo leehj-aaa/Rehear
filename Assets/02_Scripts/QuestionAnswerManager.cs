@@ -6,6 +6,14 @@ using UnityEngine.UI;
 
 public class QuestionAnswerManager : MonoBehaviour
 {
+    [Header("AI 세션")]
+    [SerializeField]
+    private AIIntegrationManager
+        aiIntegrationManager;
+
+    private bool isFinishingPresentation;
+
+
     private enum QAState { ReadyToStart, PlayingQuestion, ReadyToAnswer, ReadyForNext, ReadyToFinish }
 
     public GameObject qaPanel;
@@ -70,7 +78,7 @@ public class QuestionAnswerManager : MonoBehaviour
                 PlayCurrentQuestion();
                 break;
             case QAState.ReadyToFinish:
-                SceneManager.LoadScene("Scene_03_Feedback");
+                FinishPresentation();
                 break;
         }
     }
@@ -98,6 +106,46 @@ public class QuestionAnswerManager : MonoBehaviour
         if (audioWaitCoroutine != null) StopCoroutine(audioWaitCoroutine);
         audioWaitCoroutine = StartCoroutine(WaitForQuestionAudio());
     }
+
+    private void FinishPresentation()
+{
+    if (isFinishingPresentation)
+        return;
+
+    isFinishingPresentation = true;
+
+    SetButtonState(
+        "발표 종료 중...",
+        false
+    );
+
+    if (audioSource != null)
+        audioSource.Stop();
+
+    if (aiIntegrationManager != null)
+    {
+        aiIntegrationManager
+            .EndAiSessionAndThen(
+                LoadFeedbackScene
+            );
+    }
+    else
+    {
+        Debug.LogWarning(
+            "[Q&A] AIIntegrationManager가 연결되지 않아 " +
+            "바로 피드백 씬으로 이동합니다."
+        );
+
+        LoadFeedbackScene();
+    }
+}
+
+private void LoadFeedbackScene()
+{
+    SceneManager.LoadScene(
+        "Scene_03_Feedback"
+    );
+}
 
     private IEnumerator WaitForQuestionAudio()
     {

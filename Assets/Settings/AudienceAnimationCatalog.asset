@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db07fe6f0bfe8c549b6024c88e80745d, type: 3}
+  m_Name: AudienceAnimationCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceAnimationCatalog
+  entries:
+  - variationId: ACT_01.laptoptyping
+    maleClip: {fileID: -623603649343465320, guid: 969fa2d39828440b191d878c7e62a92f, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 969fa2d39828440b191d878c7e62a92f, type: 3}
+  - variationId: ACT_02.photoslide
+    maleClip: {fileID: -623603649343465320, guid: 4c229ca4a0c711b4e91780a0750f3c43, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 4c229ca4a0c711b4e91780a0750f3c43, type: 3}
+  - variationId: ACT_03.devicechecking
+    maleClip: {fileID: -623603649343465320, guid: cf3f643156b4647cda7e8a99e4ebaecd, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: cf3f643156b4647cda7e8a99e4ebaecd, type: 3}
+  - variationId: ACT_04.drowsynod
+    maleClip: {fileID: -623603649343465320, guid: 9cf769be5c7bf4160bd0e7b9e1f9e8e2, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9cf769be5c7bf4160bd0e7b9e1f9e8e2, type: 3}
+  - variationId: ACT_05.seatadjust
+    maleClip: {fileID: -623603649343465320, guid: 33bcb0ff9c4e948a2844db75adebdb0c, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 33bcb0ff9c4e948a2844db75adebdb0c, type: 3}
+  - variationId: ACT_06.smallstretch
+    maleClip: {fileID: -623603649343465320, guid: f45345644c1d844ed9ebca4e7321d75f, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: f45345644c1d844ed9ebca4e7321d75f, type: 3}
+  - variationId: ACT_07.self_contact
+    maleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}
+  - variationId: ACT_08.side_conversation
+    maleClip: {fileID: -623603649343465320, guid: a348f1d0b987bc34f99efa2c42bf3160, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: a348f1d0b987bc34f99efa2c42bf3160, type: 3}
+  - variationId: AL_01.active_following
+    maleClip: {fileID: -623603649343465320, guid: 6f986feb29326b54aa276c7e1154c189, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 063839c3027ab9440ad405eee0fae678, type: 3}
+  - variationId: AL_01.agreement_nod
+    maleClip: {fileID: -623603649343465320, guid: fc4201c61f8a052449457ed0cb71819e, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: d7cb2580bdfcc074482c9fa877fd10f8, type: 3}
+  - variationId: AL_01.stable_attention
+    maleClip: {fileID: -623603649343465320, guid: b4d6b0e5b94cb984ba398cad97a01102, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 02ae3f9ad35792c48931af7080be7ec2, type: 3}
+  - variationId: AL_02.attentive_slide_check
+    maleClip: {fileID: -623603649343465320, guid: d86dd129994899c4e94307e536509139, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 3d2215a8524e4df4db31383fe9f17513, type: 3}
+  - variationId: AL_02.slight_head_tilt_check
+    maleClip: {fileID: -623603649343465320, guid: 63c8e6e379648f3469cb92321e490b33, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 668ed20146f982744941f4f14f769f9c, type: 3}
+  - variationId: AL_03.low_engagement_positive
+    maleClip: {fileID: -623603649343465320, guid: 8b45601d617566548bed2543d241d050, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 4d41b275f4cfa4d44a91046e60858bbf, type: 3}
+  - variationId: AL_03.passive_acceptance
+    maleClip: {fileID: -623603649343465320, guid: 9066d46c3905fb04e9d8c01b45534539, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 30254dbf7e5474b49a4a81023d96e171, type: 3}
+  - variationId: BL_01.neutral_listening
+    maleClip: {fileID: -623603649343465320, guid: 0c85b87dadde399498b575f4079949e8, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 78a9aa9012523054fb73cce268d79568, type: 3}
+  - variationId: BL_02.neutral_gaze_shift
+    maleClip: {fileID: -623603649343465320, guid: d030ec2f7488e3940a45b0d1ea17ea24, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9d85685c30f772f42a84c94b0d84a348, type: 3}
+  - variationId: BL_03.quiet_stable_posture
+    maleClip: {fileID: -623603649343465320, guid: e193260cb33250a42903ebdab72e437c, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: a4971ca07ae53984fa39df6b5b529fdc, type: 3}
+  - variationId: CT_01.comprehension_nod
+    maleClip: {fileID: -623603649343465320, guid: c48e523f3e6cf7e4aa3cf45326b0ff3b, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 8de71c99325a088429de9bb028638bd0, type: 3}
+  - variationId: CT_01.slide_speaker_tracking
+    maleClip: {fileID: -623603649343465320, guid: 357399462b637ab458353cf14662dd2a, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 0b66e2a2950747745ad4b00ec311ab6d, type: 3}
+  - variationId: CT_01.stable_comprehension
+    maleClip: {fileID: -623603649343465320, guid: 150ade64059268c4587009401f35c8d2, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 147fd78af5bc6af4e9b2602c79af3228, type: 3}
+  - variationId: CT_02.closed_comprehension
+    maleClip: {fileID: -623603649343465320, guid: 4314386b0c4d7b04ca9517c88400f7a4, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 5520f2e0f0fb3774898a57457c55aebd, type: 3}
+  - variationId: CT_02.limited_nod_reserved
+    maleClip: {fileID: -623603649343465320, guid: e24977ce4cc130b44aa74e28b497f7c9, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: f5db12722f40f4f438d9a5048ce9903a, type: 3}
+  - variationId: CT_02.understood_but_reserved
+    maleClip: {fileID: -623603649343465320, guid: fa2854dd758f42c49ad8e8d03753a8aa, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 4263f29851d07fe40a4d2567cd7e499f, type: 3}
+  - variationId: CT_03.delayed_gaze_return
+    maleClip: {fileID: -623603649343465320, guid: 65ee091bc91a11b449d94b84789490db, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 6dbcd50c72a44f748b5553fca583e62f, type: 3}
+  - variationId: CT_03.understood_low_engagement
+    maleClip: {fileID: -623603649343465320, guid: 771c7f7595c23a44c964806c86bf27f1, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 36fc1567f2264a1498ee52a09f3334e9, type: 3}
+  - variationId: CT_05.confused_glance
+    maleClip: {fileID: -623603649343465320, guid: 531a39f677f744d599f3ce85f56ce695, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: d3def7b30b27769498146b57f7806589, type: 3}
+  - variationId: CT_05.head_tilt_recheck
+    maleClip: {fileID: -623603649343465320, guid: 17ce05b383cf34df7bca9d618593ef40, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: e08f2aab79a95b34ca3ae3960f92c856, type: 3}
+  - variationId: CT_05.trying_to_understand
+    maleClip: {fileID: -623603649343465320, guid: 875cb1e9d4f1c43bb9002a89e815c89c, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: f14970f7f2f122748ad86744fc28146a, type: 3}
+  - variationId: CT_06.confused_skeptical
+    maleClip: {fileID: -623603649343465320, guid: 9d3a5c9e6481a4c8599f38f5d596bb09, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: ff42b5106ec543d4d95b53a99b47d6fd, type: 3}
+  - variationId: CT_06.furrowed_head_tilt
+    maleClip: {fileID: -623603649343465320, guid: 0eb889e600f27453ea9b09e43aca53e6, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: ce0c38168abd95b4ba46719a382dc36e, type: 3}
+  - variationId: CT_06.skeptical_slide_check
+    maleClip: {fileID: -623603649343465320, guid: 8e1da2cbc665040d0ba066725752ad98, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9572a34a4d87b424db172ad7b87339a0, type: 3}
+  - variationId: CT_07.lost_understanding
+    maleClip: {fileID: -623603649343465320, guid: 77ce806347ebb4ecd9d410cb74be68ab, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9612824187ed9124a96fac2de7de7082, type: 3}
+  - variationId: CT_07.low_response_flat
+    maleClip: {fileID: -623603649343465320, guid: cbc3a37d8ae9940228c84675de5db6ed, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 44bef27056e16fe4b9e2741ba81d3198, type: 3}
+  - variationId: CT_07.off_target_gaze
+    maleClip: {fileID: -623603649343465320, guid: ba44523dbe225449c86d881cf1c6085f, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 7e4bfcffca597e24eb31356ba928a35a, type: 3}
+  - variationId: CT_08.collapsed_posture_confusion
+    maleClip: {fileID: -623603649343465320, guid: 8c41df95d9c494474ad3aca003f78928, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: ce8be6b722e07c44194b8025a09bfb76, type: 3}
+  - variationId: CT_08.gaze_withdrawal_confusion
+    maleClip: {fileID: -623603649343465320, guid: f83e70547e6c244769ec7d98d3ad3636, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9cb5c32877b491d45b73d2a39055cf6c, type: 3}
+  - variationId: CT_08.strong_confusion_disengagement
+    maleClip: {fileID: -623603649343465320, guid: 3d96ff0b4ffb144d499c155e9fbacea6, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 9dc515e18e72603459ae45eea1c4d43f, type: 3}
+  - variationId: EM_01.approving_smile
+    maleClip: {fileID: -623603649343465320, guid: 7b4ac4d2e474d6a42aae334d3a3e548e, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: e7e75d38788b6644dbcf6598086d57af, type: 3}
+  - variationId: EM_01.positive_monitoring
+    maleClip: {fileID: -623603649343465320, guid: 7c43aa01ddb6bd244a3d05e352e1ab69, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 038674123ebd58d4f9c55e9167eef478, type: 3}
+  - variationId: EM_01.soft_approval_nod
+    maleClip: {fileID: -623603649343465320, guid: a7eb92d310944bc4aa0bd918d15ad44b, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: b2f7ad43bd878b64a8e7bda4e43c1341, type: 3}
+  - variationId: EM_02.curious_head_tilt
+    maleClip: {fileID: -623603649343465320, guid: 63416aeab1e6c0f48b145bd2e9e2678d, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 896483b9e66d2574395bc40b969dd336, type: 3}
+  - variationId: EM_02.positive_but_uncertain
+    maleClip: {fileID: -623603649343465320, guid: b050e31ebbe3d704695e79746bd630a0, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 00b9e6b1da164244798e49a2f5ab7465, type: 3}
+  - variationId: EM_02.smile_with_slide_check
+    maleClip: {fileID: -623603649343465320, guid: 538014560a1a47c42b4636aee4415927, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 027d8f569d308eb4397c1325883d8d53, type: 3}
+  - variationId: EM_04.fading_approval
+    maleClip: {fileID: -623603649343465320, guid: 0f043ef8aae8fef4594bb7d360cdb373, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: da648d5a2b189544493c4d194acfbfcd, type: 3}
+  - variationId: EM_04.weak_positive_low_clarity
+    maleClip: {fileID: -623603649343465320, guid: 91af574254c786c4c855ee52b9098343, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: fa1e9bc007597734cb4e2ffe8ed7c446, type: 3}
+  - variationId: EM_05.cold_monitoring
+    maleClip: {fileID: -623603649343465320, guid: 771b6227b54af491bbff04cc46affaf7, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 763d0f057075c524a9cd5535a038a020, type: 3}
+  - variationId: EM_05.restrained_disagreement
+    maleClip: {fileID: -623603649343465320, guid: 72331d86830be4ccfa4fc9de5aefe01c, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: c9fb527062437bf4a986093a95afb099, type: 3}
+  - variationId: EM_05.skeptical_monitoring
+    maleClip: {fileID: -623603649343465320, guid: 01a878e007d9d46b5b45d9660c58be57, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 25c4e2c4f1341d04ba117e53cf1d7a27, type: 3}
+  - variationId: EM_07.closed_posture_negative
+    maleClip: {fileID: -623603649343465320, guid: 441db8cbce4e94041b58ae674611e2e2, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: f41629112f1adf84e81d14dd43cd5275, type: 3}
+  - variationId: EM_07.disengaged_negative
+    maleClip: {fileID: -623603649343465320, guid: 4f35eac2d5efa4cf88553b81234f9443, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 480c7c3d97f791b4d8b43478529ff563, type: 3}
+  - variationId: EM_07.gaze_withdrawal_negative
+    maleClip: {fileID: -623603649343465320, guid: 8520b38a526a1441d887951301b201aa, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 00e81742865c2a7499f7439254829091, type: 3}
