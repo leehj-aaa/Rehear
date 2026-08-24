@@ -79,7 +79,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Transform rearSlideTarget;
     [SerializeField, Range(10f, 90f)] private float rearFacingAngle = 45f;
 
-    private bool rearFacingConfirmed;
+    
 
     [Header("Input")]
     [SerializeField, Range(0.5f, 0.95f)] private float pressThreshold = 0.7f;
@@ -176,19 +176,14 @@ public class TutorialManager : MonoBehaviour
             stickLatched = false;
             return;
         }
-    if (currentStep == TutorialStep.RearSlidePractice &&
-    !rearFacingConfirmed)
+    // 뒤쪽 슬라이드 연습은 실제로 뒤 화면을 보고 있을 때만 입력을 받는다.
+if (currentStep == TutorialStep.RearSlidePractice &&
+    !IsLookingAtRearSlide())
     {
-        if (!IsLookingAtRearSlide())
-        {
-            stickLatched = false;
-            return;
-        }
-
-        rearFacingConfirmed = true;
+        // 앞을 보면서 미리 스틱을 기울인 입력이
+        // 뒤를 봤을 때 바로 계산되지 않도록 잠근다.
         stickLatched = true;
-
-        Debug.Log("[튜토리얼] 후면 발표 화면 확인 완료");
+        return;
     }
         Vector2 stick = stickAction.ReadValue<Vector2>();
         float strongestAxis = Mathf.Max(Mathf.Abs(stick.x), Mathf.Abs(stick.y));
@@ -469,7 +464,7 @@ public class TutorialManager : MonoBehaviour
 
         // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
         stickLatched = true;
-        rearFacingConfirmed = false;
+        
 
         SetStage(
             tutorial3RearSprite,

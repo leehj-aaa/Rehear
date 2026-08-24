@@ -498,8 +498,8 @@ MonoBehaviour:
   m_text: "\uC6F9\uC5D0\uC11C \uC0DD\uC131\uB41C PIN \uBC88\uD638 4\uC790\uB9AC\uB97C
     \uC785\uB825\uD558\uACE0 \uC124\uC815\uD55C \uC138\uC158\uC744 \uBD88\uB7EC\uC624\uC138\uC694 "
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
-  m_sharedMaterial: {fileID: -7805315887953077698, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
+  m_sharedMaterial: {fileID: 5802791956570668251, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -970,7 +970,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.003000006}
+  m_AnchoredPosition: {x: 0, y: -0.003000021}
   m_SizeDelta: {x: 0, y: -0.24706}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &139810039
@@ -1327,12 +1327,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46426705, y: -0.08202803, z: -0.20924576}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 1.4283516, y: 0.56649643}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.019607844}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &147898917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3293,8 +3293,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Q&A \uAC1C\uC218"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
-  m_sharedMaterial: {fileID: -7805315887953077698, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
+  m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3324,7 +3324,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -4505,8 +4505,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "1\uAC1C "
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
-  m_sharedMaterial: {fileID: -7805315887953077698, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
+  m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4536,7 +4536,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -4697,12 +4697,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46412402, y: -0.2674017, z: -0.23533066}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &626234413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5338,12 +5338,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.5758737, y: -0.17481911, z: -0.22230335}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &695013572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5603,12 +5603,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.35237437, y: -0.2674017, z: -0.23533078}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &705905425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6598,7 +6598,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &850741927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6634,7 +6634,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850741926}
   m_LocalRotation: {x: 0.06984467, y: -0, z: 0.0000000037252899, w: 0.99755794}
-  m_LocalPosition: {x: 0, y: 0, z: -0.027713705}
+  m_LocalPosition: {x: 0, y: 0, z: -0.241}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6644,7 +6644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 8.01, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.07200054, y: -0.6816645}
+  m_AnchoredPosition: {x: 0.52, y: -0.303}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &871226026
@@ -7380,12 +7380,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.35237435, y: -0.17481911, z: -0.22230358}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!222 &927699807
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7626,7 +7626,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.003000006}
+  m_AnchoredPosition: {x: 0, y: -0.003000021}
   m_SizeDelta: {x: 0, y: -0.24706}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &957202181
@@ -8890,7 +8890,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1224942167}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 357191172}
+        m_TargetAssemblyTypeName: PinInputManager, Assembly-CSharp
+        m_MethodName: ResetInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1224942166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9499,12 +9511,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.5758737, y: -0.3580091, z: -0.24807926}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1296480636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9686,7 +9698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.003000006}
+  m_AnchoredPosition: {x: 0, y: -0.003000021}
   m_SizeDelta: {x: 0, y: -0.24706}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1304008985
@@ -9935,12 +9947,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46412402, y: -0.3580091, z: -0.24807937}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1320084489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10177,10 +10189,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC7AC\uC785\uB825\uD558\uAE30 "
+  m_text: "\uCDE8\uC18C\uD558\uAE30 "
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
-  m_sharedMaterial: {fileID: -7805315887953077698, guid: 36acfbd3fce28d44fb510c582a793453, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
+  m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10310,12 +10322,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 1.2283516, y: 1.3412952}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1344019924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10481,12 +10493,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46412402, y: -0.17481911, z: -0.22230347}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1345339358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10668,7 +10680,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.003000006}
+  m_AnchoredPosition: {x: 0, y: -0.003000021}
   m_SizeDelta: {x: 0, y: -0.24706}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1415520102
@@ -10889,13 +10901,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 357191174}
+        m_TargetAssemblyTypeName: Scene03Manager, Assembly-CSharp
+        m_MethodName: GoToScene2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -11574,12 +11586,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 1.2283516, y: 1.3412964}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.78431374}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1498413593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11967,12 +11979,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.5758737, y: -0.2674017, z: -0.23533054}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1538346948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12357,12 +12369,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 1.2283516, y: 1.3412964}
+  savedColor: {r: 1, g: 1, b: 1, a: 0.392}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1582502950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14224,12 +14236,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.35237437, y: -0.35800922, z: -0.2480795}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &1898400596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15134,12 +15146,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
-  savedUp: {x: 0, y: 0, z: 0}
-  savedRectSize: {x: 0, y: 0}
-  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedPos: {x: 0.46412405, y: -0.45277548, z: -0.26141557}
+  savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
+  savedRectSize: {x: 0.34249997, y: 0.29069996}
+  savedColor: {r: 1, g: 1, b: 1, a: 1}
   savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
-  savedFill: 0
+  savedFill: 1
 --- !u!114 &2002868826
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class OpeningUIPlacement : MonoBehaviour
@@ -10,13 +9,32 @@ public class OpeningUIPlacement : MonoBehaviour
     [SerializeField] private float distance = 3f;
     [SerializeField] private float verticalOffset = 0f;
 
-    private IEnumerator Start()
+    private bool placed;
+
+    private void OnEnable()
     {
-        // Quest의 초기 HMD 위치와 방향이 적용될 때까지 잠시 대기
-        yield return null;
-        yield return null;
+        Application.onBeforeRender += PlaceBeforeFirstRender;
+    }
+
+    private void OnDisable()
+    {
+        Application.onBeforeRender -= PlaceBeforeFirstRender;
+    }
+
+    private void PlaceBeforeFirstRender()
+    {
+        if (placed)
+            return;
+
+        if (xrCamera == null || openingUiRoot == null)
+            return;
 
         PlaceInFrontOfUser();
+
+        placed = true;
+
+        // 최초 배치가 끝나면 더 이상 실행하지 않음
+        Application.onBeforeRender -= PlaceBeforeFirstRender;
     }
 
     [ContextMenu("Place In Front Of User")]
@@ -39,22 +57,13 @@ public class OpeningUIPlacement : MonoBehaviour
 
         forward.Normalize();
 
-        Vector3 targetPosition =
+        openingUiRoot.position =
             xrCamera.position +
             forward * distance +
             Vector3.up * verticalOffset;
 
-        openingUiRoot.position = targetPosition;
-
-        Vector3 directionToCamera =
-            xrCamera.position - openingUiRoot.position;
-
-        directionToCamera.y = 0f;
-
-        if (directionToCamera.sqrMagnitude > 0.001f)
-        {
-            openingUiRoot.rotation =
-                Quaternion.LookRotation(-directionToCamera.normalized);
-        }
+        // Canvas의 앞면이 사용자를 향하도록 배치
+        openingUiRoot.rotation =
+            Quaternion.LookRotation(forward, Vector3.up);
     }
 }
