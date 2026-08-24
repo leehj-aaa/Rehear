@@ -2213,6 +2213,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptScroller
   scriptText: {fileID: 1108696683}
   pageIndicatorText: {fileID: 0}
+  useRuntimeSessionScript: 0
 --- !u!1 &829166120
 GameObject:
   m_ObjectHideFlags: 0
@@ -6854,6 +6855,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 481a98a78cc16524ca7a881793502103, type: 3}
   - {fileID: 2800000, guid: 6392bd0e6002e34489b290f8b1a7bbd8, type: 3}
   - {fileID: 2800000, guid: 826dd0997c4474a4496e0b6630a25959, type: 3}
+  useRuntimeSessionSlides: 0
+  downloadTimeoutSeconds: 20
 --- !u!1 &2028653236
 GameObject:
   m_ObjectHideFlags: 0

@@ -1952,6 +1952,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptScroller
   scriptText: {fileID: 1108696683}
   pageIndicatorText: {fileID: 0}
+  useRuntimeSessionScript: 1
 --- !u!1 &829166120
 GameObject:
   m_ObjectHideFlags: 0
@@ -5962,7 +5963,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.106
+      value: -0.035
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5970,7 +5971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.612
+      value: 0.687
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6617,6 +6618,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 481a98a78cc16524ca7a881793502103, type: 3}
   - {fileID: 2800000, guid: 6392bd0e6002e34489b290f8b1a7bbd8, type: 3}
   - {fileID: 2800000, guid: 826dd0997c4474a4496e0b6630a25959, type: 3}
+  useRuntimeSessionSlides: 1
+  downloadTimeoutSeconds: 20
 --- !u!1 &2028653236
 GameObject:
   m_ObjectHideFlags: 0

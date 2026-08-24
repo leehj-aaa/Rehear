@@ -1327,7 +1327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46426705, y: -0.08202803, z: -0.20924576}
+  savedPos: {x: 0.015267629, y: -0.33962816, z: -0.246245}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 1.4283516, y: 0.56649643}
   savedColor: {r: 1, g: 1, b: 1, a: 0.019607844}
@@ -4697,7 +4697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46412402, y: -0.2674017, z: -0.23533066}
+  savedPos: {x: 0.015124606, y: -0.52500176, z: -0.2723299}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -5338,7 +5338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.5758737, y: -0.17481911, z: -0.22230335}
+  savedPos: {x: 0.12687425, y: -0.43241918, z: -0.2593026}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -5603,7 +5603,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.35237437, y: -0.2674017, z: -0.23533078}
+  savedPos: {x: -0.09662696, y: -0.52500176, z: -0.27233002}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -6087,8 +6087,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.443128, y: 0.10837114, z: 0.01}
-  m_Center: {x: -0.0058305264, y: 0.002497375, z: 8.0397085e-17}
+  m_Size: {x: 1.443128, y: 0.10837114, z: 0.027851112}
+  m_Center: {x: -0.0058305264, y: 0.002497375, z: -0.21131548}
 --- !u!114 &777487291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6598,7 +6598,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &850741927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6634,7 +6634,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850741926}
   m_LocalRotation: {x: 0.06984467, y: -0, z: 0.0000000037252899, w: 0.99755794}
-  m_LocalPosition: {x: 0, y: 0, z: -0.241}
+  m_LocalPosition: {x: 0, y: 0, z: -0.281}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6644,7 +6644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 8.01, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.52, y: -0.303}
+  m_AnchoredPosition: {x: 0.069, y: -0.5866}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &871226026
@@ -7380,7 +7380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.35237435, y: -0.17481911, z: -0.22230358}
+  savedPos: {x: -0.09662507, y: -0.43241918, z: -0.25930282}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -9511,7 +9511,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.5758737, y: -0.3580091, z: -0.24807926}
+  savedPos: {x: 0.12687428, y: -0.61560917, z: -0.2850823}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -9947,7 +9947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46412402, y: -0.3580091, z: -0.24807937}
+  savedPos: {x: 0.01512462, y: -0.61560917, z: -0.28508243}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -10322,7 +10322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedPos: {x: 0.015267663, y: -0.5630268, z: -0.27768192}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 1.2283516, y: 1.3412952}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -10493,7 +10493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46412402, y: -0.17481911, z: -0.22230347}
+  savedPos: {x: 0.015124592, y: -0.43241918, z: -0.2593027}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -11056,8 +11056,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.461986, y: 0.11429012, z: 0.01}
-  m_Center: {x: 0.0005886555, y: 0.0021283627, z: 3.89295e-18}
+  m_Size: {x: 1.461986, y: 0.11429012, z: 0.022861475}
+  m_Center: {x: 0.0005886555, y: 0.0021283627, z: -0.19904357}
 --- !u!114 &1437182399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11586,7 +11586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedPos: {x: 0.015267663, y: -0.5630268, z: -0.27768192}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 1.2283516, y: 1.3412964}
   savedColor: {r: 1, g: 1, b: 1, a: 0.78431374}
@@ -11979,7 +11979,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.5758737, y: -0.2674017, z: -0.23533054}
+  savedPos: {x: 0.12687427, y: -0.52500176, z: -0.27232978}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -12369,7 +12369,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46426708, y: -0.30542672, z: -0.24068268}
+  savedPos: {x: 0.015267663, y: -0.5630268, z: -0.27768192}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 1.2283516, y: 1.3412964}
   savedColor: {r: 1, g: 1, b: 1, a: 0.392}
@@ -14236,7 +14236,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.35237437, y: -0.35800922, z: -0.2480795}
+  savedPos: {x: -0.09662695, y: -0.6156093, z: -0.28508255}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -15146,7 +15146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0.46412405, y: -0.45277548, z: -0.26141557}
+  savedPos: {x: 0.015124634, y: -0.71037555, z: -0.2984148}
   savedUp: {x: -4.9279514e-10, y: 0.99024343, z: 0.13934824}
   savedRectSize: {x: 0.34249997, y: 0.29069996}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
