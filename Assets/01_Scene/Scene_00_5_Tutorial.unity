@@ -267,6 +267,9 @@ MonoBehaviour:
   stepSuccessSound: {fileID: 8300000, guid: 943c0392ed0c60249999e1b3512ec2d0, type: 3}
   inputSoundVolume: 0.7
   successSoundVolume: 0.652
+  xrCamera: {fileID: 2089395744}
+  rearSlideTarget: {fileID: 51595003}
+  rearFacingAngle: 45
   pressThreshold: 0.7
   releaseThreshold: 0.3
   requiredPracticeCount: 3
@@ -445,6 +448,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &125410224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2203,6 +2213,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptScroller
   scriptText: {fileID: 1108696683}
   pageIndicatorText: {fileID: 0}
+  useRuntimeSessionScript: 0
 --- !u!1 &829166120
 GameObject:
   m_ObjectHideFlags: 0
@@ -3869,6 +3880,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1244549658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5361,6 +5379,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1573894969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5850,6 +5875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e819fd4a78d74d44487bda9f9ce47375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestionAnswerManager
+  aiIntegrationManager: {fileID: 0}
   qaPanel: {fileID: 1435535654}
   questionText: {fileID: 410824756}
   answerGuideText: {fileID: 2050827497}
@@ -6063,6 +6089,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
+  DoNotTesselate: 0
+  savedPos: {x: 0, y: 0, z: 0}
+  savedUp: {x: 0, y: 0, z: 0}
+  savedRectSize: {x: 0, y: 0}
+  savedColor: {r: 0, g: 0, b: 0, a: 0}
+  savedTextUV0: {x: 0, y: 0, z: 0, w: 0}
+  savedFill: 0
 --- !u!114 &1788363387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6822,6 +6855,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 481a98a78cc16524ca7a881793502103, type: 3}
   - {fileID: 2800000, guid: 6392bd0e6002e34489b290f8b1a7bbd8, type: 3}
   - {fileID: 2800000, guid: 826dd0997c4474a4496e0b6630a25959, type: 3}
+  useRuntimeSessionSlides: 0
+  downloadTimeoutSeconds: 20
 --- !u!1 &2028653236
 GameObject:
   m_ObjectHideFlags: 0
@@ -7091,6 +7126,11 @@ CanvasRenderer:
 --- !u!20 &2089395740 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 1767192439, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 1755003796}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2089395744 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
   m_PrefabInstance: {fileID: 1755003796}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &2119106040

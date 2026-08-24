@@ -73,6 +73,14 @@ public class TutorialManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float successSoundVolume = 0.8f;
 
+
+    [Header("Rear View Detection")]
+    [SerializeField] private Transform xrCamera;
+    [SerializeField] private Transform rearSlideTarget;
+    [SerializeField, Range(10f, 90f)] private float rearFacingAngle = 45f;
+
+    
+
     [Header("Input")]
     [SerializeField, Range(0.5f, 0.95f)] private float pressThreshold = 0.7f;
     [SerializeField, Range(0.05f, 0.5f)] private float releaseThreshold = 0.3f;
@@ -168,7 +176,15 @@ public class TutorialManager : MonoBehaviour
             stickLatched = false;
             return;
         }
-
+    // 뒤쪽 슬라이드 연습은 실제로 뒤 화면을 보고 있을 때만 입력을 받는다.
+if (currentStep == TutorialStep.RearSlidePractice &&
+    !IsLookingAtRearSlide())
+    {
+        // 앞을 보면서 미리 스틱을 기울인 입력이
+        // 뒤를 봤을 때 바로 계산되지 않도록 잠근다.
+        stickLatched = true;
+        return;
+    }
         Vector2 stick = stickAction.ReadValue<Vector2>();
         float strongestAxis = Mathf.Max(Mathf.Abs(stick.x), Mathf.Abs(stick.y));
 
@@ -273,6 +289,33 @@ public class TutorialManager : MonoBehaviour
 
         lastButtonTime = Time.unscaledTime;
         return true;
+    }
+
+    private bool IsLookingAtRearSlide()
+    {
+        if (xrCamera == null || rearSlideTarget == null)
+            return false;
+
+        Vector3 cameraForward = xrCamera.forward;
+        Vector3 directionToTarget =
+            rearSlideTarget.position - xrCamera.position;
+
+        // 고개를 위아래로 기울인 것은 제외하고 좌우 회전만 검사
+        cameraForward.y = 0f;
+        directionToTarget.y = 0f;
+
+        if (cameraForward.sqrMagnitude < 0.001f ||
+            directionToTarget.sqrMagnitude < 0.001f)
+        {
+            return false;
+        }
+
+        float angle = Vector3.Angle(
+            cameraForward.normalized,
+            directionToTarget.normalized
+        );
+
+        return angle <= rearFacingAngle;
     }
 
     private void CountTriggerPractice()
@@ -421,6 +464,7 @@ public class TutorialManager : MonoBehaviour
 
         // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
         stickLatched = true;
+        
 
         SetStage(
             tutorial3RearSprite,

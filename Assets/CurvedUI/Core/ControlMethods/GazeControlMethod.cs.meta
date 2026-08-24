@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c73938135b0c22542af0d026c48f3db2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53258
+  packageName: Curved UI - VR Ready Solution To Bend / Warp Your Canvas!
+  packageVersion: 4.0.1
+  assetPath: Assets/CurvedUI/Core/ControlMethods/GazeControlMethod.cs
+  uploadId: 748054
