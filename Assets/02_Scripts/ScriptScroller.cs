@@ -1,4 +1,5 @@
 using TMPro;
+using Rehear.Evc.Presentation;
 using UnityEngine;
 
 // 기존 컴포넌트 연결을 보존하기 위해 클래스 이름은 ScriptScroller를 유지한다.
@@ -12,6 +13,9 @@ public class ScriptScroller : MonoBehaviour
 
     private void Start()
     {
+        var contextScript = PresentationSessionContext.Current.Presentation?.page_2?.presentation_script_content;
+        if (scriptText != null && !string.IsNullOrWhiteSpace(contextScript))
+            scriptText.text = contextScript;
         RefreshPagination();
     }
 

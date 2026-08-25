@@ -322,8 +322,6 @@ GameObject:
   m_Component:
   - component: {fileID: 125410222}
   - component: {fileID: 125410225}
-  - component: {fileID: 125410224}
-  - component: {fileID: 125410223}
   m_Layer: 0
   m_Name: Image (Blurred Background)
   m_TagString: Untagged
@@ -350,30 +348,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: -0.000000014901161}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &125410223
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 125410221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
---- !u!114 &125410224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 125410221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fdcd123b16675c438a4b6c775252a8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Kamgam.UGUIBlurredBackground::Kamgam.UGUIBlurredBackground.BlurredBackgroundImage
 --- !u!222 &125410225
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -492,39 +466,16 @@ PrefabInstance:
       addedObject: {fileID: 270704683}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 270704682}
+      addedObject: {fileID: 270704684}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 270704684}
+      addedObject: {fileID: 2100000003}
   m_SourcePrefab: {fileID: 100100000, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
 --- !u!4 &270704681 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
   m_PrefabInstance: {fileID: 270704680}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &270704682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 106557009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RandomAudienceAnimator
-  targetAnimator: {fileID: 270704683}
-  idleClip: {fileID: 0}
-  reactionClips: []
-  minInitialDelay: 1
-  maxInitialDelay: 5
-  minInterval: 4
-  maxInterval: 9
-  blendDuration: 1.669
-  reactionChance: 0.75
-  minPlaybackSpeed: 0.92
-  maxPlaybackSpeed: 1.08
 --- !u!95 &270704683
 Animator:
   serializedVersion: 7
@@ -1963,6 +1914,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 976342267}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2100000005}
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
 --- !u!4 &859977382 stripped
 Transform:
@@ -2601,6 +2555,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1825097245}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2100000004}
   m_SourcePrefab: {fileID: 100100000, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
 --- !u!4 &1097466118 stripped
 Transform:
@@ -3204,39 +3161,16 @@ PrefabInstance:
       addedObject: {fileID: 1228476764}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1228476763}
+      addedObject: {fileID: 1228476765}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1228476765}
+      addedObject: {fileID: 2100000001}
   m_SourcePrefab: {fileID: 100100000, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
 --- !u!4 &1228476762 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
   m_PrefabInstance: {fileID: 1228476761}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1228476763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 495301385}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RandomAudienceAnimator
-  targetAnimator: {fileID: 1228476764}
-  idleClip: {fileID: 0}
-  reactionClips: []
-  minInitialDelay: 1
-  maxInitialDelay: 5
-  minInterval: 4
-  maxInterval: 9
-  blendDuration: 1.422
-  reactionChance: 0.75
-  minPlaybackSpeed: 0.92
-  maxPlaybackSpeed: 1.08
 --- !u!95 &1228476764
 Animator:
   serializedVersion: 7
@@ -3340,7 +3274,6 @@ GameObject:
   - component: {fileID: 1244549655}
   - component: {fileID: 1244549659}
   - component: {fileID: 1244549658}
-  - component: {fileID: 1244549657}
   - component: {fileID: 1244549656}
   m_Layer: 5
   m_Name: PanelMask
@@ -3382,18 +3315,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
---- !u!114 &1244549657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1244549654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
 --- !u!114 &1244549658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4208,7 +4129,6 @@ GameObject:
   - component: {fileID: 1573894967}
   - component: {fileID: 1573894970}
   - component: {fileID: 1573894969}
-  - component: {fileID: 1573894968}
   m_Layer: 5
   m_Name: Image_BlueGlow
   m_TagString: Untagged
@@ -4235,18 +4155,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0.752}
   m_SizeDelta: {x: 0.2, y: -0.7748}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1573894968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1573894966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
 --- !u!114 &1573894969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4434,6 +4342,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1617128131}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2100000006}
   m_SourcePrefab: {fileID: 100100000, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
 --- !u!4 &1617128130 stripped
 Transform:
@@ -5060,7 +4971,6 @@ GameObject:
   - component: {fileID: 1788363389}
   - component: {fileID: 1788363388}
   - component: {fileID: 1788363387}
-  - component: {fileID: 1788363386}
   m_Layer: 0
   m_Name: Image (Blurred Background)_Mask
   m_TagString: Untagged
@@ -5088,18 +4998,6 @@ RectTransform:
   m_AnchoredPosition: {x: -62.900078, y: -104.04}
   m_SizeDelta: {x: -98.400024, y: -98.73999}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1788363386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1788363384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e62188adca544cf1b96ccf1630f15f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
 --- !u!114 &1788363387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5213,6 +5111,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1802298771}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2100000002}
   m_SourcePrefab: {fileID: 100100000, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
 --- !u!4 &1802298768 stripped
 Transform:
@@ -5248,7 +5149,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 193217807}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ce2786f0e092184ab162a037a229bbb, type: 3}
   m_Name: 
@@ -5481,6 +5382,9 @@ MonoBehaviour:
   scriptPanel: {fileID: 1122813430}
   scriptButtonText: {fileID: 1007580572}
   sessionAudioSource: {fileID: 1855155105}
+  useEvcPipeline: 0
+  flowController: {fileID: 2100000104}
+  presentationManager: {fileID: 1910796615}
   qaManager: {fileID: 1738587707}
 --- !u!82 &1855155105
 AudioSource:
@@ -6088,6 +5992,177 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2119106040}
   m_CullTransparentMesh: 1
+--- !u!114 &2100000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495301385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_01
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!114 &2100000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193217807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_02
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!114 &2100000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106557009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_03
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!114 &2100000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825097244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_04
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!114 &2100000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976342266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_05
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!114 &2100000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061199091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_06
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours: []
+--- !u!1 &2100000100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2100000101}
+  - component: {fileID: 2100000102}
+  - component: {fileID: 2100000103}
+  - component: {fileID: 2100000104}
+  m_Layer: 0
+  m_Name: EVC Pipeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2100000101
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000100}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2100000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf96654b3f0400b94100982e454d48a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceReactionCoordinator
+  agents: []
+  dedupeTtlSeconds: 120
+  maxDedupeEntries: 512
+  lateCommandExpirySeconds: 2
+--- !u!114 &2100000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97feb3be62b4472daf239be9a0b89edd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audio.AudioSegmentCapture
+  policy: {fileID: 0}
+  microphoneDevice:
+--- !u!114 &2100000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08a1ea669b6049f2949baa1ddbc51b15, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Presentation.PresentationFlowController
+  environmentConfig: {fileID: 0}
+  audioCapture: {fileID: 2100000103}
+  audienceCoordinator: {fileID: 2100000102}
+  autoStart: 0
+  language: ko-KR
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -6106,3 +6181,4 @@ SceneRoots:
   - {fileID: 1910796614}
   - {fileID: 1738587708}
   - {fileID: 819717308}
+  - {fileID: 2100000101}

@@ -1,0 +1,19 @@
+{
+  "name": "Rehear.Evc.Tests.PlayMode",
+  "rootNamespace": "Rehear.Evc.Tests",
+  "references": [
+    "Rehear.Evc.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

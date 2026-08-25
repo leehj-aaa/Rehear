@@ -2580,7 +2580,7 @@ MonoBehaviour:
   errorText: {fileID: 109783275}
   expertiseValueText: {fileID: 1546196893}
   interestValueText: {fileID: 1438284135}
-  enableDemoFallback: 1
+  enableDemoFallback: 0
   demoPin: 1234
   demoExpertise: "\uBCF4\uD1B5"
   demoInterest: "\uB192\uC74C"

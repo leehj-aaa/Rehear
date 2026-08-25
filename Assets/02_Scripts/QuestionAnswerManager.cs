@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using Rehear.Evc.Contracts;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -38,13 +40,11 @@ public class QuestionAnswerManager : MonoBehaviour
     {
         if (actionButton == null) Prepare(button);
 
-        questionCount = Mathf.Min(
-            questionContents != null ? questionContents.Length : 0,
-            questionAudios != null ? questionAudios.Length : 0);
+        questionCount = questionContents != null ? questionContents.Length : 0;
 
         if (questionCount == 0)
         {
-            Debug.LogError("질문 텍스트와 질문 오디오를 한 개 이상 연결해야 합니다.");
+            Debug.LogError("질문 텍스트를 한 개 이상 연결해야 합니다.");
             return;
         }
 
@@ -84,15 +84,18 @@ public class QuestionAnswerManager : MonoBehaviour
         if (questionText != null) questionText.text = questionContents[currentIdx];
         SetButtonState("질문받는 중...", false);
 
-        if (audioSource == null)
+        AudioClip clip = questionAudios != null && currentIdx < questionAudios.Length
+            ? questionAudios[currentIdx]
+            : null;
+
+        if (audioSource == null || clip == null)
         {
-            Debug.LogError("QAManager에 Audio Source가 연결되지 않았습니다.");
             FinishQuestionAudio();
             return;
         }
 
         audioSource.Stop();
-        audioSource.clip = questionAudios[currentIdx];
+        audioSource.clip = clip;
         audioSource.Play();
 
         if (audioWaitCoroutine != null) StopCoroutine(audioWaitCoroutine);
@@ -137,6 +140,39 @@ public class QuestionAnswerManager : MonoBehaviour
     {
         if (actionButton != null) actionButton.interactable = interactable;
         if (actionButtonText != null) actionButtonText.text = label;
+    }
+
+    public void SetGeneratedQuestions(IReadOnlyList<GeneratedQuestion> questions)
+    {
+        if (questions == null)
+        {
+            questionContents = new string[0];
+            return;
+        }
+
+        questionContents = new string[questions.Count];
+        for (int index = 0; index < questions.Count; index++)
+            questionContents[index] = questions[index]?.question ?? string.Empty;
+        // Generated questions have no bound TTS clips. Never reuse Inspector demo audio.
+        questionAudios = new AudioClip[0];
+        currentIdx = 0;
+        state = QAState.ReadyToStart;
+    }
+
+    public void ShowGenerating()
+    {
+        if (qaPanel != null) qaPanel.SetActive(true);
+        if (questionText != null) questionText.text = "질문을 생성하고 있습니다.";
+        if (answerGuideText != null) answerGuideText.text = string.Empty;
+        SetButtonState("질문 생성 중...", false);
+    }
+
+    public void ShowGenerationFailed(string message)
+    {
+        if (qaPanel != null) qaPanel.SetActive(true);
+        if (questionText != null) questionText.text = message;
+        SetButtonState("다시 시도", true);
+        state = QAState.ReadyToStart;
     }
 
     private void OnDisable()

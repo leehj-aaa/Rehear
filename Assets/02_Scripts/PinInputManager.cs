@@ -1,6 +1,10 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Firebase;
-using Firebase.Database;
 using Firebase.Extensions;
+using Rehear.Evc.Data;
+using Rehear.Evc.Presentation;
 using TMPro;
 using UnityEngine;
 
@@ -17,38 +21,36 @@ public class PinInputManager : MonoBehaviour
     [SerializeField] private TMP_Text expertiseValueText;
     [SerializeField] private TMP_Text interestValueText;
 
-    [Header("시연용 Fallback")]
-    [SerializeField] private bool enableDemoFallback = true;
+    [Header("개발 빌드 전용 Fallback")]
+    [SerializeField] private bool enableDemoFallback;
     [SerializeField] private string demoPin = "1234";
     [SerializeField] private string demoExpertise = "보통";
     [SerializeField] private string demoInterest = "높음";
 
-    private const string ShowSessionReadyKey =
-        "ShowSessionReadyOnLoad";
-
-    private const string DatabaseRootPath =
-        "presentation_data";
-
+    private const string ShowSessionReadyKey = "ShowSessionReadyOnLoad";
+    private readonly PresentationSessionContext context = PresentationSessionContext.Current;
+    private CancellationTokenSource lifetimeCancellation;
+    private IPresentationRepository repository;
     private int currentIndex;
-    private string currentPin = "";
-
+    private string currentPin = string.Empty;
     private bool firebaseReady;
     private bool firebaseInitializing;
     private bool isLoading;
 
+    private void Awake()
+    {
+        lifetimeCancellation = new CancellationTokenSource();
+    }
+
     private void Start()
     {
         InitializeFirebase();
+        var returnFromPresentation = PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
+        PlayerPrefs.DeleteKey(ShowSessionReadyKey);
 
-        bool returnFromPresentation =
-            PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
-
-        if (returnFromPresentation)
+        if (returnFromPresentation && context.HasPresentation)
         {
-            PlayerPrefs.DeleteKey(ShowSessionReadyKey);
-            PlayerPrefs.Save();
-
-            ShowSessionReadyPanel();
+            ApplyAudienceInformation(context.Presentation);
             return;
         }
 
@@ -57,345 +59,170 @@ public class PinInputManager : MonoBehaviour
 
     private void InitializeFirebase()
     {
-        if (firebaseInitializing)
-            return;
-
+        if (firebaseInitializing) return;
         firebaseInitializing = true;
-
-        FirebaseApp.CheckAndFixDependenciesAsync()
-            .ContinueWithOnMainThread(task =>
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            firebaseInitializing = false;
+            if (task.IsCanceled || task.IsFaulted || task.Result != DependencyStatus.Available)
             {
-                firebaseInitializing = false;
+                firebaseReady = false;
+                Debug.LogWarning("Firebase initialization failed.");
+                return;
+            }
 
-                if (task.IsCanceled)
-                {
-                    firebaseReady = false;
-                    Debug.LogWarning(
-                        "Firebase 초기화가 취소되었습니다."
-                    );
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 중 오류가 발생했습니다."
-                    );
-
-                    Debug.LogException(task.Exception);
-                    return;
-                }
-
-                DependencyStatus dependencyStatus =
-                    task.Result;
-
-                if (dependencyStatus ==
-                    DependencyStatus.Available)
-                {
-                    firebaseReady = true;
-                    Debug.Log("Firebase 초기화 완료");
-                }
-                else
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 실패: " +
-                        dependencyStatus
-                    );
-                }
-            });
+            firebaseReady = true;
+            repository = new FirebasePresentationRepository();
+            Debug.Log("Firebase initialized.");
+        });
     }
 
-    // PIN 입력 영역을 누르면 숫자 키보드를 엽니다.
     public void OpenKeyboard()
     {
-        if (numberKeyboardPanel != null)
-            numberKeyboardPanel.SetActive(true);
+        if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(true);
     }
 
-    // 숫자 키보드 버튼에서 문자열 숫자를 전달합니다.
     public void AddNumber(string number)
     {
-        if (isLoading)
+        if (isLoading || currentIndex >= 4 || number == null || number.Length != 1 ||
+            number[0] < '0' || number[0] > '9' ||
+            pinTextSlots == null || currentIndex >= pinTextSlots.Length)
             return;
 
-        if (currentIndex >= 4)
-            return;
-
-        if (string.IsNullOrEmpty(number))
-            return;
-
-        pinTextSlots[currentIndex].text = number;
+        if (pinTextSlots[currentIndex] != null) pinTextSlots[currentIndex].text = number;
         currentPin += number;
         currentIndex++;
-
         ClearError();
-
-        if (currentIndex >= 4 &&
-            numberKeyboardPanel != null)
-        {
-            numberKeyboardPanel.SetActive(false);
-        }
+        if (currentIndex >= 4 && numberKeyboardPanel != null) numberKeyboardPanel.SetActive(false);
     }
 
-    // PIN 번호를 처음부터 다시 입력합니다.
     public void ResetInput()
     {
-        if (isLoading)
-            return;
-
-        currentPin = "";
+        if (isLoading) return;
+        currentPin = string.Empty;
         currentIndex = 0;
-
+        context.ClearAll();
         if (pinTextSlots != null)
         {
-            foreach (TMP_Text slot in pinTextSlots)
+            foreach (var slot in pinTextSlots)
             {
-                if (slot != null)
-                    slot.text = "";
+                if (slot != null) slot.text = string.Empty;
             }
         }
-
         ClearError();
-
-        if (numberKeyboardPanel != null)
-            numberKeyboardPanel.SetActive(true);
+        if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(true);
     }
 
-    public string GetFullPin()
-    {
-        return currentPin;
-    }
+    public string GetFullPin() => currentPin;
 
-    // 세션 불러오기 버튼에 연결합니다.
     public void OnSubmitButtonClicked()
     {
-        if (isLoading)
-            return;
+        _ = SubmitAsync();
+    }
 
-        string pin = GetFullPin();
-
-        if (pin.Length != 4)
+    private async Task SubmitAsync()
+    {
+        if (isLoading) return;
+        var pin = GetFullPin();
+        if (!PresentationDataValidator.IsFourDigitPin(pin))
         {
-            ShowError(
-                "PIN 번호 4자리를 모두 입력해주세요."
-            );
+            ShowError("PIN 번호 4자리를 모두 입력해주세요.");
             return;
         }
 
-        if (!firebaseReady)
+        if (!firebaseReady || repository == null)
         {
-            if (TryLoadDemoFallback(pin))
-                return;
-
-            ShowError(
-                "서버에 연결 중입니다. 잠시 후 다시 시도해주세요."
-            );
-
+            if (TryLoadDemoFallback(pin)) return;
+            ShowError("서버에 연결 중입니다. 잠시 후 다시 시도해주세요.");
             InitializeFirebase();
             return;
         }
 
-        LoadSessionFromFirebase(pin);
-    }
-
-    private void LoadSessionFromFirebase(string pin)
-    {
         isLoading = true;
-
-        if (errorText != null)
+        ShowError("세션 정보를 불러오는 중입니다.");
+        try
         {
-            errorText.text =
-                "세션 정보를 불러오는 중입니다.";
-        }
-
-        DatabaseReference sessionReference =
-            FirebaseDatabase.DefaultInstance
-                .GetReference(DatabaseRootPath)
-                .Child(pin);
-
-        sessionReference.GetValueAsync()
-            .ContinueWithOnMainThread(task =>
+            var result = await repository.LoadAsync(pin, lifetimeCancellation.Token);
+            if (!result.IsSuccess)
             {
-                isLoading = false;
-
-                if (task.IsCanceled)
-                {
-                    if (!TryLoadDemoFallback(pin))
-                    {
-                        ShowError(
-                            "세션 불러오기가 취소되었습니다."
-                        );
-                    }
-
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    Debug.LogError(
-                        "Firebase 데이터 조회 실패"
-                    );
-
-                    Debug.LogException(task.Exception);
-
-                    if (!TryLoadDemoFallback(pin))
-                    {
-                        ShowError(
-                            "서버 연결에 실패했습니다."
-                        );
-                    }
-
-                    return;
-                }
-
-                DataSnapshot sessionSnapshot =
-                    task.Result;
-
-                if (sessionSnapshot == null ||
-                    !sessionSnapshot.Exists)
-                {
-                    if (!TryLoadDemoFallback(pin))
-                    {
-                        ShowError(
-                            "존재하지 않는 PIN 번호입니다."
-                        );
-                    }
-
-                    return;
-                }
-
-                ReadAudienceInformation(
-                    sessionSnapshot,
-                    pin
-                );
-            });
+                Debug.LogWarning("Presentation load failed: " + result.Status);
+                if (!TryLoadDemoFallback(pin)) ShowError(result.UserMessage);
+                return;
+            }
+            ApplyPresentation(result.Data);
+        }
+        catch (OperationCanceledException)
+        {
+            ShowError("세션 불러오기가 취소되었습니다.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private void ReadAudienceInformation(
-        DataSnapshot sessionSnapshot,
-        string pin)
+    private void ApplyPresentation(PresentationDataDto data)
     {
-        DataSnapshot page3Snapshot =
-            sessionSnapshot.Child("page_3");
-
-        if (!page3Snapshot.Exists)
+        var validation = context.BeginPresentation(data);
+        if (!validation.IsValid)
         {
-            if (!TryLoadDemoFallback(pin))
-            {
-                ShowError(
-                    "청중 정보가 없는 세션입니다."
-                );
-            }
-
+            Debug.LogWarning("Presentation data validation failed: " + string.Join(" | ", validation.Errors));
+            ShowError("세션 정보가 올바르지 않습니다. 관리자에게 문의해주세요.");
             return;
         }
 
-        string expertise = GetSnapshotString(
-            page3Snapshot,
-            "audience_expertise"
-        );
-
-        string interest = GetSnapshotString(
-            page3Snapshot,
-            "audience_interest"
-        );
-
-        if (string.IsNullOrWhiteSpace(expertise))
-            expertise = "미설정";
-
-        if (string.IsNullOrWhiteSpace(interest))
-            interest = "미설정";
-
-        ApplyAudienceInformation(
-            expertise,
-            interest
-        );
-
-        Debug.Log(
-            "세션 불러오기 완료" +
-            "\nPIN: " + pin +
-            "\n청중 전문성: " + expertise +
-            "\n청중 관심도: " + interest
-        );
-    }
-
-    private string GetSnapshotString(
-        DataSnapshot parent,
-        string childName)
-    {
-        if (parent == null)
-            return "";
-
-        DataSnapshot child =
-            parent.Child(childName);
-
-        if (!child.Exists ||
-            child.Value == null)
-        {
-            return "";
-        }
-
-        return child.Value.ToString();
-    }
-
-    private void ApplyAudienceInformation(
-        string expertise,
-        string interest)
-    {
-        if (expertiseValueText != null)
-            expertiseValueText.text = expertise;
-
-        if (interestValueText != null)
-            interestValueText.text = interest;
-
-        ClearError();
-        ShowSessionReadyPanel();
+        ApplyAudienceInformation(data);
+        Debug.Log(data.is_demo_fallback ? "Demo presentation context is ready." : "Firebase presentation context is ready.");
     }
 
     private bool TryLoadDemoFallback(string pin)
     {
-        if (!enableDemoFallback)
-            return false;
-
-        if (pin != demoPin)
-            return false;
-
-        Debug.LogWarning(
-            "Firebase 대신 시연용 로컬 데이터를 사용합니다."
-        );
-
-        ApplyAudienceInformation(
-            demoExpertise,
-            demoInterest
-        );
-
+        if (!enableDemoFallback || !Debug.isDebugBuild || pin != demoPin) return false;
+        ApplyPresentation(new PresentationDataDto
+        {
+            pin = demoPin,
+            presentation_title = "Rehear Demo Presentation",
+            page_1 = new PresentationPage1Dto
+            {
+                duration_minutes = 1,
+                environment_type = "demo",
+                qa_count = 3
+            },
+            page_2 = new PresentationPage2Dto
+            {
+                presentation_script_content = "데모 발표 대본",
+                slide_image = new SlideImageDto { image_urls = Array.Empty<string>() }
+            },
+            page_3 = new PresentationPage3Dto
+            {
+                audience_expertise = demoExpertise,
+                audience_interest = demoInterest,
+                audience_scale = 6
+            },
+            is_demo_fallback = true
+        });
         return true;
+    }
+
+    private void ApplyAudienceInformation(PresentationDataDto data)
+    {
+        if (expertiseValueText != null) expertiseValueText.text = data.page_3.audience_expertise;
+        if (interestValueText != null) interestValueText.text = data.page_3.audience_interest;
+        ClearError();
+        ShowSessionReadyPanel();
     }
 
     private void ShowPinInputPanel()
     {
-        if (panel_PinInput != null)
-            panel_PinInput.SetActive(true);
-
-        if (numberKeyboardPanel != null)
-            numberKeyboardPanel.SetActive(false);
-
-        if (panel_SessionReady != null)
-            panel_SessionReady.SetActive(false);
+        if (panel_PinInput != null) panel_PinInput.SetActive(true);
+        if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(false);
+        if (panel_SessionReady != null) panel_SessionReady.SetActive(false);
     }
 
     private void ShowSessionReadyPanel()
     {
-        if (panel_PinInput != null)
-            panel_PinInput.SetActive(false);
-
-        if (numberKeyboardPanel != null)
-            numberKeyboardPanel.SetActive(false);
-
+        if (panel_PinInput != null) panel_PinInput.SetActive(false);
+        if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(false);
         if (panel_SessionReady != null)
         {
             panel_SessionReady.SetActive(true);
@@ -405,15 +232,17 @@ public class PinInputManager : MonoBehaviour
 
     private void ShowError(string message)
     {
-        Debug.LogWarning(message);
-
-        if (errorText != null)
-            errorText.text = message;
+        if (errorText != null) errorText.text = message;
     }
 
     private void ClearError()
     {
-        if (errorText != null)
-            errorText.text = "";
+        if (errorText != null) errorText.text = string.Empty;
+    }
+
+    private void OnDestroy()
+    {
+        lifetimeCancellation?.Cancel();
+        lifetimeCancellation?.Dispose();
     }
 }

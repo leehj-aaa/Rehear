@@ -1,0 +1,18 @@
+{
+  "name": "Rehear.Evc.Editor",
+  "rootNamespace": "Rehear.Evc.Editor",
+  "references": [
+    "Rehear.Evc.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

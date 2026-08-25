@@ -1,0 +1,16 @@
+{
+  "session_id": "00000000-0000-0000-0000-000000000001",
+  "session_token": "REDACTED_TEST_TOKEN",
+  "seed": 7,
+  "step": 0,
+  "slide_count": 3,
+  "status": "active",
+  "audiences": [
+    { "agent_id": "audience_01" },
+    { "agent_id": "audience_02" },
+    { "agent_id": "audience_03" },
+    { "agent_id": "audience_04" },
+    { "agent_id": "audience_05" },
+    { "agent_id": "audience_06" }
+  ]
+}
