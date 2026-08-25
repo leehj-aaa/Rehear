@@ -13,12 +13,29 @@ namespace Rehear.Evc.Audience
         void StopAndRestoreBaseline();
     }
 
+    public interface IRawCommandPlayer
+    {
+        string Layer { get; }
+
+        bool TryPlayCommand(
+            UnityCommandDto command,
+            out string reason
+        );
+
+        void StopCommand();
+    }
+
     public sealed class AudienceAgent : MonoBehaviour
     {
         [SerializeField] private string agentId;
         [SerializeField] private AudienceActionRegistry actionRegistry;
         [SerializeField] private MonoBehaviour[] actionPlayerBehaviours = Array.Empty<MonoBehaviour>();
 
+
+        private readonly List<IRawCommandPlayer>
+            rawCommandPlayers =
+                new List<IRawCommandPlayer>();
+        
         private readonly Dictionary<string, List<IActionPlayer>> players =
             new Dictionary<string, List<IActionPlayer>>(StringComparer.Ordinal);
 
@@ -58,6 +75,27 @@ namespace Rehear.Evc.Audience
                 return false;
             }
 
+            for (int index = 0;
+                index < rawCommandPlayers.Count;
+                index++)
+            {
+                IRawCommandPlayer rawPlayer =
+                    rawCommandPlayers[index];
+
+                if (rawPlayer == null ||
+                    rawPlayer.Layer != command.layer)
+                {
+                    continue;
+                }
+
+                if (rawPlayer.TryPlayCommand(
+                        command,
+                        out reason))
+                {
+                    return true;
+                }
+            }
+
             if (actionRegistry == null || !actionRegistry.TryGet(command.action_id, out var action))
             {
                 reason = "unknown_action";
@@ -95,6 +133,14 @@ namespace Rehear.Evc.Audience
                 for (var index = 0; index < layerPlayers.Count; index++)
                     layerPlayers[index].StopAndRestoreBaseline();
             }
+
+            for (int index = 0;
+                index < rawCommandPlayers.Count;
+                index++)
+            {
+                rawCommandPlayers[index]
+                    ?.StopCommand();
+            }
         }
 
         public void SetServerMode(bool enabled)
@@ -111,11 +157,18 @@ namespace Rehear.Evc.Audience
         private void RebuildPlayers()
         {
             players.Clear();
+            rawCommandPlayers.Clear();
+
             if (actionPlayerBehaviours == null || actionPlayerBehaviours.Length == 0)
                 actionPlayerBehaviours = GetComponents<MonoBehaviour>();
 
             for (var index = 0; index < actionPlayerBehaviours.Length; index++)
-            {
+            {   if (actionPlayerBehaviours[index]
+                    is IRawCommandPlayer rawPlayer)
+                {
+                    rawCommandPlayers.Add(rawPlayer);
+                }
+
                 if (!(actionPlayerBehaviours[index] is IActionPlayer player) || string.IsNullOrWhiteSpace(player.Layer))
                     continue;
                 if (!players.TryGetValue(player.Layer, out var layerPlayers))

@@ -101,11 +101,15 @@ public class AudienceAnimationCatalog :
     private string NormalizeKey(
         string value)
     {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
         return value
             .Trim()
             .ToLowerInvariant()
-            .Replace(" ", "_")
-            .Replace("-", "_");
+            .Replace(" ", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace("_", string.Empty);
     }
 
 #if UNITY_EDITOR

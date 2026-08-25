@@ -509,6 +509,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 270704686}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 270704687}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 270704688}
   m_SourcePrefab: {fileID: 100100000, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
 --- !u!4 &270704681 stripped
 Transform:
@@ -626,6 +632,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &270704687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106557009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_03
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 270704688}
+--- !u!114 &270704688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106557009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 270704686}
 --- !u!1 &347653183
 GameObject:
   m_ObjectHideFlags: 0
@@ -778,7 +813,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -811,7 +846,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -53.006035, y: -12.405945, z: -143.26169, w: -14.122627}
+  m_margin: {x: -62.759422, y: -18.301414, z: -152.38791, w: -19.66679}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2151,6 +2186,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 976342270}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 976342271}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 976342272}
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8b8a6e5ba66d4e8b625e1a436dd0e, type: 3}
 --- !u!4 &859977382 stripped
 Transform:
@@ -2473,6 +2514,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &976342271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976342266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_05
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 976342272}
+--- !u!114 &976342272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976342266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 976342270}
 --- !u!1 &1007580570
 GameObject:
   m_ObjectHideFlags: 0
@@ -2926,6 +2996,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1825097248}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1825097249}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1825097250}
   m_SourcePrefab: {fileID: 100100000, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
 --- !u!4 &1097466118 stripped
 Transform:
@@ -3686,6 +3762,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1228476766}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1228476768}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1228476769}
   m_SourcePrefab: {fileID: 100100000, guid: 0aa111fc6e4157e428b955d742c6716b, type: 3}
 --- !u!4 &1228476762 stripped
 Transform:
@@ -3800,6 +3882,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &1228476768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495301385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_01
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 1228476769}
+--- !u!114 &1228476769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495301385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 1228476767}
 --- !u!1 &1230575272
 GameObject:
   m_ObjectHideFlags: 0
@@ -3855,7 +3966,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1230575272}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f057c020c8c78b45bf72f9f09237846, type: 3}
   m_Name: 
@@ -4304,17 +4415,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1435535654}
-  m_LocalRotation: {x: -0, y: -0.12241916, z: -0, w: 0.9924785}
-  m_LocalPosition: {x: 0, y: 0, z: -122}
+  m_LocalRotation: {x: -0, y: -0.19336255, z: -0, w: 0.9811274}
+  m_LocalPosition: {x: 0, y: 0, z: -263.2}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 410824755}
   m_Father: {fileID: 2028653237}
-  m_LocalEulerAnglesHint: {x: 0, y: -14.063, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -22.298, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -52, y: -65.79999}
+  m_AnchoredPosition: {x: -68.2, y: -65.79999}
   m_SizeDelta: {x: -359.4, y: -509.84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1435535656
@@ -5136,6 +5247,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1617128134}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1617128135}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1617128136}
   m_SourcePrefab: {fileID: 100100000, guid: 5ad7b10c0d43f7a4d8d0f4f7e71eeb14, type: 3}
 --- !u!4 &1617128130 stripped
 Transform:
@@ -5250,6 +5367,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &1617128135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061199091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_06
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 1617128136}
+--- !u!114 &1617128136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061199091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 1617128134}
 --- !u!1 &1619226411
 GameObject:
   m_ObjectHideFlags: 0
@@ -5631,6 +5777,93 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -6173754733725934867, guid: 8e285f3613e8b40448320b6079d2a1ee, type: 3}
   m_PrefabInstance: {fileID: 270704680}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1737171925
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1737171929}
+  - component: {fileID: 1737171928}
+  - component: {fileID: 1737171927}
+  - component: {fileID: 1737171926}
+  m_Layer: 0
+  m_Name: EVC Pipeline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1737171926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737171925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08a1ea669b6049f2949baa1ddbc51b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Presentation.PresentationFlowController
+  environmentConfig: {fileID: 11400000, guid: 9961a19862184f54bb5349bb8dcd7364, type: 2}
+  audioCapture: {fileID: 1737171927}
+  audienceCoordinator: {fileID: 1737171928}
+  autoStart: 0
+  language: ko-KR
+--- !u!114 &1737171927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737171925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97feb3be62b4472daf239be9a0b89edd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audio.AudioSegmentCapture
+  policy: {fileID: 11400000, guid: ec1a41f0bbd15d54fa7a856ff3b9054d, type: 2}
+  microphoneDevice: 
+--- !u!114 &1737171928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737171925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf96654b3f0400b94100982e454d48a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceReactionCoordinator
+  agents:
+  - {fileID: 1228476768}
+  - {fileID: 1802298774}
+  - {fileID: 270704687}
+  - {fileID: 1825097249}
+  - {fileID: 976342271}
+  - {fileID: 1617128135}
+  dedupeTtlSeconds: 120
+  maxDedupeEntries: 512
+  lateCommandExpirySeconds: 30
+--- !u!4 &1737171929
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737171925}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1738587706
 GameObject:
   m_ObjectHideFlags: 0
@@ -5660,7 +5893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e819fd4a78d74d44487bda9f9ce47375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestionAnswerManager
-  aiIntegrationManager: {fileID: 1230575275}
+  flowController: {fileID: 1737171926}
   qaPanel: {fileID: 1435535654}
   questionText: {fileID: 410824756}
   answerGuideText: {fileID: 2050827497}
@@ -6024,6 +6257,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1802298773}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1802298774}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1802298775}
   m_SourcePrefab: {fileID: 100100000, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
 --- !u!4 &1802298768 stripped
 Transform:
@@ -6138,6 +6377,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &1802298774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193217807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_02
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 1802298775}
+--- !u!114 &1802298775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193217807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 1802298773}
 --- !u!1 &1825097244 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 86aeb4a10b104c74389fee09eaf42765, type: 3}
@@ -6253,6 +6521,35 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+--- !u!114 &1825097249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825097244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b6fa79a8bd44d55a3507d786aa49251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Audience.AudienceAgent
+  agentId: audience_04
+  actionRegistry: {fileID: 0}
+  actionPlayerBehaviours:
+  - {fileID: 1825097250}
+--- !u!114 &1825097250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825097244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3321dbcd5219b4d43aca656fcbfd46a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LegacyAudienceEvcPlayer
+  animationPlayer: {fileID: 1825097248}
 --- !u!1 &1831128672
 GameObject:
   m_ObjectHideFlags: 0
@@ -6402,6 +6699,9 @@ MonoBehaviour:
   scriptButtonText: {fileID: 1007580572}
   sessionAudioSource: {fileID: 1855155105}
   qaManager: {fileID: 1738587707}
+  useEvcPipeline: 1
+  flowController: {fileID: 1737171926}
+  presentationManager: {fileID: 1910796615}
   warningStartSeconds: 10
   warningColor: {r: 1, g: 0.20188677, b: 0.20188677, a: 1}
   blinkSpeed: 1.2
@@ -7069,3 +7369,4 @@ SceneRoots:
   - {fileID: 819717308}
   - {fileID: 1230575274}
   - {fileID: 868622777}
+  - {fileID: 1737171929}

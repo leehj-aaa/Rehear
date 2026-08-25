@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,9 @@ public class PresentationManager : MonoBehaviour
     private int downloadTimeoutSeconds = 20;
 
     private int currentIndex;
+    public int CurrentSlideIndex => currentIndex;
+
+    public event Action<int> SlideChanged;
 
     private readonly List<Texture2D>
         downloadedSlides = new();
@@ -154,6 +158,7 @@ public class PresentationManager : MonoBehaviour
 
         currentIndex++;
         UpdateDisplay();
+        SlideChanged?.Invoke(currentIndex);
     }
 
     public void PrevSlide()
@@ -166,6 +171,7 @@ public class PresentationManager : MonoBehaviour
 
         currentIndex--;
         UpdateDisplay();
+        SlideChanged?.Invoke(currentIndex);
     }
 
     private void UpdateDisplay()

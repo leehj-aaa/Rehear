@@ -157,7 +157,22 @@ namespace Rehear.Evc.Audience
 
                 if (!agentLookup[command.agent_id].TryExecute(command, out var reason))
                 {
-                    EvcSafeDiagnostics.CommandDropped(requestId, command.agent_id, command.layer, reason);
+                    Debug.LogWarning(
+                        "[EVC 청중 액션 매핑 실패]" +
+                        "\nAgent ID: " + command.agent_id +
+                        "\nAction ID: " + command.action_id +
+                        "\nLayer: " + command.layer +
+                        "\nBlend Mode: " + command.blend_mode +
+                        "\n원인: " + reason
+                    );
+
+                    EvcSafeDiagnostics.CommandDropped(
+                        requestId,
+                        command.agent_id,
+                        command.layer,
+                        reason
+                    );
+
                     continue;
                 }
 

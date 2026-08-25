@@ -10,6 +10,7 @@ using Rehear.Evc.Questions;
 using Rehear.Evc.Session;
 using Rehear.Evc.Transport;
 using Rehear.Evc.Update;
+using Rehear.Evc.Report;
 using UnityEngine;
 
 namespace Rehear.Evc.Presentation
@@ -43,7 +44,9 @@ namespace Rehear.Evc.Presentation
         private Task startTask;
         private int lastSlideIndex;
         private bool presentationFinalizedForQuestions;
+        private PresentationReportService reportService;
 
+        public ReportFeedback CurrentReport { get; private set; }
         public event Action<PresentationFlowState, string> StateChanged;
 
         public PresentationFlowState State { get; private set; } = PresentationFlowState.Idle;
@@ -86,7 +89,10 @@ namespace Rehear.Evc.Presentation
             if (audioCapture == null || updateService == null)
                 return;
 
-            lastSlideIndex = Math.Max(0, currentSlideIndex);
+            lastSlideIndex =
+            NormalizeServerSlideIndex(
+                currentSlideIndex
+            );
 
             var audio = audioCapture.FlushSegment();
             if (audio == null)
@@ -107,7 +113,10 @@ namespace Rehear.Evc.Presentation
             if (State != PresentationFlowState.Running)
                 return;
 
-            lastSlideIndex = Math.Max(0, currentSlideIndex);
+            lastSlideIndex =
+            NormalizeServerSlideIndex(
+                currentSlideIndex
+            );
             var audio = audioCapture != null
                 ? await audioCapture.StopAndFlushAsync(cancellationToken)
                 : null;
@@ -165,7 +174,10 @@ namespace Rehear.Evc.Presentation
                         {
                             Audio = finalAudio,
                             ClientTimeSeconds = clock.ElapsedSeconds,
-                            SlideIndex = Math.Max(0, currentSlideIndex),
+                            SlideIndex =
+                                NormalizeServerSlideIndex(
+                                    currentSlideIndex
+                                ),
                             UtterancePosition = "utterance_boundary",
                             Language = language
                         }, cancellationToken);
@@ -231,6 +243,14 @@ namespace Rehear.Evc.Presentation
                     PresentationSessionContext.Current,
                     updateService,
                     environmentConfig.TransientRetryCount);
+                reportService = new PresentationReportService(
+                        apiClient,
+                        PresentationSessionContext.Current,
+                        updateService,
+                        environmentConfig.TransientRetryCount
+                    );
+
+CurrentReport = null;
 
                 if (audioCapture == null)
                     throw new InvalidOperationException("오디오 캡처가 연결되지 않았습니다.");
@@ -309,6 +329,66 @@ namespace Rehear.Evc.Presentation
             {
                 SetState(PresentationFlowState.Failed, ToUserMessage(exception));
             }
+        }
+
+        private static int NormalizeServerSlideIndex(
+            int requestedIndex)
+        {
+            int serverSlideCount =
+                PresentationSessionContext.Current
+                    .SlideCount;
+
+            // Smart Start에 PDF/PPT를 보내지 않은 경우
+            // 서버에는 슬라이드가 등록되지 않았으므로 0만 전송한다.
+            if (serverSlideCount <= 0)
+                return 0;
+
+            return Math.Max(
+                0,
+                Math.Min(
+                    requestedIndex,
+                    serverSlideCount - 1
+                )
+                    );
+        }
+        public async Task<ReportFeedback> FinishReportAsync(
+            int plannedSeconds,
+            int qaSeconds,
+            CancellationToken cancellationToken)
+        {
+            if (reportService == null)
+            {
+                throw new InvalidOperationException(
+                    "EVC 리포트 서비스가 준비되지 않았습니다."
+                );
+            }
+
+            Debug.Log(
+                "[EVC] AI 리포트 생성 요청" +
+                "\n발표 예정 시간: " + plannedSeconds + "초" +
+                "\n질의응답 시간: " + qaSeconds + "초"
+            );
+
+            CurrentReport =
+                await reportService.FinishAfterLastSegmentAsync(
+                    plannedSeconds,
+                    qaSeconds,
+                    cancellationToken
+                );
+
+            Debug.Log(
+                "[EVC] AI 리포트 생성 완료" +
+                "\n종합 점수: " +
+                CurrentReport.score.overall_score +
+                "\n참여도: " +
+                CurrentReport.score_card.scores.engagement +
+                "\n명확도: " +
+                CurrentReport.score_card.scores.clarity +
+                "\n신뢰도: " +
+                CurrentReport.score_card.scores.credibility
+            );
+
+            return CurrentReport;
         }
     }
 }
