@@ -1,0 +1,41 @@
+{
+  "snapshot": {
+    "source": "https://rehear.chobab.app/openapi.json",
+    "captured_at_utc": "2026-08-25",
+    "openapi": "3.1.0",
+    "api_info_version": "0.1.0",
+    "scope": "EVC finish/report paths and recursively referenced report schemas"
+  },
+  "paths": {
+    "/odi/xreal_rehear/evc/sessions/{session_id}/finish": {
+      "method": "POST",
+      "token_header": "X-EVC-Session-Token",
+      "request_schema": "ReportFinishRequest",
+      "response_200_schema": "ReportFinishResponse"
+    },
+    "/odi/xreal_rehear/evc/sessions/{session_id}/report": {
+      "method": "GET",
+      "token_header": "X-EVC-Session-Token",
+      "response_200_schema": "ReportStatusResponse"
+    }
+  },
+  "schemas": {
+    "ReportFinishRequest": { "required": ["request_id"], "optional": ["planned_seconds", "qa_seconds"], "seconds_range": [0, 86400] },
+    "ReportFinishResponse": { "required": ["session_id", "generated_at", "report"], "optional": ["status", "persistent_session_id"], "status_const": "ready" },
+    "ReportStatusResponse": { "required": ["session_id", "status"], "optional": ["persistent_session_id", "error", "report"], "status_enum": ["not_started", "generating", "ready", "failed"] },
+    "ReportFeedback": { "required": ["generation", "score", "duration", "score_card", "detail_analysis", "audience_analysis", "ai_insight"], "optional": ["version", "timeline"], "version_const": "presentation-report-v1" },
+    "ReportGenerationMetadata": { "required": ["generated_at", "generator", "source_segment_count", "transcript_word_count"], "optional": ["warnings"] },
+    "ReportScore": { "required": ["overall_score", "grade"], "optional": ["percentile"], "score_range": [0, 100] },
+    "ReportDuration": { "required": ["planned_seconds", "actual_seconds"], "optional": ["qa_seconds"] },
+    "ReportScoreCard": { "required": ["scores", "descriptions"] },
+    "ReportScoreCardValues": { "required": ["engagement", "clarity", "credibility"], "score_range": [0, 100] },
+    "ReportScoreCardDescriptions": { "required": ["engagement", "clarity", "credibility"] },
+    "DetailAnalysis": { "required": ["content_analysis", "delivery_analysis"], "optional": ["highlight_metrics"] },
+    "HighlightMetric": { "required": ["name", "score"], "score_range": [0, 100] },
+    "TimelineItem": { "required": ["time_sec", "title", "description", "type", "source_step"], "optional": ["slide"], "type_enum": ["positive", "warning", "negative"] },
+    "AudienceAnalysis": { "required": [], "optional": ["graph", "events"] },
+    "AudienceGraphPoint": { "required": ["time_sec", "E", "V", "C"], "state_range": [-1, 1] },
+    "AudienceEvent": { "required": ["time_sec", "label", "type", "source_step"], "type_enum": ["positive", "warning", "negative"] },
+    "AIInsight": { "required": ["title", "description"] }
+  }
+}

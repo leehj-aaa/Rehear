@@ -1,0 +1,14 @@
+{
+  "session_id": "00000000-0000-0000-0000-000000000001",
+  "status": "ready",
+  "generated_at": "2026-08-25T12:34:56Z",
+  "questions": [
+    {
+      "id": "q1",
+      "order": 1,
+      "question": "발표에서 제시한 방법을 선택한 기준은 무엇인가요?",
+      "intent": "방법 선택 근거 확인",
+      "source_steps": [1]
+    }
+  ]
+}
