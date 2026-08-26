@@ -150,58 +150,83 @@ private bool WasNumberPressed(
     }
 }
     private void InitializeFirebase()
+{
+    if (firebaseInitializing || firebaseReady)
+        return;
+
+    firebaseInitializing = true;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    try
     {
-        if (firebaseInitializing)
-            return;
+        FirebaseApp app = FirebaseApp.DefaultInstance;
+        FirebaseDatabase database =
+            FirebaseDatabase.DefaultInstance;
 
-        firebaseInitializing = true;
+        firebaseReady = true;
+        firebaseInitializing = false;
 
-        FirebaseApp.CheckAndFixDependenciesAsync()
-            .ContinueWithOnMainThread(task =>
-            {
-                firebaseInitializing = false;
-
-                if (task.IsCanceled)
-                {
-                    firebaseReady = false;
-                    Debug.LogWarning(
-                        "Firebase 초기화가 취소되었습니다."
-                    );
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 중 오류가 발생했습니다."
-                    );
-
-                    Debug.LogException(task.Exception);
-                    return;
-                }
-
-                DependencyStatus dependencyStatus =
-                    task.Result;
-
-                if (dependencyStatus ==
-                    DependencyStatus.Available)
-                {
-                    firebaseReady = true;
-                    Debug.Log("Firebase 초기화 완료");
-                }
-                else
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 실패: " +
-                        dependencyStatus
-                    );
-                }
-            });
+        Debug.Log(
+            "Firebase Android 직접 초기화 완료"
+        );
     }
+    catch (System.Exception exception)
+    {
+        firebaseReady = false;
+        firebaseInitializing = false;
+
+        Debug.LogError(
+            "Firebase Android 직접 초기화 실패"
+        );
+        Debug.LogException(exception);
+    }
+
+    return;
+#endif
+
+    FirebaseApp.CheckAndFixDependenciesAsync()
+        .ContinueWithOnMainThread(task =>
+        {
+            firebaseInitializing = false;
+
+            if (task.IsCanceled)
+            {
+                firebaseReady = false;
+                Debug.LogWarning(
+                    "Firebase 초기화가 취소되었습니다."
+                );
+                return;
+            }
+
+            if (task.IsFaulted)
+            {
+                firebaseReady = false;
+                Debug.LogError(
+                    "Firebase 초기화 중 오류가 발생했습니다."
+                );
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            DependencyStatus dependencyStatus =
+                task.Result;
+
+            if (dependencyStatus ==
+                DependencyStatus.Available)
+            {
+                firebaseReady = true;
+                Debug.Log("Firebase 초기화 완료");
+            }
+            else
+            {
+                firebaseReady = false;
+                Debug.LogError(
+                    "Firebase 초기화 실패: " +
+                    dependencyStatus
+                );
+            }
+        });
+}
 
     // PIN 입력 영역을 누르면 숫자 키보드를 엽니다.
     public void OpenKeyboard()

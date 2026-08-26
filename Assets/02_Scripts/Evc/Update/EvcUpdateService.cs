@@ -209,6 +209,16 @@ namespace Rehear.Evc.Update
 
                     ValidateResponse(response, request);
                     context.ConfirmUpdate(response, expectedStep);
+                    int commandCount =
+                        response.commands != null
+                            ? response.commands.Length
+                            : 0;
+
+                    Debug.Log(
+                        "[EVC] 청중 명령 수신" +
+                        "\nStep: " + response.step +
+                        "\n명령 개수: " + commandCount
+                    );
                     commandSink?.HandleCommands(requestId, response.commands ?? Array.Empty<UnityCommandDto>());
                     succeeded = true;
                     return response;
