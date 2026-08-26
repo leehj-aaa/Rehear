@@ -214,7 +214,7 @@ namespace Rehear.Evc.Update
                             ? response.commands.Length
                             : 0;
 
-                    Debug.Log(
+                    UnityEngine.Debug.Log(
                         "[EVC] 청중 명령 수신" +
                         "\nStep: " + response.step +
                         "\n명령 개수: " + commandCount
