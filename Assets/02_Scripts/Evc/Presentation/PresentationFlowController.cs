@@ -45,6 +45,8 @@ namespace Rehear.Evc.Presentation
         private int lastSlideIndex;
         private bool presentationFinalizedForQuestions;
         private PresentationReportService reportService;
+        private bool questionFlowStarted;
+        
 
         public ReportFeedback CurrentReport { get; private set; }
         public event Action<PresentationFlowState, string> StateChanged;
@@ -52,8 +54,9 @@ namespace Rehear.Evc.Presentation
         public PresentationFlowState State { get; private set; } = PresentationFlowState.Idle;
         public IPresentationClock Clock => clock;
         public IReadOnlyList<GeneratedQuestion> Questions { get; private set; } = Array.Empty<GeneratedQuestion>();
-        public bool CanRetryQuestions => presentationFinalizedForQuestions &&
-                                         State == PresentationFlowState.Failed;
+        public bool CanRetryQuestions =>
+                    questionFlowStarted &&
+                    State == PresentationFlowState.Failed;
 
         private void Awake()
         {
@@ -155,12 +158,22 @@ namespace Rehear.Evc.Presentation
         {
             if (State == PresentationFlowState.QuestionsReady)
                 return Questions;
-            var isActivePresentation = State == PresentationFlowState.Running ||
-                                       State == PresentationFlowState.Paused;
-            if (!isActivePresentation && !CanRetryQuestions)
-                throw new InvalidOperationException("Presentation is not active.");
+           var isActivePresentation =
+                State == PresentationFlowState.Running ||
+                State == PresentationFlowState.Paused;
 
-            SetState(PresentationFlowState.Finishing, string.Empty);
+            if (!isActivePresentation && !CanRetryQuestions)
+            {
+                throw new InvalidOperationException(
+                    "Presentation is not active."
+                );
+            }
+
+            questionFlowStarted = true;
+            SetState(
+                PresentationFlowState.Finishing,
+                string.Empty
+            );
             try
             {
                 if (isActivePresentation)
@@ -214,6 +227,9 @@ namespace Rehear.Evc.Presentation
 
         private async Task StartInternalAsync(CancellationToken cancellationToken)
         {
+            questionFlowStarted = false;
+            presentationFinalizedForQuestions = false;
+
             SetState(PresentationFlowState.Starting, string.Empty);
             try
             {
