@@ -3,13 +3,20 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using Rehear.Evc.Contracts;
+using System;
+using System.Threading;
+using Rehear.Evc.Presentation;
 
 public class QuestionAnswerManager : MonoBehaviour
 {
     [Header("AI 세션")]
+    [Header("EVC 리포트")]
     [SerializeField]
-    private AIIntegrationManager
-        aiIntegrationManager;
+    private PresentationFlowController flowController;
+
+    private float qaStartedTime;
 
     private bool isFinishingPresentation;
 
@@ -44,15 +51,18 @@ public class QuestionAnswerManager : MonoBehaviour
 
     public void StartQAPhase(Button button)
     {
+        qaStartedTime = Time.realtimeSinceStartup;
+
         if (actionButton == null) Prepare(button);
 
-        questionCount = Mathf.Min(
-            questionContents != null ? questionContents.Length : 0,
-            questionAudios != null ? questionAudios.Length : 0);
+        questionCount =
+            questionContents != null
+                ? questionContents.Length
+                : 0;
 
         if (questionCount == 0)
         {
-            Debug.LogError("질문 텍스트와 질문 오디오를 한 개 이상 연결해야 합니다.");
+           Debug.LogError("질문 텍스트를 한 개 이상 연결해야 합니다.");
             return;
         }
 
@@ -92,51 +102,94 @@ public class QuestionAnswerManager : MonoBehaviour
         if (questionText != null) questionText.text = questionContents[currentIdx];
         SetButtonState("질문받는 중...", false);
 
-        if (audioSource == null)
+       AudioClip clip =
+            questionAudios != null &&
+            currentIdx < questionAudios.Length
+                ? questionAudios[currentIdx]
+                : null;
+
+        if (audioSource == null || clip == null)
         {
-            Debug.LogError("QAManager에 Audio Source가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "[Q&A] 질문 TTS 오디오가 없어 " +
+                "질문 텍스트만 표시합니다."
+            );
+
             FinishQuestionAudio();
             return;
         }
 
         audioSource.Stop();
-        audioSource.clip = questionAudios[currentIdx];
+        audioSource.clip = clip;
         audioSource.Play();
 
         if (audioWaitCoroutine != null) StopCoroutine(audioWaitCoroutine);
         audioWaitCoroutine = StartCoroutine(WaitForQuestionAudio());
     }
 
-    private void FinishPresentation()
+    private async void FinishPresentation()
 {
     if (isFinishingPresentation)
         return;
 
     isFinishingPresentation = true;
-
-    SetButtonState(
-        "발표 종료 중...",
-        false
-    );
+    SetButtonState("리포트 생성 중...", false);
 
     if (audioSource != null)
         audioSource.Stop();
 
-    if (aiIntegrationManager != null)
+    if (flowController == null)
     {
-        aiIntegrationManager
-            .EndAiSessionAndThen(
-                LoadFeedbackScene
-            );
+        flowController =
+            FindFirstObjectByType<PresentationFlowController>();
     }
-    else
+
+    if (flowController == null)
     {
-        Debug.LogWarning(
-            "[Q&A] AIIntegrationManager가 연결되지 않아 " +
-            "바로 피드백 씬으로 이동합니다."
+        Debug.LogError(
+            "[EVC] PresentationFlowController를 찾을 수 없습니다."
         );
 
+        isFinishingPresentation = false;
+        SetButtonState("발표 종료하기", true);
+        return;
+    }
+
+    int plannedSeconds =
+        Mathf.Max(
+            0,
+            RuntimeSessionData.DurationMinutes * 60
+        );
+
+    int qaSeconds =
+        Mathf.Max(
+            0,
+            Mathf.RoundToInt(
+                Time.realtimeSinceStartup - qaStartedTime
+            )
+        );
+
+    try
+    {
+        ReportFeedback report =
+            await flowController.FinishReportAsync(
+                plannedSeconds,
+                qaSeconds,
+                CancellationToken.None
+            );
+
+        RuntimeReportData.Set(report);
         LoadFeedbackScene();
+    }
+    catch (Exception exception)
+    {
+        Debug.LogError(
+            "[EVC] AI 리포트 생성 실패: " +
+            exception.Message
+        );
+
+        isFinishingPresentation = false;
+        SetButtonState("발표 종료 다시 시도", true);
     }
 }
 
@@ -157,15 +210,35 @@ private void LoadFeedbackScene()
 
     private void FinishQuestionAudio()
     {
-        state = QAState.ReadyToFinish;
+        bool isLastQuestion =
+            currentIdx >= questionCount - 1;
 
-        if (answerGuideText != null)
+        if (isLastQuestion)
         {
-            answerGuideText.text =
-                "질문에 대한 답변을 마치신 후 \n 발표 종료하기 버튼을 눌러주세요.";
-        }
+            state = QAState.ReadyToFinish;
 
-        SetButtonState("발표 종료하기", true);
+            if (answerGuideText != null)
+            {
+                answerGuideText.text =
+                    "마지막 질문입니다.\n" +
+                    "답변을 마치신 후 발표 종료하기를 눌러주세요.";
+            }
+
+            SetButtonState("발표 종료하기", true);
+        }
+        else
+        {
+            state = QAState.ReadyForNext;
+
+            if (answerGuideText != null)
+            {
+                answerGuideText.text =
+                    "답변을 마치신 후 질문받기를 눌러\n" +
+                    "다음 질문을 진행해 주세요.";
+            }
+
+            SetButtonState("질문받기", true);
+        }
     }
 
     private void CompleteAnswerStep()
@@ -193,7 +266,74 @@ private void LoadFeedbackScene()
         if (actionButton != null) actionButton.interactable = interactable;
         if (actionButtonText != null) actionButtonText.text = label;
     }
+    public void SetGeneratedQuestions(
+        IReadOnlyList<GeneratedQuestion> questions)
+    {
+        if (questions == null)
+        {
+            questionContents = new string[0];
+        }
+        else
+        {
+            questionContents =
+                new string[questions.Count];
 
+            for (int index = 0;
+                index < questions.Count;
+                index++)
+            {
+                questionContents[index] =
+                    questions[index]?.question ??
+                    string.Empty;
+            }
+        }
+
+        // 서버 응답에는 현재 TTS 오디오가 포함되지 않는다.
+        // Inspector에 있던 기존 오디오가 잘못 재생되지 않도록 비운다.
+        questionAudios = new AudioClip[0];
+
+        currentIdx = 0;
+        state = QAState.ReadyToStart;
+    }
+
+    public void ShowGenerating()
+    {
+        if (qaPanel != null)
+            qaPanel.SetActive(true);
+
+        if (questionText != null)
+            questionText.text =
+                "질문을 생성하고 있습니다.";
+
+        if (answerGuideText != null)
+            answerGuideText.text =
+                string.Empty;
+
+        SetButtonState(
+            "질문 생성 중...",
+            false
+        );
+    }
+
+    public void ShowGenerationFailed(string message)
+    {
+        if (qaPanel != null)
+            qaPanel.SetActive(true);
+
+        if (questionText != null)
+            questionText.text = message;
+
+        if (answerGuideText != null)
+            answerGuideText.text =
+                string.Empty;
+
+        state = QAState.ReadyToStart;
+
+        SetButtonState(
+            "다시 시도",
+            true
+        );
+    }
     private void OnDisable()
     {
         if (audioWaitCoroutine == null) return;

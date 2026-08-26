@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa149d0977a044cb82c3014142b534f3, type: 3}
+  m_Name: EvcDevelopmentConfig
+  m_EditorClassIdentifier: Rehear.Evc.Runtime::Rehear.Evc.Config.EvcEnvironmentConfig
+  environment: 0
+  serverBaseUrl: https://rehear.chobab.app
+  timeoutSeconds: 30
+  transientRetryCount: 2
+  enableDemoFallback: 0

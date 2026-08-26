@@ -1594,7 +1594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.000000962378, y: 0, z: 0.0000013602978}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.6, y: 1.5}
   savedColor: {r: 1, g: 1, b: 1, a: 0.392}
@@ -2791,6 +2791,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc67e0cf590a6224494b8e71949cadd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scene03Manager
+  scoreText: {fileID: 0}
+  engagementText: {fileID: 0}
+  clarityText: {fileID: 0}
+  credibilityText: {fileID: 0}
 --- !u!1 &366444729
 GameObject:
   m_ObjectHideFlags: 0
@@ -3156,7 +3160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.0000009570124, y: 0.752, z: -0.0049997084}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.8000001, y: 0.7252}
   savedColor: {r: 1, g: 1, b: 1, a: 0.019607844}
@@ -4996,7 +5000,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.000000962378, y: 0, z: 0.0000013602978}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.6, y: 1.4999988}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -6024,7 +6028,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.0000009570124, y: -0.62044996, z: -0.0049997084}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.46, y: 0.11169999}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -6964,7 +6968,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.000000962378, y: 0, z: 0.0000013602978}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.6, y: 1.5}
   savedColor: {r: 1, g: 1, b: 1, a: 0.78431374}
@@ -11071,7 +11075,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.0000009570124, y: -0.48375, z: -0.0049997084}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.46, y: 0.11169999}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -11168,10 +11172,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB192\uC74C "
+  m_text: "\uB0AE\uC74C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
-  m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
+  m_sharedMaterial: {fileID: 5802791956570668251, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11299,7 +11303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.0000009570124, y: 0.50482, z: -0.0049997084}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 0.120000005, y: 0.12205997}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -11491,7 +11495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedUI.CurvedUIVertexEffect
   DoNotTesselate: 0
-  savedPos: {x: 0, y: 0, z: 0}
+  savedPos: {x: -0.0000009570124, y: -0.17589998, z: -0.0049997084}
   savedUp: {x: 0, y: 1, z: 0}
   savedRectSize: {x: 1.46, y: 0.11199999}
   savedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -12221,10 +12225,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBCF4\uD1B5"
+  m_text: "\uBCF4\uD1B5 "
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b06b122717dfa9747bf322569673e54f, type: 2}
-  m_sharedMaterial: {fileID: 3749678648584997854, guid: b06b122717dfa9747bf322569673e54f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
+  m_sharedMaterial: {fileID: 5802791956570668251, guid: a27c9ba5b35bb40c2a0772a5d6b568dc, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

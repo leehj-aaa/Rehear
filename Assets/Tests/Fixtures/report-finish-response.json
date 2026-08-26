@@ -1,0 +1,33 @@
+{
+  "session_id": "00000000-0000-0000-0000-000000000001",
+  "status": "ready",
+  "generated_at": "2026-08-25T12:00:00Z",
+  "persistent_session_id": null,
+  "report": {
+    "version": "presentation-report-v1",
+    "generation": {
+      "generated_at": "2026-08-25T12:00:00Z",
+      "generator": "fixture",
+      "source_segment_count": 4,
+      "transcript_word_count": 120,
+      "warnings": []
+    },
+    "score": { "overall_score": 82, "percentile": 70, "grade": "B" },
+    "duration": { "planned_seconds": 300, "actual_seconds": 280, "qa_seconds": 60 },
+    "score_card": {
+      "scores": { "engagement": 80, "clarity": 82, "credibility": 84 },
+      "descriptions": { "engagement": "good", "clarity": "clear", "credibility": "solid" }
+    },
+    "detail_analysis": {
+      "highlight_metrics": [{ "name": "clarity", "score": 82 }],
+      "content_analysis": { "structure": 81 },
+      "delivery_analysis": { "pace": 83 }
+    },
+    "timeline": [{ "time_sec": 30, "title": "Strong opening", "description": "Clear context", "type": "positive", "slide": 1, "source_step": 1 }],
+    "audience_analysis": {
+      "graph": [{ "time_sec": 30, "E": 0.5, "V": 0.4, "C": 0.3 }],
+      "events": [{ "time_sec": 30, "label": "engaged", "type": "positive", "source_step": 1 }]
+    },
+    "ai_insight": { "title": "Keep the structure", "description": "Add one concrete example." }
+  }
+}

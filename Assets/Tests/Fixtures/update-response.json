@@ -1,0 +1,21 @@
+{
+  "session_id": "00000000-0000-0000-0000-000000000001",
+  "request_id": "00000000-0000-0000-0000-000000000002",
+  "step": 1,
+  "status": "active",
+  "commands": [
+    {
+      "agent_id": "audience_01",
+      "start_time": 1.25,
+      "layer": "Face",
+      "action_id": "face.fixture_smile",
+      "duration": 1.0,
+      "sync_group": "00000000-0000-0000-0000-000000000003",
+      "selected_behavior_id": "fixture_behavior",
+      "selected_variation_id": "fixture_variation",
+      "priority": 100,
+      "blend_mode": "additive",
+      "intensity": 1.0
+    }
+  ]
+}

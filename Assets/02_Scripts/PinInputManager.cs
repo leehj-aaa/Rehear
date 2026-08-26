@@ -4,6 +4,8 @@ using Firebase.Extensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Rehear.Evc.Data;
+using Rehear.Evc.Presentation;
 
 public class PinInputManager : MonoBehaviour
 {
@@ -26,7 +28,7 @@ public class PinInputManager : MonoBehaviour
     [Header("시연용 Fallback")]
     [SerializeField] private bool enableDemoFallback = true;
     [SerializeField] private string demoPin = "1234";
-    [SerializeField] private string demoExpertise = "보통";
+    [SerializeField] private string demoExpertise = "중간";
     [SerializeField] private string demoInterest = "높음";
 
     private const string ShowSessionReadyKey =
@@ -148,58 +150,83 @@ private bool WasNumberPressed(
     }
 }
     private void InitializeFirebase()
+{
+    if (firebaseInitializing || firebaseReady)
+        return;
+
+    firebaseInitializing = true;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    try
     {
-        if (firebaseInitializing)
-            return;
+        FirebaseApp app = FirebaseApp.DefaultInstance;
+        FirebaseDatabase database =
+            FirebaseDatabase.DefaultInstance;
 
-        firebaseInitializing = true;
+        firebaseReady = true;
+        firebaseInitializing = false;
 
-        FirebaseApp.CheckAndFixDependenciesAsync()
-            .ContinueWithOnMainThread(task =>
-            {
-                firebaseInitializing = false;
-
-                if (task.IsCanceled)
-                {
-                    firebaseReady = false;
-                    Debug.LogWarning(
-                        "Firebase 초기화가 취소되었습니다."
-                    );
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 중 오류가 발생했습니다."
-                    );
-
-                    Debug.LogException(task.Exception);
-                    return;
-                }
-
-                DependencyStatus dependencyStatus =
-                    task.Result;
-
-                if (dependencyStatus ==
-                    DependencyStatus.Available)
-                {
-                    firebaseReady = true;
-                    Debug.Log("Firebase 초기화 완료");
-                }
-                else
-                {
-                    firebaseReady = false;
-
-                    Debug.LogError(
-                        "Firebase 초기화 실패: " +
-                        dependencyStatus
-                    );
-                }
-            });
+        Debug.Log(
+            "Firebase Android 직접 초기화 완료"
+        );
     }
+    catch (System.Exception exception)
+    {
+        firebaseReady = false;
+        firebaseInitializing = false;
+
+        Debug.LogError(
+            "Firebase Android 직접 초기화 실패"
+        );
+        Debug.LogException(exception);
+    }
+
+    return;
+#endif
+
+    FirebaseApp.CheckAndFixDependenciesAsync()
+        .ContinueWithOnMainThread(task =>
+        {
+            firebaseInitializing = false;
+
+            if (task.IsCanceled)
+            {
+                firebaseReady = false;
+                Debug.LogWarning(
+                    "Firebase 초기화가 취소되었습니다."
+                );
+                return;
+            }
+
+            if (task.IsFaulted)
+            {
+                firebaseReady = false;
+                Debug.LogError(
+                    "Firebase 초기화 중 오류가 발생했습니다."
+                );
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            DependencyStatus dependencyStatus =
+                task.Result;
+
+            if (dependencyStatus ==
+                DependencyStatus.Available)
+            {
+                firebaseReady = true;
+                Debug.Log("Firebase 초기화 완료");
+            }
+            else
+            {
+                firebaseReady = false;
+                Debug.LogError(
+                    "Firebase 초기화 실패: " +
+                    dependencyStatus
+                );
+            }
+        });
+}
 
     // PIN 입력 영역을 누르면 숫자 키보드를 엽니다.
     public void OpenKeyboard()
@@ -416,6 +443,8 @@ private bool WasNumberPressed(
         session
     );
 
+    LoadEvcPresentationContext(pin, session);
+
     ApplySessionInformation(session);
 
     Debug.Log(
@@ -474,8 +503,8 @@ private void NormalizeSessionData(
             "세미나실";
     }
 
-    if (session.page_1.qa_count < 0)
-        session.page_1.qa_count = 0;
+    if (session.page_1.qa_count <= 0)
+        session.page_1.qa_count = 1;    
 
     if (string.IsNullOrWhiteSpace(
             session.page_1.used_language))
@@ -612,6 +641,8 @@ private void ApplySessionInformation(
         demoSession
     );
 
+    LoadEvcPresentationContext(pin, demoSession);
+
     ApplySessionInformation(
         demoSession
     );
@@ -659,4 +690,88 @@ private void ApplySessionInformation(
         if (errorText != null)
             errorText.text = "";
     }
+
+    private void LoadEvcPresentationContext(
+    string pin,
+    SessionData session)
+    {
+        if (session == null)
+            return;
+
+        PresentationDataDto evcData =
+            new PresentationDataDto
+            {
+                pin = pin,
+
+                presentation_title =
+                    session.page_1?.presentation_title ?? "Re:hear 발표",
+
+                page_1 =
+                    new PresentationPage1Dto
+                    {
+                        duration_minutes =
+                            session.page_1?.duration_minutes ?? 1,
+
+                        environment_type =
+                            session.page_1?.environment_type ?? "세미나실",
+
+                        qa_count =
+                            session.page_1?.qa_count ?? 1
+                    },
+
+                page_2 =
+                    new PresentationPage2Dto
+                    {
+                        presentation_script_content =
+                            session.page_2?.presentation_script_content ?? "",
+
+                        slide_image =
+                            new SlideImageDto
+                            {
+                                image_urls =
+                                    session.page_2?.slide_image?.image_urls
+                            }
+                    },
+
+                page_3 =
+                    new PresentationPage3Dto
+                    {
+                        audience_expertise =
+                            session.page_3?.audience_expertise ?? "중간",
+
+                        audience_interest =
+                            session.page_3?.audience_interest ?? "중간",
+
+                        audience_scale =
+                            session.page_3?.audience_scale ?? 6
+                    },
+
+                is_demo_fallback =
+                    pin == "1234"
+            };
+
+        PresentationValidationResult validation =
+            PresentationSessionContext.Current
+                .BeginPresentation(evcData);
+
+        if (!validation.IsValid)
+        {
+            Debug.LogError(
+                "[EVC] 발표 세션 데이터 연결 실패:\n" +
+                string.Join("\n", validation.Errors)
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            "[EVC] 발표 세션 데이터 연결 완료" +
+            "\n제목: " + evcData.presentation_title +
+            "\n발표 시간: " +
+            evcData.page_1.duration_minutes + "분" +
+            "\n질문 개수: " +
+            evcData.page_1.qa_count + "개"
+        );
+    }
+
 }
