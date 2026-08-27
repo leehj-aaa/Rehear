@@ -60,6 +60,7 @@ public class PresentationController : MonoBehaviour
     private bool isTimerFinished;
     private bool isQAPhaseStarted;
     private bool isGeneratingQuestions;
+    private bool periodicFlushInProgress;
 
     private CancellationTokenSource lifetimeCancellation;
 
@@ -345,10 +346,13 @@ public class PresentationController : MonoBehaviour
 {
     if (flowController == null ||
         flowController.State !=
-            PresentationFlowState.Running)
+            PresentationFlowState.Running ||
+        periodicFlushInProgress)
     {
         return;
     }
+
+    periodicFlushInProgress = true;
 
     int slideIndex =
         presentationManager != null
@@ -378,6 +382,10 @@ public class PresentationController : MonoBehaviour
             "[EVC] 발표 음성 주기 전송 실패: " +
             exception.Message
         );
+    }
+    finally
+    {
+        periodicFlushInProgress = false;
     }
 }
 
@@ -414,6 +422,18 @@ public class PresentationController : MonoBehaviour
 
         if (qaButton != null)
             qaButton.gameObject.SetActive(true);
+
+        if (RuntimeSessionData.QaCount <= 0)
+        {
+            isRunning = false;
+            isQAPhaseStarted = true;
+            flowController?.PrepareFinishWithoutQuestions();
+            qaManager?.PrepareFinishWithoutQuestions(qaButton);
+
+            Debug.Log(
+                "[Q&A] 설정된 질문이 없어 발표 종료 버튼으로 전환합니다."
+            );
+        }
     }
 
     public void TogglePause()
@@ -620,34 +640,11 @@ public class PresentationController : MonoBehaviour
         timeRemaining = 10f;
     }
 
-    private async void OnSlideChanged(
+    private void OnSlideChanged(
         int slideIndex)
     {
-        if (flowController == null ||
-            flowController.State !=
-            PresentationFlowState.Running)
-        {
-            return;
-        }
-
-        try
-        {
-            await flowController.FlushSegmentAsync(
-                "slide_transition",
-                slideIndex,
-                lifetimeCancellation.Token
-            );
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception exception)
-        {
-            Debug.LogWarning(
-                "[EVC] 슬라이드 전환 음성 전송 실패: " +
-                exception.Message
-            );
-        }
+        // 슬라이드 전환은 현재 슬라이드 상태만 바꾼다.
+        // 음성은 8초 주기 전송 한 경로에서만 분할한다.
     }
 
     private void OnDestroy()

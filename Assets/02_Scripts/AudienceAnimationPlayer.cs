@@ -52,6 +52,9 @@ public class AudienceAnimationPlayer :
 
     private Coroutine actionRoutine;
 
+    [SerializeField]
+    private bool doNotInterruptActiveAction = true;
+
     public AudienceGender Gender =>
         gender;
 
@@ -82,6 +85,11 @@ public class AudienceAnimationPlayer :
         float requestedDuration,
         float intensity)
     {
+        // 새 서버 명령이 기존 동작의 블렌드 아웃을 끊으면 자세가 순간적으로
+        // 튄다. 진행 중인 동작은 끝까지 재생하고 다음 주기 명령을 받는다.
+        if (doNotInterruptActiveAction && actionRoutine != null)
+            return true;
+
         if (!playableGraph.IsValid() ||
             !mixer.IsValid())
         {

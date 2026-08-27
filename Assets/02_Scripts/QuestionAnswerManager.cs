@@ -19,6 +19,7 @@ public class QuestionAnswerManager : MonoBehaviour
     private float qaStartedTime;
 
     private bool isFinishingPresentation;
+    private bool finishWithoutQuestions;
 
 
     private enum QAState { ReadyToStart, PlayingQuestion, ReadyToAnswer, ReadyForNext, ReadyToFinish }
@@ -43,10 +44,35 @@ public class QuestionAnswerManager : MonoBehaviour
         actionButtonText = actionButton != null ? actionButton.GetComponentInChildren<TMP_Text>(true) : null;
         currentIdx = 0;
         state = QAState.ReadyToStart;
+        finishWithoutQuestions = false;
 
         if (qaPanel != null) qaPanel.SetActive(false);
         if (answerGuideText != null) answerGuideText.text = string.Empty;
         SetButtonState("질의응답하기", true);
+    }
+
+    public void PrepareFinishWithoutQuestions(Button button)
+    {
+        actionButton = button;
+        actionButtonText = actionButton != null
+            ? actionButton.GetComponentInChildren<TMP_Text>(true)
+            : null;
+        qaStartedTime = Time.realtimeSinceStartup;
+        finishWithoutQuestions = true;
+        questionCount = 0;
+        currentIdx = 0;
+        state = QAState.ReadyToFinish;
+
+        if (qaPanel != null)
+            qaPanel.SetActive(false);
+
+        if (questionText != null)
+            questionText.text = string.Empty;
+
+        if (answerGuideText != null)
+            answerGuideText.text = string.Empty;
+
+        SetButtonState("발표 종료하기", true);
     }
 
     public void StartQAPhase(Button button)
@@ -161,8 +187,9 @@ public class QuestionAnswerManager : MonoBehaviour
             RuntimeSessionData.DurationMinutes * 60
         );
 
-    int qaSeconds =
-        Mathf.Max(
+    int qaSeconds = finishWithoutQuestions
+        ? 0
+        : Mathf.Max(
             0,
             Mathf.RoundToInt(
                 Time.realtimeSinceStartup - qaStartedTime

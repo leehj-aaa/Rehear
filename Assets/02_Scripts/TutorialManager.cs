@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -95,9 +96,13 @@ public class TutorialManager : MonoBehaviour
     private bool stickLatched;
     private int practiceCount;
     private float lastButtonTime = -10f;
+    private Transform tutorialRig;
+    private Vector3 authoredRigPosition;
+    private float authoredRigYaw;
 
     private void Awake()
     {
+        FindAndRememberTutorialRig();
         stickAction = new InputAction(
             "Tutorial Stick",
             InputActionType.Value,
@@ -121,6 +126,8 @@ public class TutorialManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
+        StartCoroutine(StabilizeTutorialRig());
+
         if (timerStopPanel != null)
             timerStopPanel.SetActive(false);
 
@@ -131,6 +138,83 @@ public class TutorialManager : MonoBehaviour
             scriptPanel.SetActive(false);
 
         ShowControllerGuide();
+    }
+
+    private void FindAndRememberTutorialRig()
+    {
+        if (xrCamera == null && Camera.main != null)
+            xrCamera = Camera.main.transform;
+
+        Transform candidate = xrCamera;
+        while (candidate != null)
+        {
+            if (candidate.name.Contains("XR Origin"))
+            {
+                tutorialRig = candidate;
+                break;
+            }
+
+            candidate = candidate.parent;
+        }
+
+        if (tutorialRig == null)
+            return;
+
+        authoredRigPosition = tutorialRig.position;
+        authoredRigYaw = tutorialRig.eulerAngles.y;
+
+        CharacterController controller =
+            tutorialRig.GetComponent<CharacterController>();
+        if (controller != null)
+            controller.enabled = false;
+
+        foreach (MonoBehaviour behaviour in
+            tutorialRig.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (behaviour == null)
+                continue;
+
+            string typeName = behaviour.GetType().Name;
+            if (typeName.Contains("MoveProvider") ||
+                typeName.Contains("CharacterControllerDriver") ||
+                typeName.Contains("GravityProvider"))
+            {
+                behaviour.enabled = false;
+            }
+        }
+    }
+
+    private IEnumerator StabilizeTutorialRig()
+    {
+        // Quest 추적 원점이 적용된 뒤 실제 HMD 위치를 씬의 시작점에 맞춘다.
+        yield return null;
+        yield return null;
+        yield return null;
+
+        if (tutorialRig == null || xrCamera == null)
+            yield break;
+
+        float yawDelta = Mathf.DeltaAngle(
+            xrCamera.eulerAngles.y,
+            authoredRigYaw
+        );
+        tutorialRig.RotateAround(
+            xrCamera.position,
+            Vector3.up,
+            yawDelta
+        );
+
+        Vector3 planarOffset =
+            xrCamera.position - tutorialRig.position;
+        planarOffset.y = 0f;
+
+        tutorialRig.position = new Vector3(
+            authoredRigPosition.x - planarOffset.x,
+            authoredRigPosition.y,
+            authoredRigPosition.z - planarOffset.z
+        );
+
+        Debug.Log("[튜토리얼] 플레이어 시작 위치와 방향을 자동 보정했습니다.");
     }
 
     private void OnEnable()

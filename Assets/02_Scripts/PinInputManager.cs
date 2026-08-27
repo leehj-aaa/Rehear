@@ -503,8 +503,9 @@ private void NormalizeSessionData(
             "세미나실";
     }
 
-    if (session.page_1.qa_count <= 0)
-        session.page_1.qa_count = 1;    
+    // 0은 "질의응답 없음"이라는 유효한 설정이다.
+    session.page_1.qa_count =
+        Mathf.Clamp(session.page_1.qa_count, 0, 5);
 
     if (string.IsNullOrWhiteSpace(
             session.page_1.used_language))

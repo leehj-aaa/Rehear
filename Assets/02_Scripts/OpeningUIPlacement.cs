@@ -10,6 +10,14 @@ public class OpeningUIPlacement : MonoBehaviour
     [SerializeField] private float verticalOffset = 0f;
 
     private bool placed;
+    private Transform xrRig;
+    private Vector3 lockedRigLocalPosition;
+    private Quaternion lockedRigLocalRotation;
+
+    private void Awake()
+    {
+        LockOpeningRig();
+    }
 
     private void OnEnable()
     {
@@ -19,6 +27,66 @@ public class OpeningUIPlacement : MonoBehaviour
     private void OnDisable()
     {
         Application.onBeforeRender -= PlaceBeforeFirstRender;
+    }
+
+    private void LateUpdate()
+    {
+        if (xrRig == null)
+            return;
+
+        // 오프닝에는 이동이 필요 없으므로 추적 원점의 낙하를 차단한다.
+        xrRig.localPosition = lockedRigLocalPosition;
+        xrRig.localRotation = lockedRigLocalRotation;
+    }
+
+    private void LockOpeningRig()
+    {
+        if (xrCamera == null && Camera.main != null)
+            xrCamera = Camera.main.transform;
+
+        Transform candidate = xrCamera;
+        while (candidate != null)
+        {
+            if (candidate.name.Contains("XR Origin"))
+            {
+                xrRig = candidate;
+                break;
+            }
+
+            candidate = candidate.parent;
+        }
+
+        if (xrRig == null)
+        {
+            Debug.LogWarning(
+                "[Opening UI] XR Origin을 찾지 못했습니다.",
+                this
+            );
+            return;
+        }
+
+        lockedRigLocalPosition = xrRig.localPosition;
+        lockedRigLocalRotation = xrRig.localRotation;
+
+        CharacterController controller =
+            xrRig.GetComponent<CharacterController>();
+        if (controller != null)
+            controller.enabled = false;
+
+        foreach (MonoBehaviour behaviour in
+            xrRig.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (behaviour == null)
+                continue;
+
+            string typeName = behaviour.GetType().Name;
+            if (typeName.Contains("MoveProvider") ||
+                typeName.Contains("CharacterControllerDriver") ||
+                typeName.Contains("GravityProvider"))
+            {
+                behaviour.enabled = false;
+            }
+        }
     }
 
     private void PlaceBeforeFirstRender()

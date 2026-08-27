@@ -81,8 +81,8 @@ namespace Rehear.Evc.Data
                     errors.Add("duration_minutes는 1 이상이어야 합니다.");
                 if (string.IsNullOrWhiteSpace(data.page_1.environment_type))
                     errors.Add("environment_type이 없습니다.");
-                if (data.page_1.qa_count < 1 || data.page_1.qa_count > 5)
-                    errors.Add("qa_count는 1~5여야 합니다.");
+                if (data.page_1.qa_count < 0 || data.page_1.qa_count > 5)
+                    errors.Add("qa_count는 0~5여야 합니다.");
             }
 
             if (data.page_2 == null)

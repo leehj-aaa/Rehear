@@ -111,32 +111,23 @@ namespace Rehear.Evc.Presentation
             }, cancellationToken);
         }
 
-        public async Task PauseAsync(int currentSlideIndex, CancellationToken cancellationToken)
+        public Task PauseAsync(int currentSlideIndex, CancellationToken cancellationToken)
         {
             if (State != PresentationFlowState.Running)
-                return;
+                return Task.CompletedTask;
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             lastSlideIndex =
             NormalizeServerSlideIndex(
                 currentSlideIndex
             );
-            var audio = audioCapture != null
-                ? await audioCapture.StopAndFlushAsync(cancellationToken)
-                : null;
+            // 일시정지는 8초 주기 조각과 별개의 짧은 조각을 만들지 않는다.
+            // 아직 전송되지 않은 부분은 버리고 재개 시 새 구간으로 녹음한다.
+            audioCapture?.StopCapture();
             clock.Pause();
             SetState(PresentationFlowState.Paused, string.Empty);
-
-            if (audio != null && updateService != null)
-            {
-                await updateService.EnqueueAsync(new AudioSegmentPayload
-                {
-                    Audio = audio,
-                    ClientTimeSeconds = clock.ElapsedSeconds,
-                    SlideIndex = lastSlideIndex,
-                    UtterancePosition = "silence_or_pause",
-                    Language = language
-                }, cancellationToken);
-            }
+            return Task.CompletedTask;
         }
 
         public async Task ResumeAsync(CancellationToken cancellationToken)
@@ -178,23 +169,9 @@ namespace Rehear.Evc.Presentation
             {
                 if (isActivePresentation)
                 {
-                    var finalAudio = audioCapture != null
-                        ? await audioCapture.StopAndFlushAsync(cancellationToken)
-                        : null;
-                    if (finalAudio != null)
-                    {
-                        await updateService.EnqueueAsync(new AudioSegmentPayload
-                        {
-                            Audio = finalAudio,
-                            ClientTimeSeconds = clock.ElapsedSeconds,
-                            SlideIndex =
-                                NormalizeServerSlideIndex(
-                                    currentSlideIndex
-                                ),
-                            UtterancePosition = "utterance_boundary",
-                            Language = language
-                        }, cancellationToken);
-                    }
+                    // 종료 버튼 직전의 미완성 조각은 질문 생성을 막을 수 있으므로
+                    // 전송하지 않고 폐기한다. 이미 처리된 조각만 질문에 사용한다.
+                    audioCapture?.StopCapture();
                     presentationFinalizedForQuestions = true;
                 }
 
@@ -212,6 +189,22 @@ namespace Rehear.Evc.Presentation
                 SetState(PresentationFlowState.Failed, ToUserMessage(exception));
                 throw;
             }
+        }
+
+        public void PrepareFinishWithoutQuestions()
+        {
+            if (State != PresentationFlowState.Running &&
+                State != PresentationFlowState.Paused &&
+                State != PresentationFlowState.QuestionsReady)
+            {
+                return;
+            }
+
+            audioCapture?.StopCapture();
+            updateService?.StopAccepting();
+            clock.Stop();
+            Questions = Array.Empty<GeneratedQuestion>();
+            SetState(PresentationFlowState.QuestionsReady, string.Empty);
         }
 
         public void StopFlow()
