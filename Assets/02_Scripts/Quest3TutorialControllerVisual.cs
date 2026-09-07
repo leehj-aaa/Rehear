@@ -32,6 +32,10 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
     bool suppressingOriginal;
     Cue currentCue = Cue.Hidden;
     float cueStartedAt;
+    bool pulsePaused;
+#if UNITY_EDITOR
+    bool untrackedEditorPreview;
+#endif
 
     void Awake() { BuildVisual(); ApplyVisibility(); }
     void OnEnable() { ApplyVisibility(); }
@@ -55,7 +59,10 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
     }
     public void Show(Cue cue)
     {
+        // Other UI components can request a cue before this component's Awake.
+        if (!visualRoot) BuildVisual();
         currentCue = cue;
+        pulsePaused = false;
         cueStartedAt = Time.unscaledTime;
         if (bodySurface)
         {
@@ -71,6 +78,17 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
             if (!animator.isInitialized) { animator.Rebind(); animator.Update(0f); }
             ResetAnimatorParameters();
         }
+#if UNITY_EDITOR
+        RefreshUntrackedEditorPreview();
+#endif
+    }
+    public void SetPulsePaused(bool paused)
+    {
+        if (pulsePaused == paused) return;
+        pulsePaused = paused;
+        if (!paused) cueStartedAt = Time.unscaledTime;
+        if (paused) ResetAnimatorParameters();
+        if (visualRoot && visualRoot.gameObject.activeSelf) AnimateCue(0f);
     }
     void BuildVisual()
     {
@@ -141,14 +159,14 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
     }
     void AnimateCue(float phase)
     {
-        if (!animator || !animator.isActiveAndEnabled || !animator.isInitialized) return;
-        float action = TutorialPulse(phase);
-        switch (currentCue)
+        float action = pulsePaused ? .65f : TutorialPulse(phase);
+        float motion = pulsePaused ? 0f : action;
+        if (animator && animator.isActiveAndEnabled && animator.isInitialized) switch (currentCue)
         {
-            case Cue.Trigger: animator.SetFloat(TriggerParameter, action); break;
-            case Cue.Grip: animator.SetFloat(GripParameter, action); break;
-            case Cue.StickHorizontal: animator.SetFloat(JoyXParameter, Mathf.Sin(phase * Mathf.PI * 2f)); break;
-            case Cue.StickVertical: animator.SetFloat(JoyYParameter, Mathf.Sin(phase * Mathf.PI * 2f)); break;
+            case Cue.Trigger: animator.SetFloat(TriggerParameter, motion); break;
+            case Cue.Grip: animator.SetFloat(GripParameter, motion); break;
+            case Cue.StickHorizontal: animator.SetFloat(JoyXParameter, pulsePaused ? 0f : Mathf.Sin(phase * Mathf.PI * 2f)); break;
+            case Cue.StickVertical: animator.SetFloat(JoyYParameter, pulsePaused ? 0f : Mathf.Sin(phase * Mathf.PI * 2f)); break;
         }
         if (runtimeHighlight)
         {
@@ -178,6 +196,11 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
             tracked = device.isValid && device.TryGetFeatureValue(CommonUsages.isTracked, out bool value) && value;
         }
         bool show = isActiveAndEnabled && currentCue != Cue.Hidden && rightHandTarget && rightHandTarget.gameObject.activeInHierarchy && tracked;
+#if UNITY_EDITOR
+        // The desktop XR modality manager disables an untracked hand. A visual-only
+        // preview may still render; never reactivate its input/ray/interaction objects.
+        if (untrackedEditorPreview) show = currentCue != Cue.Hidden && rightHandTarget;
+#endif
         if (visualRoot) visualRoot.gameObject.SetActive(show);
         if (show && visualRoot && !suppressingOriginal)
         {
@@ -202,6 +225,33 @@ public sealed class Quest3TutorialControllerVisual : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    public void RefreshUntrackedEditorPreview()
+    {
+        if (!Application.isPlaying || !rightHandTarget) return;
+        bool preview = currentCue != Cue.Hidden && !XRSettings.enabled && !XRSettings.isDeviceActive &&
+            !rightHandTarget.gameObject.activeInHierarchy;
+        if (!visualRoot) BuildVisual();
+        if (!visualRoot) return;
+        untrackedEditorPreview = preview;
+        if (preview)
+        {
+            // Detach only the visual, retaining the authored hand pose. Production
+            // builds contain no fallback and still require actual tracked input.
+            if (visualRoot.parent) visualRoot.SetParent(null, false);
+            visualRoot.SetPositionAndRotation(rightHandTarget.TransformPoint(gripPoseOffset),
+                rightHandTarget.rotation * Quaternion.Euler(gripPoseEuler));
+            visualRoot.localScale = rightHandTarget.lossyScale;
+        }
+        else if (visualRoot.parent != rightHandTarget)
+        {
+            visualRoot.SetParent(rightHandTarget, false);
+            visualRoot.SetLocalPositionAndRotation(gripPoseOffset, Quaternion.Euler(gripPoseEuler));
+            visualRoot.localScale = Vector3.one;
+        }
+        ApplyVisibility();
+        if (preview && visualRoot.gameObject.activeSelf)
+            AnimateCue(Mathf.Repeat((Time.unscaledTime - cueStartedAt) / Mathf.Max(.2f, cycleDuration), 1f));
+    }
     public void PreviewInScene(Cue cue)
     {
         if (Application.isPlaying) return;

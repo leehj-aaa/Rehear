@@ -45,6 +45,9 @@ internal static class RehearGripScenePreview
     [MenuItem("Rehear/Tutorial/Preview Completion UI")]
     static void ShowCompletionUI() => ShowStepUI(8);
 
+    [MenuItem("Rehear/Tutorial/Restore Initial UI")]
+    static void ShowInitialUI() => ShowStepUI(0);
+
     static void ShowStepUI(int step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode to edit the paused UI.");
@@ -54,12 +57,40 @@ internal static class RehearGripScenePreview
         var all = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
         var guide = all.Select(t => t.GetComponent<TutorialControlGuideView>()).Single(c => c);
         var view = all.Select(t => t.GetComponent<TutorialFigmaView>()).Single(c => c);
-        Undo.RecordObjects(view.steps, "Preview paused UI");
+        Undo.RecordObjects(view.steps, "Show tutorial UI step");
         Undo.RecordObject(guide.gameObject, "Hide controller guide");
         if (view.deskDirectionHints) Undo.RecordObject(view.deskDirectionHints, "Hide navigation");
         if (view.scriptDirectionHints) Undo.RecordObject(view.scriptDirectionHints, "Hide navigation");
         guide.Hide();
         view.Show(step);
+        if (step == 0)
+        {
+            var manager = all.Select(t => t.GetComponent<TutorialManager>()).Single(c => c);
+            var serialized = new SerializedObject(manager);
+            foreach (string field in new[] { "timerStopPanel", "tutorial5_1Object", "scriptPanel" })
+            {
+                var target = serialized.FindProperty(field).objectReferenceValue as GameObject;
+                if (!target) continue;
+                Undo.RecordObject(target, "Restore initial tutorial visibility");
+                target.SetActive(false);
+            }
+            var progress = serialized.FindProperty("progressImage").objectReferenceValue as UnityEngine.UI.Image;
+            if (progress)
+            {
+                Undo.RecordObject(progress.gameObject, "Hide initial progress");
+                progress.gameObject.SetActive(false);
+            }
+            view.SetStepButton(0, true, true, "튜토리얼 시작하기");
+            view.SetStepButton(0, false, true, "건너뛰기");
+            foreach (var toggle in all.Select(t => t.GetComponent<PodiumScriptToggle>()).Where(c => c))
+            {
+                if (toggle.label) Undo.RecordObject(toggle.label, "Reset script toggle label");
+                if (toggle.background) Undo.RecordObject(toggle.background, "Reset script toggle color");
+                toggle.Refresh();
+            }
+            if (view.steps.Where((s, i) => s && s.activeSelf != (i == 0)).Any() || guide.gameObject.activeSelf)
+                throw new Exception("Initial UI visibility validation failed.");
+        }
         Canvas.ForceUpdateCanvases();
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Scene save failed.");
@@ -67,12 +98,12 @@ internal static class RehearGripScenePreview
         var camera = all.Select(t => t.GetComponent<Camera>()).Single(c => c && c.CompareTag("MainCamera"));
         if (SceneView.lastActiveSceneView)
         {
-            var panel = view.steps[step].GetComponentsInChildren<RectTransform>().First(t => t.name.EndsWith("glass"));
+            var panel = view.steps[step].GetComponentsInChildren<RectTransform>().First(t => t.name.EndsWith("glass", StringComparison.OrdinalIgnoreCase));
             Vector3 center = panel.TransformPoint(panel.rect.center);
             float width = panel.rect.width * panel.lossyScale.x;
             SceneView.lastActiveSceneView.LookAt(center, panel.rotation, width * .7f);
         }
-        File.WriteAllText(step == 8 ? "Temp/RehearCompletionUIPreview.txt" : "Temp/RehearPausedUIPreview.txt",
+        File.WriteAllText(step == 0 ? "Temp/RehearInitialUI.txt" : step == 8 ? "Temp/RehearCompletionUIPreview.txt" : "Temp/RehearPausedUIPreview.txt",
             "PASS\nstep=" + step + "\nvisible=" + view.steps[step].activeInHierarchy +
             "\ncontrollerGuide=false\ntext=" + string.Join(" | ", view.steps[step].GetComponentsInChildren<TMP_Text>().Select(t => t.text)));
     }
@@ -81,6 +112,13 @@ internal static class RehearGripScenePreview
     {
         const string request = "Temp/RehearGripGuidePreview.request";
         if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
+        const string initialRequest = "Temp/RehearInitialUI.request";
+        if (File.Exists(initialRequest))
+        {
+            File.Delete(initialRequest);
+            try { ShowInitialUI(); }
+            catch (Exception e) { File.WriteAllText("Temp/RehearInitialUI.txt", "FAIL\n" + e); Debug.LogException(e); }
+        }
         const string completionRequest = "Temp/RehearCompletionUIPreview.request";
         if (File.Exists(completionRequest))
         {

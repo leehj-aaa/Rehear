@@ -26,8 +26,35 @@ internal static class RehearBlurDiagnostics
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating) return;
         string command = File.ReadAllText(Request).Trim();
         File.Delete(Request);
-        try { if (command == "tune") Tune(); else Inspect(); }
+        try { if (command == "tune") Tune(); else if (command == "show-script") ShowScript(); else Inspect(); }
         catch (Exception e) { File.WriteAllText("Temp/RehearBlurDiagnostics.txt", e.ToString()); }
+    }
+    static void ShowScript()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning)
+            throw new InvalidOperationException("Show the script in Edit mode while not baking.");
+        var scene = EditorSceneManager.GetActiveScene();
+        if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity" || UnityEngine.SceneManagement.SceneManager.sceneCount != 1)
+            throw new InvalidOperationException("Only the tutorial scene should be open.");
+        var toggle = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<PodiumScriptToggle>(true)).Single();
+        if (!toggle.scriptPanel || !toggle.label || !toggle.background) throw new InvalidOperationException("Script toggle references are missing.");
+        Undo.RecordObjects(new UnityEngine.Object[] { toggle.scriptPanel, toggle.label, toggle.background }, "Show podium script");
+        toggle.scriptPanel.SetActive(true);
+        toggle.Refresh();
+        foreach (var obj in new UnityEngine.Object[] { toggle.scriptPanel, toggle.label, toggle.background })
+        {
+            EditorUtility.SetDirty(obj);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
+        }
+        Canvas.ForceUpdateCanvases();
+        if (!toggle.scriptPanel.activeInHierarchy || toggle.label.text != "대본 끄기")
+            throw new InvalidOperationException("Script is not visible or toggle label is inconsistent.");
+        EditorSceneManager.MarkSceneDirty(scene);
+        if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Could not save script visibility.");
+        Selection.activeGameObject = toggle.scriptPanel;
+        SceneView.RepaintAll();
+        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+        File.WriteAllText("Temp/RehearScriptVisible.txt", "PASS\nscriptVisible=true\nlabel=" + toggle.label.text + "\nsaved=true");
     }
     static void Tune()
     {

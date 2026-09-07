@@ -70,6 +70,7 @@ namespace CurvedUI.Core.Integrations
             }
 
 #if UNITY_EDITOR
+            UnityEditor.EditorApplication.update -= LateUpdate;
             if (!Application.isPlaying)
                 UnityEditor.EditorApplication.update += LateUpdate;
 #endif
@@ -79,9 +80,9 @@ namespace CurvedUI.Core.Integrations
         private void OnDisable()
         {
 #if UNITY_EDITOR
-            if (!Application.isPlaying)
-                UnityEditor.EditorApplication.update -= LateUpdate;
+            UnityEditor.EditorApplication.update -= LateUpdate;
 #endif
+            TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(TMPTextChangedCallback);
             if (tmpText)
             {
                 tmpText.UnregisterDirtyMaterialCallback(TesselationRequiredCallback);
@@ -93,11 +94,24 @@ namespace CurvedUI.Core.Integrations
         private void OnDestroy()
         {
             quitting = true;
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.update -= LateUpdate;
+#endif
+            TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(TMPTextChangedCallback);
         }
 
 
         private void LateUpdate()
         {
+            // Scene switching can destroy TMP before the editor update snapshot
+            // finishes. Never resolve components on the stale callback target.
+            if (!this || quitting)
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.update -= LateUpdate;
+#endif
+                return;
+            }
             //if we're missing stuff, find it
             if (!tmpText) FindTMP();
 

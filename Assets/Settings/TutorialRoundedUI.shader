@@ -8,6 +8,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
         _BorderWidth("White border", Float) = 2
         _UseBlur("Use background blur", Float) = 1
         _GlassTint("White glass tint", Range(0,1)) = 0.45
+        _FillAlphaOffset("Fill alpha offset", Range(0,1)) = 0
         [HideInInspector] _BlurTex("Background blur", 2D) = "black" {}
         [HideInInspector] _CropRegion("Blur crop", Vector) = (0,0,1,1)
         _StencilComp("Stencil Comparison", Float) = 8
@@ -44,7 +45,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
             float4 _CropRegion, _ClipRect;
             fixed4 _TextureSampleAdd;
             float4 _PanelSize;
-            float _Radius, _BorderWidth, _UseBlur, _GlassTint;
+            float _Radius, _BorderWidth, _UseBlur, _GlassTint, _FillAlphaOffset;
             struct VertexInput
             {
                 float4 vertex : POSITION;
@@ -81,6 +82,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 half4 foreground = (tex2D(_MainTex, input.uv) + _TextureSampleAdd) * input.color;
+                foreground.a = max(0, foreground.a - _FillAlphaOffset);
                 float radius = min(_Radius, min(_PanelSize.x, _PanelSize.y) * 0.5);
                 float2 q = abs((input.uv - 0.5) * _PanelSize.xy) - _PanelSize.xy * 0.5 + radius;
                 float distance = length(max(q, 0)) + min(max(q.x, q.y), 0) - radius;

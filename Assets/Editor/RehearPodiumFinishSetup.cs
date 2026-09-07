@@ -142,6 +142,7 @@ internal static class RehearPodiumFinishSetup
             var renderer = housing.GetComponent<MeshRenderer>();
             renderer.sharedMaterial = material; renderer.shadowCastingMode = ShadowCastingMode.On;
             renderer.receiveShadows = true;
+            RehearGeneratedMeshLighting.Configure(renderer);
 
             var mount = rect.Find("ToggleMount");
             if (mount) Undo.DestroyObjectImmediate(mount.gameObject);
@@ -235,7 +236,7 @@ internal static class RehearPodiumFinishSetup
             combined.uv = source.uv.Concat(wedge.uv).ToArray();
             combined.SetTriangles(source.GetTriangles(1).Concat(wedge.triangles.Select(i => i + offset)).ToArray(), 1);
             combined.RecalculateBounds(); combined.RecalculateTangents();
-            Unwrapping.GenerateSecondaryUVSet(combined);
+            RehearGeneratedMeshLighting.Unwrap(combined);
             string path = Folder + "/Counter Integrated Script Control.asset";
             var asset = AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if (!asset) { AssetDatabase.CreateAsset(combined, path); asset = combined; }
@@ -258,6 +259,7 @@ internal static class RehearPodiumFinishSetup
             PrefabUtility.RecordPrefabInstancePropertyModifications(filter);
             // The old bake targets a different mesh/UV layout; use probes until rebaked.
             var renderer = counter.GetComponent<MeshRenderer>();
+            RehearGeneratedMeshLighting.Configure(renderer);
             Undo.RecordObject(renderer, "Invalidate outdated countertop lightmap");
             renderer.lightmapIndex = -1;
             PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
@@ -303,6 +305,6 @@ internal static class RehearPodiumFinishSetup
         mesh.Clear(); mesh.SetVertices(vertices); mesh.SetTriangles(triangles, 0);
         mesh.SetUVs(0, vertices.Select(v => new Vector2(v.x / (width + 2.4f) + .5f, v.y / (height + 2.4f) + .5f)).ToList());
         mesh.RecalculateNormals(); mesh.RecalculateBounds();
-        Unwrapping.GenerateSecondaryUVSet(mesh);
+        RehearGeneratedMeshLighting.Unwrap(mesh);
     }
 }
