@@ -1,5 +1,6 @@
 public static class RuntimeSessionData
 {
+    public static SessionData Session { get; private set; }
     public static string Pin { get; private set; }
 
     public static string PresentationTitle { get; private set; }
@@ -24,6 +25,7 @@ public static class RuntimeSessionData
         string pin,
         SessionData session)
     {
+        Session = session;
         Pin = pin;
 
         Page1 page1 = session?.page_1;
@@ -69,6 +71,7 @@ public static class RuntimeSessionData
 
     public static void Clear()
     {
+        Session = null;
         Pin = "";
 
         PresentationTitle = "";
