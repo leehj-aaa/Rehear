@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Rehear.Evc.Contracts;
 
 public class Scene03Manager : MonoBehaviour
@@ -18,8 +19,31 @@ public class Scene03Manager : MonoBehaviour
     [SerializeField]
     private TMP_Text credibilityText;
 
+    [Header("평가 상태 배지")]
+    [SerializeField]
+    private Image engagementBadge;
+
+    [SerializeField]
+    private Image clarityBadge;
+
+    [SerializeField]
+    private Image credibilityBadge;
+
+    [Header("결과 화면 흐름")]
+    [SerializeField]
+    private GameObject[] resultObjects;
+
+    [SerializeField]
+    private GameObject sessionEndedPanel;
+
+    // Figma 결과 화면: 등급 글자는 배경 없이 지표 색으로만 표시
+    private static readonly Color EngagementColor = Hex("0033FF");
+    private static readonly Color CredibilityColor = Hex("6C44FF");
+    private static readonly Color ClarityColor = Hex("CFFF5E");
+
     private void Start()
     {
+        ShowResults();
         ApplyReport();
     }
 
@@ -84,23 +108,9 @@ public class Scene03Manager : MonoBehaviour
                 overall.ToString();
         }
 
-        if (engagementText != null)
-        {
-            engagementText.text =
-                ConvertScoreToLevel(engagement);
-        }
-
-        if (clarityText != null)
-        {
-            clarityText.text =
-                ConvertScoreToLevel(clarity);
-        }
-
-        if (credibilityText != null)
-        {
-            credibilityText.text =
-                ConvertScoreToLevel(credibility);
-        }
+        ApplyRating(engagementText, engagementBadge, engagement, EngagementColor);
+        ApplyRating(clarityText, clarityBadge, clarity, ClarityColor);
+        ApplyRating(credibilityText, credibilityBadge, credibility, CredibilityColor);
 
         Debug.Log(
             "[피드백] AI 리포트 적용 완료" +
@@ -117,12 +127,25 @@ public class Scene03Manager : MonoBehaviour
     private string ConvertScoreToLevel(int score)
     {
         if (score >= 70)
-            return "높음";
+            return "우수";
 
         if (score >= 40)
             return "보통";
 
-        return "낮음";
+        return "개선";
+    }
+
+    private void ApplyRating(TMP_Text text, Image badge, int score, Color metricColor)
+    {
+        if (text == null)
+            return;
+
+        text.text = ConvertScoreToLevel(score);
+        text.color = metricColor;
+
+        // Figma 디자인에는 등급 배경(네모)이 없으므로 배지 이미지는 숨긴다
+        if (badge != null)
+            badge.enabled = false;
     }
 
     private void ShowFallback()
@@ -149,10 +172,51 @@ public class Scene03Manager : MonoBehaviour
 
     public void GoToScene1()
     {
+        if (sessionEndedPanel != null)
+        {
+            if (resultObjects != null)
+            {
+                foreach (GameObject resultObject in resultObjects)
+                {
+                    if (resultObject != null)
+                        resultObject.SetActive(false);
+                }
+            }
+
+            sessionEndedPanel.SetActive(true);
+            return;
+        }
+
+        ReturnToStart();
+    }
+
+    public void ReturnToStart()
+    {
         RuntimeReportData.Clear();
 
         SceneManager.LoadScene(
             "Scene_01_Intro"
         );
+    }
+
+    private void ShowResults()
+    {
+        if (resultObjects != null)
+        {
+            foreach (GameObject resultObject in resultObjects)
+            {
+                if (resultObject != null)
+                    resultObject.SetActive(true);
+            }
+        }
+
+        if (sessionEndedPanel != null)
+            sessionEndedPanel.SetActive(false);
+    }
+
+    private static Color Hex(string rgb)
+    {
+        ColorUtility.TryParseHtmlString("#" + rgb, out Color color);
+        return color;
     }
 }
