@@ -36,7 +36,7 @@ internal static class RehearBlurDiagnostics
             throw new InvalidOperationException("Open the tutorial scene.");
         var config = AssetDatabase.LoadAssetAtPath<ScalableBlurConfig>("Assets/Settings/Tutorial Quest3 Blur.asset");
         Undo.RecordObject(config, "Reveal background through tutorial glass");
-        config.Strength = 12;
+        config.Strength = 14;
         config.UseStrength = true;
         EditorUtility.SetDirty(config);
         foreach (var panel in scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<TranslucentImage>(true)))
@@ -62,7 +62,7 @@ internal static class RehearBlurDiagnostics
         if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Could not save tutorial glass.");
         SceneView.RepaintAll();
         UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-        File.WriteAllText("Temp/RehearBlurTuning.txt", $"strength=12\nguideWhiteTint={GuideWhiteTint}\nintroWhiteTint={IntroWhiteTint}\notherWhiteTint=0.16\ncurvedEdgesCovered=true\nsaved=true\n");
+        File.WriteAllText("Temp/RehearBlurTuning.txt", $"strength={config.Strength}\nguideWhiteTint={GuideWhiteTint}\nintroWhiteTint={IntroWhiteTint}\notherWhiteTint=0.16\ncurvedEdgesCovered=true\nsaved=true\n");
     }
     [MenuItem("Rehear/Inspect Live Tutorial Blur")]
     static void Inspect()
@@ -73,6 +73,8 @@ internal static class RehearBlurDiagnostics
         foreach (var source in UnityEngine.Object.FindObjectsByType<TranslucentImageSource>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             var rt = source.BlurredScreen;
+            if (source.BlurConfig is ScalableBlurConfig config)
+                report.AppendLine($"CONFIG strength={config.Strength} radius={config.Radius} iteration={config.Iteration} useStrength={config.UseStrength} downsample={source.Downsample}");
             report.AppendLine($"SOURCE {source.name} active={source.isActiveAndEnabled} texture={(rt ? rt.name : "null")} region={source.BlurRegion} update={source.MaxUpdateRate}");
             if (!rt || !rt.IsCreated()) continue;
             report.AppendLine($"RT size={rt.width}x{rt.height} dimension={rt.dimension}");

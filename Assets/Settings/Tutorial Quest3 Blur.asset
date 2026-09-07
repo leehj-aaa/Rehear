@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Tutorial Quest3 Blur
   m_EditorClassIdentifier: LeTai.Asset.TranslucentImage::LeTai.Asset.TranslucentImage.ScalableBlurConfig
   mode: 0
-  radius: 1.5
+  radius: 1.75
   iteration: 3
-  strength: 12
+  strength: 14
   referenceResolution: {x: 1920, y: 1080}
   matchWidthOrHeight: 0
   useStrength: 1

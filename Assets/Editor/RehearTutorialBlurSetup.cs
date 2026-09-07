@@ -116,7 +116,7 @@ internal static class RehearTutorialBlurSetup
             AssetDatabase.CreateAsset(config, ConfigPath);
         }
         config.Mode = ScalableBlurConfig.BlurMode.Performance;
-        config.Strength = 12;
+        config.Strength = 14;
         config.UseStrength = true;
         config.ReferenceResolution = new Vector2(1920, 1080);
         EditorUtility.SetDirty(config);
@@ -203,7 +203,7 @@ internal static class RehearTutorialBlurSetup
         AssetDatabase.SaveAssets();
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Tutorial blur scene save failed.");
-        File.WriteAllText(ReportPath, $"scene={scene.path}\nblur=Translucent Image 7.0.1\ndownsample=2\nstrength=12\n" +
+        File.WriteAllText(ReportPath, $"scene={scene.path}\nblur=Translucent Image 7.0.1\ndownsample=2\nstrength={config.Strength}\n" +
             $"guideTint={RehearBlurDiagnostics.GuideWhiteTint}\nintroTint={RehearBlurDiagnostics.IntroWhiteTint}\notherTint=0.16\nworldMask={camera.cullingMask}\nuiMask={uiCamera.cullingMask}\n" +
             $"stackCount={baseData.cameraStack.Count}\ncurve={canvas.GetComponent<CurvedUISettings>().Angle}\n" +
             $"stageReferencePreserved=true\nquestDeviceTested=false\nsaved={DateTime.UtcNow:O}\n");
