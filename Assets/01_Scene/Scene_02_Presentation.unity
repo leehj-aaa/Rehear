@@ -6706,15 +6706,19 @@ MonoBehaviour:
   pausePanel: {fileID: 1424436591}
   scriptPanel: {fileID: 1122813430}
   scriptButtonText: {fileID: 1007580572}
-  sessionAudioSource: {fileID: 1855155105}
+  timerAudioSource: {fileID: 1855155105}
   qaManager: {fileID: 1738587707}
   useEvcPipeline: 1
   flowController: {fileID: 1737171926}
   presentationManager: {fileID: 1910796615}
-  warningStartSeconds: 10
+  warningStartSeconds: 30
+  timeWarningClip: {fileID: 8300000, guid: 09c21c9c86f61f44dac37eee07755143, type: 3}
+  timeUpClip: {fileID: 8300000, guid: 6a4daf1682f97724595e495b084e21f7, type: 3}
+  warningSoundVolume: 0.35
+  timeUpSoundVolume: 1
   evcSegmentIntervalSeconds: 8
   warningColor: {r: 1, g: 0.20188677, b: 0.20188677, a: 1}
-  blinkSpeed: 1.2
+  blinkSpeed: 1
 --- !u!82 &1855155105
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6727,7 +6731,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

@@ -4,6 +4,7 @@ using Rehear.Evc.Presentation;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Rehear.Evc.Contracts;
 
@@ -21,9 +22,6 @@ public class PresentationController : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI scriptButtonText;
 
-    [SerializeField]
-    private AudioSource sessionAudioSource;
-
     public QuestionAnswerManager qaManager;
 
     [Header("EVC 서버 연동")]
@@ -38,7 +36,26 @@ public class PresentationController : MonoBehaviour
 
     [Header("Timer Warning")]
     [SerializeField]
-    private float warningStartSeconds = 10f;
+    [Min(0f)]
+    private float warningStartSeconds = 30f;
+
+    [SerializeField]
+    [FormerlySerializedAs("sessionAudioSource")]
+    private AudioSource timerAudioSource;
+
+    [SerializeField]
+    private AudioClip timeWarningClip;
+
+    [SerializeField]
+    private AudioClip timeUpClip;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float warningSoundVolume = 0.35f;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float timeUpSoundVolume = 1f;
 
     [Header("EVC 자동 음성 전송")]
     [SerializeField]
@@ -51,7 +68,7 @@ public class PresentationController : MonoBehaviour
     private Color warningColor = Color.red;
 
     [SerializeField]
-    private float blinkSpeed = 1.5f;
+    private float blinkSpeed = 1f;
 
     private Color normalTimerColor;
 
@@ -61,6 +78,7 @@ public class PresentationController : MonoBehaviour
     private bool isQAPhaseStarted;
     private bool isGeneratingQuestions;
     private bool periodicFlushInProgress;
+    private bool isWarningSoundPlaying;
 
     private CancellationTokenSource lifetimeCancellation;
 
@@ -205,6 +223,7 @@ public class PresentationController : MonoBehaviour
         {
             isGeneratingQuestions = true;
             isRunning = false;
+            StopTimerAudio();
 
             qaManager?.ShowGenerating();
 
@@ -274,6 +293,7 @@ public class PresentationController : MonoBehaviour
         if (!isQAPhaseStarted)
             isQAPhaseStarted = true;
 
+        StopTimerAudio();
         qaManager?.OnActionButtonClick();
     }
 
@@ -325,6 +345,7 @@ public class PresentationController : MonoBehaviour
         {
             timeRemaining -= Time.deltaTime;
             UpdateTimerDisplay();
+            UpdateTimerAudio();
 
             if (timeRemaining <= 0f)
                 FinishTimer();
@@ -418,7 +439,10 @@ public class PresentationController : MonoBehaviour
 
     private void FinishTimer()
     {
+        timeRemaining = 0f;
         isTimerFinished = true;
+        StopWarningSound();
+        PlayTimeUpSound();
 
         if (qaButton != null)
             qaButton.gameObject.SetActive(true);
@@ -454,7 +478,7 @@ public class PresentationController : MonoBehaviour
             pausePanel.transform.SetAsLastSibling();
         }
 
-        sessionAudioSource?.Pause();
+        timerAudioSource?.Pause();
 
         if (flowController == null)
             return;
@@ -520,7 +544,7 @@ public class PresentationController : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
-        sessionAudioSource?.UnPause();
+        timerAudioSource?.UnPause();
     }
 
     public void RestartSession()
@@ -550,6 +574,7 @@ public class PresentationController : MonoBehaviour
 
     public void StartQA()
     {
+        StopTimerAudio();
         qaManager?.StartQAPhase(qaButton);
         SetScriptPanelVisible(true);
     }
@@ -617,10 +642,16 @@ public class PresentationController : MonoBehaviour
             return;
         }
 
+        float blinkTime =
+            isWarningSoundPlaying &&
+            timerAudioSource != null
+                ? timerAudioSource.time
+                : Time.unscaledTime;
+
         float blink =
             (
-                Mathf.Sin(
-                    Time.unscaledTime *
+                Mathf.Cos(
+                    blinkTime *
                     blinkSpeed *
                     Mathf.PI *
                     2f
@@ -633,6 +664,64 @@ public class PresentationController : MonoBehaviour
                 warningColor,
                 blink
             );
+    }
+
+    private void UpdateTimerAudio()
+    {
+        if (isWarningSoundPlaying ||
+            timerAudioSource == null ||
+            timeWarningClip == null ||
+            isTimerFinished ||
+            timeRemaining <= 0f ||
+            timeRemaining > warningStartSeconds)
+        {
+            return;
+        }
+
+        timerAudioSource.Stop();
+        timerAudioSource.clip = timeWarningClip;
+        timerAudioSource.loop = true;
+        timerAudioSource.volume = warningSoundVolume;
+        timerAudioSource.Play();
+        isWarningSoundPlaying = true;
+    }
+
+    private void StopWarningSound()
+    {
+        if (timerAudioSource == null)
+            return;
+
+        timerAudioSource.Stop();
+        timerAudioSource.loop = false;
+        timerAudioSource.clip = null;
+        isWarningSoundPlaying = false;
+    }
+
+    private void PlayTimeUpSound()
+    {
+        if (timerAudioSource == null ||
+            timeUpClip == null)
+        {
+            return;
+        }
+
+        timerAudioSource.volume = 1f;
+        timerAudioSource.PlayOneShot(
+            timeUpClip,
+            timeUpSoundVolume
+        );
+    }
+
+    private void StopTimerAudio()
+    {
+        if (timerAudioSource != null)
+        {
+            timerAudioSource.Stop();
+            timerAudioSource.loop = false;
+            timerAudioSource.clip = null;
+        }
+
+        isWarningSoundPlaying = false;
     }
 
     public void SkipPresentation()
@@ -649,6 +738,8 @@ public class PresentationController : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopTimerAudio();
+
         if (presentationManager != null)
         {
             presentationManager.SlideChanged -=
