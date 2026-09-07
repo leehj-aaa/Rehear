@@ -57,7 +57,7 @@ internal static class RehearTutorialGlowSetup
             serialized.FindProperty("triggerInputSound").objectReferenceValue != previousClick)
             throw new InvalidOperationException("Prompt audio verification failed.");
         File.WriteAllText("Temp/RehearTutorialPromptSound-validation.txt",
-            $"prompt={prompt.name}\nseconds={prompt.length}\nchannels={prompt.channels}\nloadType={prompt.loadType}\npreload={prompt.preloadAudioData}\nspatialBlend={audioSource.spatialBlend}\nvolume={serialized.FindProperty("triggerPromptVolume").floatValue}\nclickSoundPreserved=true\nplayback=onceOnPracticeEntry\nsaved=true\n");
+            $"prompt={prompt.name}\nseconds={prompt.length}\nchannels={prompt.channels}\nloadType={prompt.loadType}\npreload={prompt.preloadAudioData}\nspatialBlend={audioSource.spatialBlend}\nvolume={serialized.FindProperty("triggerPromptVolume").floatValue}\nclickSoundPreserved=true\nplayback=audioClockSyncedLoopWhileIdle\nsaved=true\n");
         Debug.Log("Rehear: ClickMe tutorial prompt connected; existing click sound preserved.");
     }
 
@@ -159,7 +159,7 @@ internal static class RehearTutorialGlowSetup
         UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
         File.WriteAllText("Temp/RehearTutorialGlow-validation.txt",
             $"shaderSupported=true\nshaderErrors=0\ncurvedGlow=true\nglowRaycast=false\nbuttonEvent=valid\npulsePeriod=1.6\npulseRange=0.35..1\n" +
-            $"promptSound={prompt.name}, volume=0.35, oncePerEntry=true\nclickSound={click.name}, acceptedClicksOnly=true\nclipSeconds={click.length}\npreview=Step 2\nsaved=true\n");
+            $"promptSound={prompt.name}, volume=0.35, audioClockSyncedLoopWhileIdle=true\nclickSound={click.name}, acceptedClicksOnly=true\nclipSeconds={click.length}\npreview=Step 2\nsaved=true\n");
         Debug.Log("Rehear: Button practice outline glow and sound saved.");
     }
 }

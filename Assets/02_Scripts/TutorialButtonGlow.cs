@@ -20,6 +20,12 @@ public sealed class TutorialButtonGlow : MonoBehaviour,
     bool wasSuppressed;
     Button button;
     XRBaseInteractable xrInteractable;
+    AudioClip promptClip;
+    AudioSource promptSource;
+    float promptVolume;
+    bool applicationPaused;
+    float[] promptEnvelope;
+    const float EnvelopeStep = 0.01f;
     readonly HashSet<int> hoveringPointers = new HashSet<int>();
     readonly HashSet<int> pressedPointers = new HashSet<int>();
     static readonly int Strength = Shader.PropertyToID("_GlowStrength");
@@ -41,13 +47,30 @@ public sealed class TutorialButtonGlow : MonoBehaviour,
         runtimeMaterial = new Material(originalMaterial) { name = originalMaterial.name + " (Runtime)" };
         glowImage.material = runtimeMaterial;
         startTime = Time.unscaledTime;
+        EnsurePromptSource();
         Update();
     }
 
     void Update()
     {
         if (!runtimeMaterial) return;
-        runtimeMaterial.SetFloat(Strength, EvaluateStrength(Time.unscaledTime));
+        float strength = EvaluateStrength(Time.unscaledTime);
+        if (promptSource)
+        {
+            if (strength <= 0)
+            {
+                if (promptSource.isPlaying) promptSource.Stop();
+            }
+            else
+            {
+                if (!promptSource.isPlaying) promptSource.Play();
+                // Follow the sound's actual loudness/rhythm, using the playback
+                // cursor rather than an independent animation timer.
+                strength = SampleEnvelope(promptEnvelope,
+                    promptSource.timeSamples / (float)promptClip.frequency) * maximumStrength;
+            }
+        }
+        runtimeMaterial.SetFloat(Strength, strength);
         var size = ((RectTransform)transform).rect.size;
         runtimeMaterial.SetVector(ButtonSize, new Vector4(size.x, size.y, 0, 0));
     }
@@ -59,7 +82,7 @@ public sealed class TutorialButtonGlow : MonoBehaviour,
         bool targeted = hoveringPointers.Count > 0 || pressedPointers.Count > 0 ||
             (xrInteractable && xrInteractable.isActiveAndEnabled &&
                 (xrInteractable.isHovered || xrInteractable.isSelected));
-        if (targeted || (button && (!button.isActiveAndEnabled || !button.IsInteractable())))
+        if (applicationPaused || targeted || (button && (!button.isActiveAndEnabled || !button.IsInteractable())))
         {
             wasSuppressed = true;
             return 0;
@@ -72,6 +95,83 @@ public sealed class TutorialButtonGlow : MonoBehaviour,
         }
         if (now < resumeAt) return 0;
         return EvaluatePulse(now - startTime, pulsePeriod, minimumStrength, maximumStrength);
+    }
+
+    public void ConfigurePrompt(AudioClip clip, float volume)
+    {
+        if (clip != promptClip || promptEnvelope == null)
+        {
+            promptEnvelope = null;
+            if (clip && clip.LoadAudioData())
+            {
+                var samples = new float[clip.samples * clip.channels];
+                if (clip.GetData(samples, 0)) promptEnvelope = BuildEnvelope(samples, clip.channels, clip.frequency);
+            }
+        }
+        promptClip = clip;
+        promptVolume = Mathf.Clamp01(volume);
+        EnsurePromptSource();
+        Update();
+    }
+
+    public static float[] BuildEnvelope(float[] samples, int channels, int frequency)
+    {
+        int stride = Mathf.Max(1, Mathf.RoundToInt(frequency * EnvelopeStep)) * channels;
+        var envelope = new float[Mathf.CeilToInt(samples.Length / (float)stride)];
+        float peak = 0;
+        for (int block = 0; block < envelope.Length; block++)
+        {
+            int begin = block * stride, end = Mathf.Min(samples.Length, begin + stride);
+            double energy = 0;
+            for (int i = begin; i < end; i++) energy += samples[i] * samples[i];
+            envelope[block] = Mathf.Sqrt((float)(energy / (end - begin)));
+            peak = Mathf.Max(peak, envelope[block]);
+        }
+        if (peak < 0.0001f) return envelope;
+        for (int i = 0; i < envelope.Length; i++)
+        {
+            // Reject the quiet tail/noise floor; keep each distinct hit and decay.
+            float level = Mathf.InverseLerp(0.035f, 1, envelope[i] / peak);
+            envelope[i] = Mathf.SmoothStep(0, 1, level);
+        }
+        return envelope;
+    }
+
+    public static float SampleEnvelope(float[] envelope, float seconds)
+    {
+        if (envelope == null || envelope.Length == 0) return 0;
+        float index = Mathf.Clamp(seconds / EnvelopeStep, 0, envelope.Length - 1);
+        int left = Mathf.FloorToInt(index);
+        return Mathf.Lerp(envelope[left], envelope[Mathf.Min(left + 1, envelope.Length - 1)], index - left);
+    }
+
+    void EnsurePromptSource()
+    {
+        if (!Application.isPlaying || !isActiveAndEnabled || !promptClip) return;
+        if (!promptSource)
+        {
+            var go = new GameObject("Tutorial Prompt Audio (Runtime)");
+            go.transform.SetParent(transform, false);
+            promptSource = go.AddComponent<AudioSource>();
+            promptSource.playOnAwake = false;
+            promptSource.loop = true;
+            promptSource.spatialBlend = 0;
+            promptSource.spatialize = false;
+            promptSource.dopplerLevel = 0;
+            promptSource.bypassReverbZones = true;
+        }
+        if (promptSource.clip != promptClip)
+        {
+            promptSource.Stop();
+            promptSource.clip = promptClip;
+        }
+        promptSource.volume = promptVolume;
+    }
+
+    void OnApplicationPause(bool paused)
+    {
+        applicationPaused = paused;
+        Update();
     }
 
     // Called only after the manager accepts a click (including the XR route).
@@ -119,6 +219,12 @@ public sealed class TutorialButtonGlow : MonoBehaviour,
     void OnDisable()
     {
         ResetInteraction();
+        if (promptSource)
+        {
+            promptSource.Stop();
+            Destroy(promptSource.gameObject);
+            promptSource = null;
+        }
         if (glowImage && runtimeMaterial) glowImage.material = originalMaterial;
         if (runtimeMaterial) Destroy(runtimeMaterial);
         runtimeMaterial = null;

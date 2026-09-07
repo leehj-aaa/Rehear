@@ -90,6 +90,15 @@ internal static class RehearTutorialGlowInteractionValidation
             disable();
             enable();
             Check(evaluate(0) > 0, "step hide and re-enable clear pointer state");
+            var rhythm = new float[400];
+            for (int i = 10; i < 20; i++) rhythm[i] = 0.8f;
+            for (int i = 100; i < 110; i++) rhythm[i] = 0.4f;
+            var envelope = TutorialButtonGlow.BuildEnvelope(rhythm, 1, 1000);
+            Check(TutorialButtonGlow.SampleEnvelope(envelope, 0) == 0, "audio silence produces no glow");
+            Check(TutorialButtonGlow.SampleEnvelope(envelope, .01f) > .99f, "strong audio hit produces glow peak");
+            float quietHit = TutorialButtonGlow.SampleEnvelope(envelope, .1f);
+            Check(quietHit > 0 && quietHit < .6f, "weaker audio hit produces dimmer glow");
+            Check(TutorialButtonGlow.SampleEnvelope(envelope, .25f) == 0, "gap between audio hits stays dark");
             File.WriteAllText(Report, string.Join("\n", results) + "\nsceneUnchanged=true\nquestDeviceTested=false\n");
             Debug.Log($"Rehear: {results.Count} isolated glow interaction checks passed.");
         }

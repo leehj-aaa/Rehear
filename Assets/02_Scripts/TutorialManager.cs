@@ -540,7 +540,11 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
-        if (practiceAudioSource && triggerPromptSound)
+        var practiceButton = figmaView && figmaView.HasStepButtons
+            ? figmaView.primaryButtons[(int)TutorialStep.TriggerPractice] : primaryButton;
+        var glow = practiceButton ? practiceButton.GetComponent<TutorialButtonGlow>() : null;
+        if (glow) glow.ConfigurePrompt(triggerPromptSound, triggerPromptVolume);
+        else if (practiceAudioSource && triggerPromptSound)
             practiceAudioSource.PlayOneShot(triggerPromptSound, triggerPromptVolume);
     }
 
