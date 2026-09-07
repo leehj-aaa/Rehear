@@ -48,6 +48,24 @@ internal static class RehearScriptRemainingSetup
                 remaining = go.GetComponent<TextMeshProUGUI>();
             }
             Undo.RecordObjects(new UnityEngine.Object[] { description.rectTransform, remaining, remaining.rectTransform, manager }, "Configure remaining count");
+            // Keep the text positions; reserve 46 px below the counter instead of 14 px.
+            var glassRect = (RectTransform)glass;
+            var glassGraphic = glass.GetComponent<UnityEngine.UI.Graphic>();
+            Undo.RecordObjects(new UnityEngine.Object[] { glassRect, glassGraphic }, "Restore lower panel padding");
+            glassRect.sizeDelta = new Vector2(glassRect.sizeDelta.x, 255);
+            const string glassMaterialPath = "Assets/Settings/TutorialUI/Script Practice Glass.mat";
+            var glassMaterial = AssetDatabase.LoadAssetAtPath<Material>(glassMaterialPath);
+            if (!glassMaterial)
+            {
+                glassMaterial = new Material(glassGraphic.material) { name = "Script Practice Glass" };
+                AssetDatabase.CreateAsset(glassMaterial, glassMaterialPath);
+            }
+            Undo.RecordObject(glassMaterial, "Resize script practice glass only");
+            glassMaterial.SetVector("_PanelSize", new Vector4(glassRect.rect.width, glassRect.rect.height, 0, 0));
+            glassGraphic.material = glassMaterial;
+            EditorUtility.SetDirty(glassMaterial);
+            EditorUtility.SetDirty(glassGraphic);
+            AssetDatabase.SaveAssetIfDirty(glassMaterial);
             description.rectTransform.sizeDelta = new Vector2(description.rectTransform.sizeDelta.x, 42);
             TutorialFigmaView.Place(remaining.rectTransform, 25, 177, 754, 32);
             remaining.font = font;
@@ -74,7 +92,7 @@ internal static class RehearScriptRemainingSetup
             EditorSceneManager.MarkSceneDirty(scene);
             if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Save failed.");
             Undo.CollapseUndoOperations(group);
-            File.WriteAllText("Temp/RehearScriptRemaining.txt", "PASS\nlabel=RemainingCount\nfont=Pretendard Medium 24\ncolor=#0033FF\nremaining=3\nboundarySound=Tutorial_PageBoundary.wav\nsound=mono 22050Hz 0.18s\nsaved=true");
+            File.WriteAllText("Temp/RehearScriptRemaining.txt", "PASS\nlabel=RemainingCount\nfont=Pretendard Medium 24\ncolor=#0033FF\nremaining=3\npanelHeight=255\nlowerPadding=46\nscriptOnlyMaterial=true\nboundarySound=Tutorial_PageBoundary.wav\nsound=mono 22050Hz 0.18s\nsaved=true");
         }
         catch { Undo.RevertAllDownToGroup(group); throw; }
     }

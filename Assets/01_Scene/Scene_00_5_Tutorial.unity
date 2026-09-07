@@ -11262,7 +11262,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 198, y: -321.5}
-  m_SizeDelta: {x: 804, y: 223}
+  m_SizeDelta: {x: 804, y: 255}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1176834311
 MonoBehaviour:
@@ -11295,7 +11295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 196bb08d6c2d3c9499c04e1281fd4ad3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: LeTai.Asset.TranslucentImage::LeTai.Asset.TranslucentImage.TranslucentImage
-  m_Material: {fileID: 2100000, guid: ed0bd0bf6fc7ecb4bb49915ddda437a6, type: 2}
+  m_Material: {fileID: 2100000, guid: bc4e5755a97bc564f915b289bb3739c6, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
