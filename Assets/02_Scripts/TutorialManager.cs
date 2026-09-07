@@ -412,6 +412,9 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void CountTriggerPractice()
     {
+        var practiceButton = figmaView && figmaView.HasStepButtons
+            ? figmaView.primaryButtons[(int)TutorialStep.TriggerPractice] : primaryButton;
+        if (practiceButton) practiceButton.GetComponent<TutorialButtonGlow>()?.NotifyAcceptedClick();
         practiceCount++;
 
         if (practiceCount == 1)
