@@ -18,7 +18,7 @@ internal static class RehearScriptFeedbackChecks
     static void Poll()
     {
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating ||
-            EditorApplication.isPlayingOrWillChangePlaymode) return;
+            EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
         File.Delete(Request);
         try { Run(); }
         catch (Exception ex) { File.WriteAllText("Temp/RehearScriptFeedbackChecks.txt", "FAIL\n" + ex); }
@@ -45,6 +45,7 @@ internal static class RehearScriptFeedbackChecks
             Set(scroller, "scriptText", text);
             Set(scroller, "useRuntimeSessionScript", false);
             Set(scroller, "pageCount", 4);
+            Check(scroller.IsAtPageBoundary(false) && !scroller.IsAtPageBoundary(true), "First-page boundary sound eligibility");
             var up = new GameObject("Up", typeof(RectTransform), typeof(CanvasRenderer), typeof(TutorialDirectionArrow));
             var down = new GameObject("Down", typeof(RectTransform), typeof(CanvasRenderer), typeof(TutorialDirectionArrow));
             up.transform.SetParent(root.transform, false);
@@ -64,11 +65,13 @@ internal static class RehearScriptFeedbackChecks
                 Check(scroller.CurrentPage == i + 1 && (int)Get(manager, "practiceCount") == i, "One count per page");
             }
             Check(!down.activeSelf && up.activeSelf, "Last-page hint visibility");
+            Check(scroller.IsAtPageBoundary(true), "Last-page boundary sound eligibility");
             Check(!(bool)Call(manager, "HandleScriptPracticeInput", -1f), "Last-page down rejected");
             Check((int)Get(manager, "practiceCount") == 3, "Last-page no extra count");
             Check((bool)Call(manager, "HandleScriptPracticeInput", 1f), "Valid up accepted");
             Check(scroller.CurrentPage == 3 && (int)Get(manager, "practiceCount") == 4, "Up changes exactly one page");
             textGo.SetActive(false);
+            Check(!scroller.IsAtPageBoundary(true) && !scroller.IsAtPageBoundary(false), "Inactive content is not a boundary sound");
             Check(!(bool)Call(manager, "HandleScriptPracticeInput", -1f), "Inactive page rejected");
             textGo.SetActive(true);
             text.text = "";
@@ -85,10 +88,29 @@ internal static class RehearScriptFeedbackChecks
             Set(manager, "requiredPracticeCount", 3);
             Set(manager, "practiceCount", 0);
             Set(scroller, "pageCount", 4);
-            for (int i = 0; i < 2; i++) Call(manager, "HandleScriptPracticeInput", -1f);
+            var countGo = new GameObject("Remaining", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            countGo.transform.SetParent(root.transform, false);
+            var remaining = countGo.GetComponent<TextMeshProUGUI>();
+            remaining.font = text.font;
+            Set(manager, "scriptRemainingText", remaining);
+            Call(manager, "UpdateScriptRemaining");
+            Check(remaining.text == "3회 남음", "Initial remaining count");
+            Call(manager, "HandleScriptPracticeInput", 1f);
+            Check(remaining.text == "3회 남음", "Blocked input preserves remaining count");
+            for (int i = 0; i < 2; i++)
+            {
+                Call(manager, "HandleScriptPracticeInput", -1f);
+                Check(remaining.text == (2 - i) + "회 남음", "Remaining count decrements");
+            }
             Check((int)Get(manager, "practiceCount") == 2, "Before third valid input");
             Call(manager, "HandleScriptPracticeInput", -1f);
-            Check(Get(manager, "currentStep").ToString() == "PausePractice", "Third valid input advances tutorial");
+            Check(remaining.text == "완료!" && (bool)Get(manager, "scriptCompletionPending"), "Completion remains visible");
+            Check(!(bool)Call(manager, "HandleScriptPracticeInput", 1f) && scroller.CurrentPage == 4, "No input during completion");
+            float completionAt = (float)Get(manager, "scriptCompletionAt");
+            Call(manager, "ProcessScriptCompletion", completionAt - .1f);
+            Check((bool)Get(manager, "scriptCompletionPending"), "Completion delay retained");
+            Call(manager, "ProcessScriptCompletion", completionAt + .1f);
+            Check(Get(manager, "currentStep").ToString() == "PausePractice", "Completion then advances tutorial");
 
             down.SetActive(true);
             var arrow = down.GetComponent<TutorialDirectionArrow>();
@@ -120,7 +142,7 @@ internal static class RehearScriptFeedbackChecks
                 Check(!(bool)Get(arrow, "pressed"), "Re-enable clears pressed state");
                 Check(arrow.rectTransform.localScale == originalScale && arrow.color == Color.white, "Authored transform and tint unchanged");
             }
-            File.WriteAllText("Temp/RehearScriptFeedbackChecks.txt", "PASS\nvalidDownUp=onePageOneCount\nfirstLastInactiveEmptySingleMissing=noCount\nthirdValidInput=PausePractice\npressedMesh=90percent\npressedTint=65percent\nreleaseAndReenable=restored\nauthoredTransforms=unchanged");
+            File.WriteAllText("Temp/RehearScriptFeedbackChecks.txt", "PASS\nvalidDownUp=onePageOneCount\nfirstLastInactiveEmptySingleMissing=noCount\nremaining=3,2,1,complete\ncompletionDelayAndInputGuard=PASS\nboundarySoundEligibility=PASS\nthirdValidInput=PausePracticeAfterDelay\npressedMesh=90percent\npressedTint=65percent\nreleaseAndReenable=restored\nauthoredTransforms=unchanged");
         }
         finally { EditorSceneManager.ClosePreviewScene(scene); }
     }

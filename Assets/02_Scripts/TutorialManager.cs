@@ -77,6 +77,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip stepSuccessSound;
     [SerializeField] private AudioClip triggerPromptSound;
     [SerializeField] private AudioClip triggerInputSound;
+    [SerializeField] private AudioClip scriptBoundarySound;
+    [SerializeField] private TMP_Text scriptRemainingText;
     [SerializeField, Range(0f, 1f)] private float triggerPromptVolume = 0.35f;
     [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float successSoundVolume = 0.8f;
@@ -102,6 +104,8 @@ public class TutorialManager : MonoBehaviour
     private InputAction gripAction;
     private bool stickLatched;
     private int practiceCount;
+    private bool scriptCompletionPending;
+    private float scriptCompletionAt;
     private float lastButtonTime = -10f;
     private Transform tutorialRig;
     private Vector3 authoredRigPosition;
@@ -259,6 +263,7 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
+        if (ProcessScriptCompletion(Time.unscaledTime)) return;
         // Stick input is deliberately ignored outside its own practice steps.
         if (currentStep != TutorialStep.SlidePractice &&
             currentStep != TutorialStep.RearSlidePractice &&
@@ -326,13 +331,44 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private bool HandleScriptPracticeInput(float direction)
     {
-        if (scriptScroller == null || direction == 0f) return false;
+        if (scriptCompletionPending || scriptScroller == null || direction == 0f) return false;
         bool changed = direction < 0f ? scriptScroller.TryNextPage() : scriptScroller.TryPreviousPage();
-        if (!changed) return false;
+        if (!changed)
+        {
+            if (scriptScroller.IsAtPageBoundary(direction < 0f) && practiceAudioSource && scriptBoundarySound)
+                practiceAudioSource.PlayOneShot(scriptBoundarySound, .35f);
+            return false;
+        }
 
         // Count and acknowledge actual page changes, never blocked boundary inputs.
         PlayPracticeSound(stickInputSound);
-        CountStickPractice(TutorialStep.PausePractice);
+        practiceCount++;
+        UpdateScriptRemaining();
+        if (practiceCount >= requiredPracticeCount)
+        {
+            scriptCompletionPending = true;
+            scriptCompletionAt = Time.unscaledTime + .65f;
+        }
+        return true;
+    }
+
+    private void UpdateScriptRemaining()
+    {
+        if (scriptRemainingText)
+        {
+            int remaining = Mathf.Max(0, requiredPracticeCount - practiceCount);
+            scriptRemainingText.text = remaining > 0 ? remaining + "회 남음" : "완료!";
+        }
+    }
+
+    private bool ProcessScriptCompletion(float now)
+    {
+        if (!scriptCompletionPending) return false;
+        if (now >= scriptCompletionAt)
+        {
+            scriptCompletionPending = false;
+            ShowPausePractice();
+        }
         return true;
     }
 
@@ -595,6 +631,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
         currentStep = TutorialStep.ScriptPractice;
         practiceCount = 0;
+        scriptCompletionPending = false;
+        UpdateScriptRemaining();
         stickLatched = true;
         controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickVertical);
         SetStage(tutorial4Sprite, true, progress2Sprite, tutorial4Tts);

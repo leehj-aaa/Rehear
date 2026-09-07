@@ -15,6 +15,7 @@ public class ScriptScroller : MonoBehaviour
 
     public int CurrentPage => currentPage;
     public int PageCount => pageCount;
+    public bool IsAtPageBoundary(bool next) => CanChangePage() && (next ? currentPage >= pageCount : currentPage <= 1);
 
     [Header("Firebase 대본")]
     [SerializeField]
