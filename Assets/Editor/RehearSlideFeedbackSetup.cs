@@ -51,12 +51,13 @@ internal static class RehearSlideFeedbackSetup
         left.gameObject.SetActive(true);
         right.gameObject.SetActive(true);
         view.Show(3);
-        if (!left.isActiveAndEnabled || !right.isActiveAndEnabled) throw new Exception("Slide hints still hidden.");
+        presentation.RefreshSlideDirectionHints();
+        if (!hints.gameObject.activeInHierarchy) throw new Exception("Slide hints parent still hidden.");
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Save failed.");
         Undo.CollapseUndoOperations(group);
         Selection.activeGameObject = desk.gameObject;
         if (SceneView.lastActiveSceneView) SceneView.lastActiveSceneView.LookAt(desk.transform.position, desk.transform.rotation, .7f);
-        File.WriteAllText("Temp/RehearSlideFeedback.txt", "PASS\nleftVisible=true\nrightVisible=true\narrowStyleAndPlacement=preserved\npreview=Step 3\nsound=wrong.mp3\nslides=" + presentation.slides.Length + "\nsaved=true");
+        File.WriteAllText("Temp/RehearSlideFeedback.txt", "PASS\nleftVisible=" + left.isActiveAndEnabled + "\nrightVisible=" + right.isActiveAndEnabled + "\narrowStyleAndPlacement=preserved\npreview=Step 3\nsound=wrong.mp3\nslides=" + presentation.slides.Length + "\nsaved=true");
     }
 }

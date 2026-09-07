@@ -1,209 +1,171 @@
 using UnityEngine;
+using UnityEngine.XR;
 
-/// <summary>
-/// Displays a camera-relative Meta Quest Touch Plus controller and drives the
-/// official Meta controller animator with a looping tutorial cue.
-/// </summary>
+/// <summary>Life-size tracked right-hand demonstration. Does not move XR inputs or rays.</summary>
 public sealed class Quest3TutorialControllerVisual : MonoBehaviour
 {
-    public enum Cue
+    public enum Cue { Hidden, Idle, Trigger, StickHorizontal, StickVertical, Grip }
+    static readonly int TriggerParameter = Animator.StringToHash("Trigger");
+    static readonly int GripParameter = Animator.StringToHash("Grip");
+    static readonly int JoyXParameter = Animator.StringToHash("Joy X");
+    static readonly int JoyYParameter = Animator.StringToHash("Joy Y");
+    [SerializeField] GameObject controllerModelPrefab;
+    [SerializeField] RuntimeAnimatorController controllerAnimator;
+    [Header("Tracked right hand grip pose, not camera or ray aim")]
+    [SerializeField] Transform rightHandTarget;
+    [SerializeField] Renderer[] originalControllerRenderers;
+    [SerializeField] Vector3 gripPoseOffset;
+    [SerializeField] Vector3 gripPoseEuler;
+    [Header("Button highlights")]
+    [SerializeField] Mesh triggerHighlight;
+    [SerializeField] Mesh stickHighlight;
+    [SerializeField] Mesh gripHighlight;
+    [SerializeField] Material highlightMaterial;
+    [SerializeField, Min(.2f)] float cycleDuration = 1.35f;
+    Transform visualRoot;
+    Animator animator;
+    SkinnedMeshRenderer highlight;
+    Material runtimeHighlight;
+    bool[] previousForceOff;
+    bool suppressingOriginal;
+    Cue currentCue = Cue.Hidden;
+    float cueStartedAt;
+
+    void Awake() { BuildVisual(); ApplyVisibility(); }
+    void OnEnable() { ApplyVisibility(); }
+    void OnDisable()
     {
-        Hidden,
-        Idle,
-        Trigger,
-        StickHorizontal,
-        StickVertical,
-        Grip
+        if (visualRoot) visualRoot.gameObject.SetActive(false);
+        RestoreOriginal();
     }
-
-    private static readonly int TriggerParameter = Animator.StringToHash("Trigger");
-    private static readonly int GripParameter = Animator.StringToHash("Grip");
-    private static readonly int JoyXParameter = Animator.StringToHash("Joy X");
-    private static readonly int JoyYParameter = Animator.StringToHash("Joy Y");
-
-    [Header("Quest 3 Controller")]
-    [SerializeField] private GameObject controllerModelPrefab;
-    [SerializeField] private RuntimeAnimatorController controllerAnimator;
-
-    [Header("Placement")]
-    [SerializeField] private Transform followTarget;
-    [SerializeField] private Vector3 cameraOffset = new(0.3f, -0.16f, 0.62f);
-    [SerializeField] private Vector3 modelEulerAngles = new(18f, 165f, -10f);
-    [SerializeField, Min(0.1f)] private float modelScale = 1.35f;
-    [SerializeField, Min(0f)] private float followSharpness = 14f;
-
-    [Header("Animation")]
-    [SerializeField, Min(0.2f)] private float cycleDuration = 1.35f;
-    [SerializeField, Range(0f, 0.05f)] private float floatAmount = 0.012f;
-    [SerializeField, Range(0f, 10f)] private float idleRockDegrees = 2.5f;
-
-    private Transform visualRoot;
-    private Animator animator;
-    private Cue currentCue = Cue.Hidden;
-    private float cueStartedAt;
-
-    private void Awake()
+    void OnDestroy()
     {
-        if (followTarget == null && Camera.main != null)
-            followTarget = Camera.main.transform;
-
-        BuildVisual();
-        ApplyVisibility();
+        RestoreOriginal();
+        if (visualRoot) Destroy(visualRoot.gameObject);
+        if (runtimeHighlight) Destroy(runtimeHighlight);
     }
-
-    private void OnDisable()
-    {
-        ResetAnimatorParameters();
-        if (visualRoot != null)
-            visualRoot.gameObject.SetActive(false);
-    }
-
-    private void OnEnable()
+    void LateUpdate()
     {
         ApplyVisibility();
+        if (!visualRoot || !visualRoot.gameObject.activeSelf) return;
+        AnimateCue(Mathf.Repeat((Time.unscaledTime - cueStartedAt) / Mathf.Max(.2f, cycleDuration), 1f));
     }
-
-    private void LateUpdate()
-    {
-        if (visualRoot == null || followTarget == null || currentCue == Cue.Hidden)
-            return;
-
-        float followT = followSharpness <= 0f
-            ? 1f
-            : 1f - Mathf.Exp(-followSharpness * Time.unscaledDeltaTime);
-
-        Vector3 targetPosition = followTarget.TransformPoint(cameraOffset);
-        Quaternion targetRotation = followTarget.rotation;
-        visualRoot.position = Vector3.Lerp(visualRoot.position, targetPosition, followT);
-        visualRoot.rotation = Quaternion.Slerp(visualRoot.rotation, targetRotation, followT);
-
-        float phase = Mathf.Repeat(
-            (Time.unscaledTime - cueStartedAt) / Mathf.Max(0.2f, cycleDuration),
-            1f);
-
-        float bob = Mathf.Sin(phase * Mathf.PI * 2f) * floatAmount;
-        float rock = Mathf.Sin(phase * Mathf.PI * 2f) * idleRockDegrees;
-
-        Transform modelTransform = visualRoot.childCount > 0
-            ? visualRoot.GetChild(0)
-            : null;
-
-        if (modelTransform != null)
-        {
-            modelTransform.localPosition = new Vector3(0f, bob, 0f);
-            modelTransform.localRotation = Quaternion.Euler(
-                modelEulerAngles + new Vector3(0f, rock, 0f));
-        }
-
-        AnimateCue(phase);
-    }
-
     public void Show(Cue cue)
     {
-        if (currentCue == cue)
-            return;
-
         currentCue = cue;
         cueStartedAt = Time.unscaledTime;
-        ResetAnimatorParameters();
+        if (highlight)
+        {
+            highlight.sharedMesh = cue == Cue.Trigger ? triggerHighlight : cue == Cue.Grip ? gripHighlight : stickHighlight;
+            highlight.enabled = cue != Cue.Hidden && cue != Cue.Idle;
+        }
         ApplyVisibility();
-
-        if (visualRoot != null && followTarget != null && cue != Cue.Hidden)
+        if (animator && animator.isActiveAndEnabled && animator.runtimeAnimatorController)
         {
-            visualRoot.position = followTarget.TransformPoint(cameraOffset);
-            visualRoot.rotation = followTarget.rotation;
+            if (!animator.isInitialized) { animator.Rebind(); animator.Update(0f); }
+            ResetAnimatorParameters();
         }
     }
-
-    private void BuildVisual()
+    void BuildVisual()
     {
-        if (controllerModelPrefab == null)
+        if (!controllerModelPrefab || !rightHandTarget) return;
+        visualRoot = new GameObject("Right Hand Tutorial Overlay").transform;
+        // Parenting propagates before-render tracking without smoothing or bobbing.
+        visualRoot.SetParent(rightHandTarget, false);
+        visualRoot.SetLocalPositionAndRotation(gripPoseOffset, Quaternion.Euler(gripPoseEuler));
+        var model = Instantiate(controllerModelPrefab, visualRoot);
+        model.name = "Meta Quest Touch Plus Right Demonstration";
+        model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        model.transform.localScale = controllerModelPrefab.transform.localScale;
+        animator = model.GetComponentInChildren<Animator>(true);
+        if (animator)
         {
-            Debug.LogWarning("[튜토리얼] Quest 3 컨트롤러 모델이 연결되지 않았습니다.", this);
-            return;
-        }
-
-        GameObject rootObject = new("Quest 3 Controller Tutorial Visual");
-        visualRoot = rootObject.transform;
-        visualRoot.SetParent(transform, false);
-
-        GameObject modelObject = Instantiate(controllerModelPrefab, visualRoot);
-        modelObject.name = "Meta Quest Touch Plus - Right";
-        modelObject.transform.SetLocalPositionAndRotation(
-            Vector3.zero,
-            Quaternion.Euler(modelEulerAngles));
-        modelObject.transform.localScale = Vector3.one * modelScale;
-
-        animator = modelObject.GetComponentInChildren<Animator>(true);
-        if (animator == null)
-        {
-            Debug.LogWarning("[튜토리얼] Quest 3 컨트롤러 Animator를 찾지 못했습니다.", this);
-            return;
-        }
-
-        if (controllerAnimator != null)
             animator.runtimeAnimatorController = controllerAnimator;
-
-        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
-        animator.updateMode = AnimatorUpdateMode.UnscaledTime;
-        animator.Rebind();
-        animator.Update(0f);
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+            if (animator.isActiveAndEnabled && animator.runtimeAnimatorController)
+            {
+                animator.Rebind();
+                animator.Update(0f);
+            }
+        }
+        foreach (var r in model.GetComponentsInChildren<Renderer>(true))
+        {
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+            if (r.name.Contains("batteryIndicator")) r.gameObject.SetActive(false);
+        }
+        var body = model.transform.Find("oculus_controller_r_MeshX")?.GetComponent<SkinnedMeshRenderer>();
+        if (body && highlightMaterial)
+        {
+            var go = new GameObject("Active Button Highlight");
+            go.transform.SetParent(body.transform, false);
+            highlight = go.AddComponent<SkinnedMeshRenderer>();
+            highlight.bones = body.bones;
+            highlight.rootBone = body.rootBone;
+            highlight.localBounds = body.localBounds;
+            highlight.updateWhenOffscreen = true;
+            highlight.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            highlight.receiveShadows = false;
+            runtimeHighlight = new Material(highlightMaterial);
+            highlight.sharedMaterial = runtimeHighlight;
+        }
     }
-
-    private void AnimateCue(float phase)
+    void AnimateCue(float phase)
     {
-        if (animator == null)
-            return;
-
-        // Leave a neutral beat in every loop so each action reads clearly.
+        if (!animator || !animator.isActiveAndEnabled || !animator.isInitialized) return;
         float action = TutorialPulse(phase);
-
         switch (currentCue)
         {
-            case Cue.Trigger:
-                animator.SetFloat(TriggerParameter, action);
-                break;
-
-            case Cue.Grip:
-                animator.SetFloat(GripParameter, action);
-                break;
-
-            case Cue.StickHorizontal:
-                animator.SetFloat(JoyXParameter, Mathf.Sin(phase * Mathf.PI * 2f) * action);
-                break;
-
-            case Cue.StickVertical:
-                animator.SetFloat(JoyYParameter, Mathf.Sin(phase * Mathf.PI * 2f) * action);
-                break;
+            case Cue.Trigger: animator.SetFloat(TriggerParameter, action); break;
+            case Cue.Grip: animator.SetFloat(GripParameter, action); break;
+            case Cue.StickHorizontal: animator.SetFloat(JoyXParameter, Mathf.Sin(phase * Mathf.PI * 2f)); break;
+            case Cue.StickVertical: animator.SetFloat(JoyYParameter, Mathf.Sin(phase * Mathf.PI * 2f)); break;
         }
+        if (runtimeHighlight) runtimeHighlight.SetColor("_BaseColor", Color.Lerp(new Color(0, .2f, 1), new Color(.15f, .6f, 1), action));
     }
-
-    private static float TutorialPulse(float phase)
+    static float TutorialPulse(float phase)
     {
-        if (phase < 0.15f || phase > 0.85f)
-            return 0f;
-
-        float normalized = Mathf.InverseLerp(0.15f, 0.5f, phase);
-        if (phase > 0.5f)
-            normalized = Mathf.InverseLerp(0.85f, 0.5f, phase);
-
-        return Mathf.SmoothStep(0f, 1f, normalized);
+        if (phase < .15f || phase > .85f) return 0;
+        return Mathf.SmoothStep(0, 1, phase <= .5f ? Mathf.InverseLerp(.15f, .5f, phase) : Mathf.InverseLerp(.85f, .5f, phase));
     }
-
-    private void ResetAnimatorParameters()
+    void ResetAnimatorParameters()
     {
-        if (animator == null)
-            return;
-
-        animator.SetFloat(TriggerParameter, 0f);
-        animator.SetFloat(GripParameter, 0f);
-        animator.SetFloat(JoyXParameter, 0f);
-        animator.SetFloat(JoyYParameter, 0f);
+        if (!animator || !animator.isActiveAndEnabled || !animator.isInitialized) return;
+        animator.SetFloat(TriggerParameter, 0);
+        animator.SetFloat(GripParameter, 0);
+        animator.SetFloat(JoyXParameter, 0);
+        animator.SetFloat(JoyYParameter, 0);
     }
-
-    private void ApplyVisibility()
+    void ApplyVisibility()
     {
-        if (visualRoot != null)
-            visualRoot.gameObject.SetActive(isActiveAndEnabled && currentCue != Cue.Hidden);
+        bool tracked = true;
+        if (XRSettings.enabled)
+        {
+            var device = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+            tracked = device.isValid && device.TryGetFeatureValue(CommonUsages.isTracked, out bool value) && value;
+        }
+        bool show = isActiveAndEnabled && currentCue != Cue.Hidden && rightHandTarget && rightHandTarget.gameObject.activeInHierarchy && tracked;
+        if (visualRoot) visualRoot.gameObject.SetActive(show);
+        if (show && visualRoot && !suppressingOriginal)
+        {
+            previousForceOff = new bool[originalControllerRenderers?.Length ?? 0];
+            for (int i = 0; i < previousForceOff.Length; i++)
+            {
+                var r = originalControllerRenderers[i];
+                if (!r) continue;
+                previousForceOff[i] = r.forceRenderingOff;
+                r.forceRenderingOff = true;
+            }
+            suppressingOriginal = true;
+        }
+        else if (!show) RestoreOriginal();
+    }
+    void RestoreOriginal()
+    {
+        if (!suppressingOriginal) return;
+        for (int i = 0; i < previousForceOff.Length; i++)
+            if (originalControllerRenderers[i]) originalControllerRenderers[i].forceRenderingOff = previousForceOff[i];
+        suppressingOriginal = false;
     }
 }

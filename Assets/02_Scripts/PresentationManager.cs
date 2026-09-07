@@ -164,13 +164,14 @@ public class PresentationManager : MonoBehaviour
 
     public bool TryNextSlide()
     {
+        RefreshSlideDirectionHints();
         if (!HasCurrentSlide()) return false;
-        nextSlideHint?.ShowPressedFeedback();
         if (currentIndex >= slides.Length - 1 || !slides[currentIndex + 1])
         {
             return false;
         }
 
+        nextSlideHint?.ShowPressedFeedback();
         currentIndex++;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
@@ -179,13 +180,14 @@ public class PresentationManager : MonoBehaviour
 
     public bool TryPrevSlide()
     {
+        RefreshSlideDirectionHints();
         if (!HasCurrentSlide()) return false;
-        previousSlideHint?.ShowPressedFeedback();
         if (currentIndex <= 0 || !slides[currentIndex - 1])
         {
             return false;
         }
 
+        previousSlideHint?.ShowPressedFeedback();
         currentIndex--;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
@@ -197,6 +199,7 @@ public class PresentationManager : MonoBehaviour
         if (slides == null ||
             slides.Length == 0)
         {
+            RefreshSlideDirectionHints();
             return;
         }
 
@@ -215,6 +218,25 @@ public class PresentationManager : MonoBehaviour
 
         if (slideScreen != null)
             slideScreen.texture = currentSlide;
+
+        RefreshSlideDirectionHints();
+    }
+
+    // Keep availability correct when a tutorial step reopens or the deck changes.
+    private void LateUpdate() => RefreshSlideDirectionHints();
+
+    public void RefreshSlideDirectionHints()
+    {
+        bool valid = HasCurrentSlide();
+        SetHintVisible(previousSlideHint, valid && currentIndex > 0 && slides[currentIndex - 1]);
+        SetHintVisible(nextSlideHint, valid && currentIndex < slides.Length - 1 && slides[currentIndex + 1]);
+    }
+
+    private static void SetHintVisible(TutorialDirectionArrow hint, bool visible)
+    {
+        // Only change the arrow itself; its parent belongs to the tutorial step.
+        if (hint && hint.gameObject.activeSelf != visible)
+            hint.gameObject.SetActive(visible);
     }
 
     private void DestroyTextures(

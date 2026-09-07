@@ -69,6 +69,8 @@ public class TutorialManager : MonoBehaviour
 
     [Header("Quest 3 Controller Tutorial")]
     [SerializeField] private Quest3TutorialControllerVisual controllerVisual;
+    [SerializeField] private TutorialControlGuideView controlGuide;
+    [SerializeField, Min(1.35f)] private float demonstrationDuration = 2.7f;
 
     [Header("Practice Feedback Sound")]
     [SerializeField] private AudioSource practiceAudioSource;
@@ -113,6 +115,10 @@ public class TutorialManager : MonoBehaviour
     private Transform tutorialRig;
     private Vector3 authoredRigPosition;
     private float authoredRigYaw;
+    private bool demonstrating;
+    private bool waitingForGuideRelease;
+    private float demonstrationReadyAt;
+    private InputAction triggerAction;
 
     private void Awake()
     {
@@ -134,6 +140,8 @@ public class TutorialManager : MonoBehaviour
         gripAction.AddBinding("<XRController>{RightHand}/gripButton");
         gripAction.AddBinding("<Keyboard>/p");
         gripAction.performed += OnGripPerformed;
+        triggerAction = new InputAction("Tutorial Trigger Release", InputActionType.Button,
+            "<XRController>{RightHand}/triggerButton");
     }
 
     private void Start()
@@ -235,12 +243,15 @@ public class TutorialManager : MonoBehaviour
     {
         stickAction?.Enable();
         gripAction?.Enable();
+        triggerAction?.Enable();
     }
 
     private void OnDisable()
     {
         stickAction?.Disable();
         gripAction?.Disable();
+        triggerAction?.Disable();
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
     }
 
     private void OnDestroy()
@@ -250,6 +261,7 @@ public class TutorialManager : MonoBehaviour
 
         stickAction?.Dispose();
         gripAction?.Dispose();
+        triggerAction?.Dispose();
     }
 
     private void PlayTutorialTts(AudioClip clip)
@@ -266,6 +278,7 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
+        if (ProcessDemonstration(Time.unscaledTime)) return;
         if (ProcessSlideCompletion(Time.unscaledTime)) return;
         if (ProcessScriptCompletion(Time.unscaledTime)) return;
         // Stick input is deliberately ignored outside its own practice steps.
@@ -319,7 +332,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private bool HandleSlidePracticeInput(float direction)
     {
-        if (slideCompletionPending || !presentationManager || direction == 0f) return false;
+        if (demonstrating || slideCompletionPending || !presentationManager || direction == 0f) return false;
         var display = currentStep == TutorialStep.RearSlidePractice ? presentationManager.slideScreen : presentationManager.deskScreen;
         if (!display || !display.isActiveAndEnabled) return false;
         bool changed = direction > 0f ? presentationManager.TryNextSlide() : presentationManager.TryPrevSlide();
@@ -346,15 +359,15 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         if (now >= slideCompletionAt)
         {
             slideCompletionPending = false;
-            if (currentStep == TutorialStep.SlidePractice) ShowRearSlidePractice();
-            else if (currentStep == TutorialStep.RearSlidePractice) ShowScriptPractice();
+            if (currentStep == TutorialStep.SlidePractice) BeginDemonstration(TutorialStep.RearSlidePractice);
+            else if (currentStep == TutorialStep.RearSlidePractice) BeginDemonstration(TutorialStep.ScriptPractice);
         }
         return true;
     }
 
     private bool HandleScriptPracticeInput(float direction)
     {
-        if (scriptCompletionPending || scriptScroller == null || direction == 0f) return false;
+        if (demonstrating || scriptCompletionPending || scriptScroller == null || direction == 0f) return false;
         bool changed = direction < 0f ? scriptScroller.TryNextPage() : scriptScroller.TryPreviousPage();
         if (!changed)
         {
@@ -390,7 +403,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         if (now >= scriptCompletionAt)
         {
             scriptCompletionPending = false;
-            ShowPausePractice();
+            BeginDemonstration(TutorialStep.PausePractice);
         }
         return true;
     }
@@ -399,6 +412,15 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     // The short guard prevents one physical click from being counted twice.
     public void OnPrimaryButtonPressed()
     {
+        if (demonstrating)
+        {
+            if (Time.unscaledTime >= demonstrationReadyAt && !waitingForGuideRelease)
+            {
+                waitingForGuideRelease = true;
+                controlGuide?.SetWaitingForRelease();
+            }
+            return;
+        }
         if (!AcceptButtonEvent())
             return;
 
@@ -409,7 +431,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 break;
 
             case TutorialStep.PracticeIntro:
-                ShowTriggerPractice();
+                BeginDemonstration(TutorialStep.TriggerPractice);
                 break;
 
             case TutorialStep.TriggerPractice:
@@ -425,6 +447,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     public void OnSecondaryButtonPressed()
     {
+        if (demonstrating) return;
         if (!AcceptButtonEvent())
             return;
 
@@ -491,12 +514,13 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         }
         else if (practiceCount >= requiredPracticeCount)
         {
-            ShowSlidePractice();
+            BeginDemonstration(TutorialStep.SlidePractice);
         }
     }
 
     private void OnGripPerformed(InputAction.CallbackContext context)
     {
+        if (demonstrating) return;
         // Grip is deliberately ignored until the pause practice step.
         if (currentStep == TutorialStep.PausePractice)
         {
@@ -520,7 +544,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 tutorial5_1Object.SetActive(true);
                 tutorial5_1Object.transform.SetAsLastSibling();
             }
-            controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Grip);
+            controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
             PlayTutorialTts(tutorial5_1Tts);
 
             return;
@@ -543,7 +567,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowControllerGuide()
     {
         currentStep = TutorialStep.ControllerGuide;
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Idle);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(controllerGuideSprite, false, null,controllerGuideTts);
         SetPrimaryButton(true, "튜토리얼 시작하기");
         SetSecondaryButton(true, "건너뛰기");
@@ -552,7 +576,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowPracticeIntro()
     {
         currentStep = TutorialStep.PracticeIntro;
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Idle);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial1Sprite, false, null, tutorial1Tts);
         SetPrimaryButton(true, "시작하기");
         SetSecondaryButton(false, string.Empty);
@@ -579,7 +603,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     {
         currentStep = TutorialStep.TriggerPractice;
         practiceCount = 0;
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Trigger);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
@@ -598,7 +622,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         currentStep = TutorialStep.SlidePractice;
         practiceCount = 0;
         stickLatched = true;
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickHorizontal);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial3Sprite, true, progress1Sprite, tutorial3Tts);
         HideButtons();
     }
@@ -615,7 +639,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
         stickLatched = true;
 
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickHorizontal);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
 
         SetStage(
             tutorial3RearSprite,
@@ -636,7 +660,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         scriptCompletionPending = false;
         UpdateScriptRemaining();
         stickLatched = true;
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickVertical);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial4Sprite, true, progress2Sprite, tutorial4Tts);
         HideButtons();
 
@@ -654,7 +678,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         practiceCount = 0;
         stickLatched = false;
 
-        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Grip);
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
 
         if (scriptPanel != null)
             scriptPanel.SetActive(false);
@@ -674,8 +698,92 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         SetSecondaryButton(true, "처음으로 돌아가기");
     }
 
+    private void BeginDemonstration(TutorialStep practice)
+    {
+        // Keep the nine authored Figma step indices stable. Demonstrations are a
+        // separate, input-blocking phase before each practice, never a counted action.
+        if (!controlGuide) { EnterPractice(practice); return; }
+        currentStep = practice;
+        practiceCount = 0;
+        scriptCompletionPending = slideCompletionPending = false;
+        demonstrating = true;
+        waitingForGuideRelease = false;
+        demonstrationReadyAt = Time.unscaledTime + demonstrationDuration;
+        stickLatched = true;
+        tutorialTtsAudioSource?.Stop();
+        if (scriptPanel) scriptPanel.SetActive(false);
+        if (stageImage) stageImage.gameObject.SetActive(false);
+        if (progressImage) progressImage.gameObject.SetActive(false);
+        HideButtons();
+        figmaView?.Show(-1);
+        var cue = Quest3TutorialControllerVisual.Cue.Trigger;
+        string title = "검지로 트리거를 눌러요";
+        string body = "오른손 컨트롤러 앞쪽의 파란 버튼을 확인해 주세요.\n버튼을 가리킨 뒤 검지로 트리거를 눌러 선택해요.";
+        if (practice == TutorialStep.SlidePractice || practice == TutorialStep.RearSlidePractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.StickHorizontal;
+            title = "조이스틱을 좌우로 움직여요";
+            body = practice == TutorialStep.RearSlidePractice
+                ? "이번에는 뒤쪽 화면을 보며 슬라이드를 넘겨요.\n오른손 조이스틱을 좌우로 기울인 뒤 가운데로 놓아 주세요."
+                : "오른손 조이스틱을 왼쪽·오른쪽으로 기울여요.\n한 번 넘긴 뒤 가운데로 놓으면 다시 넘길 수 있어요.";
+        }
+        else if (practice == TutorialStep.ScriptPractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.StickVertical;
+            title = "조이스틱을 위아래로 움직여요";
+            body = "오른손 조이스틱을 위·아래로 기울여 대본을 넘겨요.\n한 번 넘긴 뒤 가운데로 놓으면 다시 넘길 수 있어요.";
+        }
+        else if (practice == TutorialStep.PausePractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.Grip;
+            title = "중지로 그립을 눌러요";
+            body = "오른손 컨트롤러 옆면의 파란 버튼을 확인해 주세요.\n그립을 쥐면 일시정지하고, 놓았다 다시 쥐면 재개해요.";
+        }
+        controlGuide.Show(title, body);
+        controllerVisual?.Show(cue);
+    }
+
+    private bool ProcessDemonstration(float now)
+    {
+        return AdvanceDemonstration(now, triggerAction?.IsPressed() ?? false,
+            gripAction?.IsPressed() ?? false, stickAction?.ReadValue<Vector2>() ?? Vector2.zero);
+    }
+
+    private bool AdvanceDemonstration(float now, bool triggerHeld, bool gripHeld, Vector2 stick)
+    {
+        if (!demonstrating) return false;
+        if (!waitingForGuideRelease)
+        {
+            controlGuide?.SetReady(now >= demonstrationReadyAt);
+            return true;
+        }
+        // The click used to leave the guide must never become the first exercise
+        // input. Also require the stick and grip to be released before arming.
+        if (triggerHeld || gripHeld || stick.sqrMagnitude > releaseThreshold * releaseThreshold) return true;
+        demonstrating = false;
+        waitingForGuideRelease = false;
+        controlGuide?.Hide();
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
+        lastButtonTime = now;
+        EnterPractice(currentStep);
+        return true;
+    }
+
+    private void EnterPractice(TutorialStep practice)
+    {
+        switch (practice)
+        {
+            case TutorialStep.TriggerPractice: ShowTriggerPractice(); break;
+            case TutorialStep.SlidePractice: ShowSlidePractice(); break;
+            case TutorialStep.RearSlidePractice: ShowRearSlidePractice(); break;
+            case TutorialStep.ScriptPractice: ShowScriptPractice(); break;
+            case TutorialStep.PausePractice: ShowPausePractice(); break;
+        }
+    }
+
     private void SetStage(Sprite sprite, bool showProgress, Sprite progressSprite, AudioClip ttsClip)
     {
+        controlGuide?.Hide();
         figmaView?.Show((int)currentStep);
         if (stageImage != null)
         {

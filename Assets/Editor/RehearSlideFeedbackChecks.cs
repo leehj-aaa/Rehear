@@ -17,7 +17,7 @@ internal static class RehearSlideFeedbackChecks
     {
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode) return;
         File.Delete(Request);
-        try { Run(); File.WriteAllText("Temp/RehearSlideFeedbackChecks.txt", "PASS\nfirstLeftAndLastRight=noCount\nvalidLeftRight=oneSlideOneCount\nblockedAndValidInputs=pressedFeedback\nmissingEmptyNullSlides=noCount\nhiddenDisplay=noCount\nthirdInput=delayedTransition\nrepeatedHeldInput=completionGuard\nvoidUnityEventAPI=preserved\nwrongClip=assigned\n"); }
+        try { Run(); File.WriteAllText("Temp/RehearSlideFeedbackChecks.txt", "PASS\nfirstLeftAndLastRight=hiddenAndNoCount\ninterior=bothVisibleAndPressedFeedback\nreturnFromBoundary=arrowRestored\nvalidLeftRight=oneSlideOneCount\nmissingEmptySingleNullSlides=hiddenAndNoCount\nhiddenDisplay=noCount\nthirdInput=delayedTransition\nrepeatedHeldInput=completionGuard\nvoidUnityEventAPI=preserved\nwrongClip=assigned\n"); }
         catch (Exception ex) { File.WriteAllText("Temp/RehearSlideFeedbackChecks.txt", "FAIL\n" + ex); }
     }
     static void Set(object o, string field, object value) => o.GetType().GetField(field, Private).SetValue(o, value);
@@ -54,27 +54,37 @@ internal static class RehearSlideFeedbackChecks
             Set(manager, "currentStep", Enum.Parse(stepType, "SlidePractice"));
             int events = 0;
             presentation.SlideChanged += _ => events++;
+            presentation.RefreshSlideDirectionHints();
+            Check(!leftObject.activeSelf && rightObject.activeSelf, "First slide hides left only");
             Check(presentation.IsAtSlideBoundary(false), "First left boundary eligible");
             Check(!(bool)Call(manager, "HandleSlidePracticeInput", -1f), "First left blocked");
-            Check((int)Get(manager, "practiceCount") == 0 && (bool)Get(left, "pressed") && events == 0, "Blocked left pressed but not counted");
+            Check((int)Get(manager, "practiceCount") == 0 && !leftObject.activeSelf && events == 0, "Blocked left stays hidden and not counted");
             for (int i = 1; i <= 3; i++)
             {
                 Check((bool)Call(manager, "HandleSlidePracticeInput", 1f), "Right accepted");
                 Check(presentation.CurrentSlideIndex == i && (int)Get(manager, "practiceCount") == i && presentation.deskScreen.texture == textures[i], "Actual right change counted");
+                if (i < 3) Check(leftObject.activeSelf && rightObject.activeSelf && (bool)Get(right, "pressed"), "Interior arrows visible with pressed feedback");
             }
-            Check((bool)Get(right, "pressed") && events == 3 && presentation.IsAtSlideBoundary(true), "Right feedback and last boundary");
+            Check(leftObject.activeSelf && !rightObject.activeSelf && events == 3 && presentation.IsAtSlideBoundary(true), "Last slide hides right only");
             Check(!(bool)Call(manager, "HandleSlidePracticeInput", 1f) && (int)Get(manager, "practiceCount") == 3 && events == 3, "Last right no count/event");
             Check((bool)Call(manager, "HandleSlidePracticeInput", -1f) && presentation.CurrentSlideIndex == 2, "Valid left");
+            Check(leftObject.activeSelf && rightObject.activeSelf && (bool)Get(left, "pressed"), "Returning from last restores right");
             displayObject.SetActive(false);
             Check(!(bool)Call(manager, "HandleSlidePracticeInput", -1f), "Hidden screen no count");
             displayObject.SetActive(true);
             presentation.slides = null;
             Check(!presentation.TryNextSlide() && !presentation.TryPrevSlide() && !presentation.IsAtSlideBoundary(false), "Missing deck");
+            Check(!leftObject.activeSelf && !rightObject.activeSelf, "Missing deck hides both");
             presentation.slides = Array.Empty<Texture2D>();
             Check(!presentation.TryNextSlide() && !presentation.TryPrevSlide(), "Empty deck");
+            presentation.slides = new[] { textures[0] };
+            Set(presentation, "currentIndex", 0);
+            presentation.RefreshSlideDirectionHints();
+            Check(!leftObject.activeSelf && !rightObject.activeSelf, "Single slide hides both");
             presentation.slides = new Texture2D[] { textures[0], null };
             Set(presentation, "currentIndex", 0);
             Check(!(bool)Call(manager, "HandleSlidePracticeInput", 1f) && (int)Get(manager, "practiceCount") == 4, "Missing target no count");
+            Check(!leftObject.activeSelf && !rightObject.activeSelf, "Missing target hides unavailable arrow");
             presentation.slides = textures;
             Set(manager, "practiceCount", 0);
             Set(manager, "requiredPracticeCount", 3);
