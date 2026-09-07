@@ -14,6 +14,9 @@ public sealed class TutorialFigmaView : MonoBehaviour
     [Header("Buttons owned by each tutorial step")]
     public Button[] primaryButtons;
     public Button[] secondaryButtons;
+    [Header("Joystick direction hints (visual only)")]
+    public GameObject deskDirectionHints;
+    public GameObject scriptDirectionHints;
     private bool ownsLegacyMaterials;
 
     public bool HasStepButtons => steps != null && primaryButtons != null &&
@@ -22,6 +25,8 @@ public sealed class TutorialFigmaView : MonoBehaviour
 
     public void Show(int step)
     {
+        if (deskDirectionHints) deskDirectionHints.SetActive(step == 3);
+        if (scriptDirectionHints) scriptDirectionHints.SetActive(step == 5);
         for (int i = 0; i < steps.Length; i++) if (steps[i]) steps[i].SetActive(i == step);
         // Authored child buttons already have their final position, label and material.
         // Showing a step must not move or restyle another step's controls.
