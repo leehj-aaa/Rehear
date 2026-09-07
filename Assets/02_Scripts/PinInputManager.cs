@@ -52,6 +52,7 @@ public class PinInputManager : MonoBehaviour
     private bool firebaseReady;
     private bool firebaseInitializing;
     private bool isLoading;
+    private bool isChangingScene;
     private void Awake()
     {
         // A loaded session must not flash the old PIN panel after the tutorial.
@@ -80,7 +81,7 @@ public class PinInputManager : MonoBehaviour
     }
     private void Update()
 {
-    if (isLoading && Time.unscaledTime - loadingStarted > LoadTimeoutSeconds)
+    if (isLoading && !isChangingScene && Time.unscaledTime - loadingStarted > LoadTimeoutSeconds)
     {
         requestVersion++;
         isLoading = false;
@@ -626,6 +627,8 @@ private void ApplySessionInformation(
     ClearError();
     if (continueToTutorial)
     {
+        if (isChangingScene) return;
+        isChangingScene = true;
         isLoading = true;
         loadingStarted = Time.unscaledTime;
         if (panel_PinInput) panel_PinInput.SetActive(false);
@@ -639,14 +642,24 @@ private void ApplySessionInformation(
 
     private IEnumerator ContinueAfterLoading()
     {
+        // Keep the loading screen visible while the next scene is prepared.
         yield return new WaitForSecondsRealtime(.5f);
-        SceneManager.LoadScene("Scene_00_5_Tutorial");
+        const string nextScene = "Scene_00_5_Tutorial";
+        if (!Application.CanStreamedLevelBeLoaded(nextScene))
+        {
+            isChangingScene = false;
+            isLoading = false;
+            ShowError("튜토리얼 씬을 불러올 수 없습니다. 빌드의 씬 설정을 확인해 주세요.");
+            yield break;
+        }
+        yield return SceneManager.LoadSceneAsync(nextScene);
     }
 
     private void OnDisable()
     {
         requestVersion++;
         isLoading = false;
+        isChangingScene = false;
         StopAllCoroutines();
     }
 

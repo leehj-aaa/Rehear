@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Glass 1200x866
-  m_Shader: {fileID: 4800000, guid: 7e51ff2476113d14382f87a4d171d767, type: 3}
+  m_Name: Opening PIN Radial Light
+  m_Shader: {fileID: 4800000, guid: dcd95e51392a1b04ab938c1db44a98ae, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,38 +23,18 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BlurTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _FigmaGlowTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BorderWidth: 2
     - _ColorMask: 15
-    - _FillAlphaOffset: 0
-    - _GlassTint: 0.1
-    - _Radius: 48
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _TopGlowStrength: 0
-    - _UseBlur: 1
-    - _UseFigmaGlow: 0
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _CropRegion: {r: 0, g: 0, b: 1, a: 1}
-    - _PanelSize: {r: 1200, g: 866, b: 0, a: 0}
-    - _TopGlowColor: {r: 0.25999996, g: 0.41999996, b: 1, a: 1}
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
