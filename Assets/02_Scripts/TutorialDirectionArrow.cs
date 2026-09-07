@@ -11,8 +11,8 @@ public sealed class TutorialDirectionArrow : MaskableGraphic
         Rect rect = GetPixelAdjustedRect();
         Vector2 center = rect.center;
         float radius = Mathf.Min(rect.width, rect.height) * .5f;
-        Disk(mesh, center, radius, new Color(1, 1, 1, color.a * .9f));
-        Disk(mesh, center, radius * .93f, color);
+        // Figma primary controls use a solid brand fill, never a white rim.
+        Disk(mesh, center, radius, color);
         // A right-facing chevron. Rotate the RectTransform for the other directions.
         Segment(mesh, center + new Vector2(-.16f, .36f) * radius,
             center + new Vector2(.20f, 0) * radius, radius * .12f);
