@@ -15,12 +15,13 @@ internal static class RehearPinReadbackCheck
     const string Request="Temp/RehearPinReadback.request";
     const string Report="Temp/RehearPinReadback.txt";
     const string PhaseKey="RehearPinReadbackPhase";
+    static bool LocalTest => SessionState.GetBool("RehearPinLocalTransitionTest",false);
     const BindingFlags Private=BindingFlags.Instance|BindingFlags.NonPublic;
     static RehearPinReadbackCheck() { EditorApplication.update+=Tick; }
     static bool Flag(PinInputManager m,string name)=>(bool)typeof(PinInputManager).GetField(name,Private).GetValue(m);
     static void Log(string message)=>File.AppendAllText(Report,DateTime.Now.ToString("HH:mm:ss")+" "+message+"\n");
     static void Phase(string phase) { SessionState.SetString(PhaseKey,phase); SessionState.SetFloat("RehearReadbackDeadline",(float)EditorApplication.timeSinceStartup+45); }
-    static void Capture(string name)=>typeof(RehearOpeningStartSetup).GetMethod("Capture",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{name,-1f});
+    static void Capture(string name)=>ScreenCapture.CaptureScreenshot("Temp/RehearOpening-"+name+".png");
     static void Tick()
     {
         if(EditorApplication.isCompiling || EditorApplication.isUpdating)return;
@@ -34,15 +35,37 @@ internal static class RehearPinReadbackCheck
         {
             if(!File.Exists(Request) || EditorApplication.isPlayingOrWillChangePlaymode)return;
             string command=File.ReadAllText(Request).Trim();
-            if(command!="prepare")return;
+            if(command!="prepare" && command!="prepare-local")return;
             File.Delete(Request);
             var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             if(scene.name!="Scene_00" || UnityEngine.SceneManagement.SceneManager.sceneCount!=1)throw new Exception("Only Scene_00 may be open.");
             SessionState.SetBool("RehearPinRuntimeTest",false);SessionState.SetBool("RehearPinWaitFirebase",false);
+            SessionState.SetBool("RehearPinLocalTransitionTest",command=="prepare-local");
             Phase("opening"); Log("PREPARE: initialization only; no PIN request.");
             EditorApplication.EnterPlaymode();return;
         }
         if(phase=="" || phase=="done")return;
+        if(phase=="transition")
+        {
+            if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Scene_00_5_Tutorial")
+            {
+                if(RuntimeSessionData.Session==null || !PresentationSessionContext.Current.HasPresentation)
+                    throw new Exception("Session data was lost during the tutorial transition.");
+                Phase("done");Log("SUCCESS: tutorial loaded automatically with cached session; requests="+(LocalTest?0:1)+".");
+                RehearLoadingDesignSetup.Lighting();
+                if(LocalTest)
+                {
+                    if(PresentationSessionContext.Current.HasEvcSession)throw new Exception("Local transition test started a server session.");
+                    Log("PASS LOCAL FLOW: loading -> tutorial; no completion UI; no PIN query or presentation session.");
+                    if (!System.IO.File.Exists("Temp/RehearLightingArrivalTrace.keep-open"))
+                        EditorApplication.delayCall+=EditorApplication.ExitPlaymode;
+                }
+                return;
+            }
+            if(EditorApplication.timeSinceStartup>SessionState.GetFloat("RehearReadbackDeadline",0))
+            { Phase("done");Log("FAILED: tutorial transition timed out; no PIN retry."); }
+            return;
+        }
         var manager=UnityEngine.Object.FindObjectsByType<PinInputManager>(FindObjectsInactive.Include,FindObjectsSortMode.None).FirstOrDefault(m=>m.gameObject.scene.name=="Scene_00");
         if(!manager)throw new Exception("Opening PIN manager not found.");
         var root=manager.transform;
@@ -64,6 +87,27 @@ internal static class RehearPinReadbackCheck
             { Phase("done");Log("BLOCKED: Firebase did not initialize. PIN not submitted."); }
             return;
         }
+        if(phase=="ready" && LocalTest)
+        {
+            // Supply a local success result at the presentation boundary. Never query a PIN.
+            var session=new SessionData
+            {
+                status="ready",
+                page_1=new Page1 { presentation_title="로컬 씬 전환 검증",presentation_purpose="발표 모드",duration_minutes=1,environment_type="세미나실",qa_count=0,used_language="ko" },
+                page_2=new Page2 { presentation_script_content="씬 전환만 확인하는 로컬 테스트 데이터입니다." },
+                page_3=new Page3 { audience_scale=6,audience_expertise="중간",audience_interest="중간",audience_type="일반 청중" }
+            };
+            if(!(bool)typeof(PinInputManager).GetMethod("LoadEvcPresentationContext",Private).Invoke(manager,new object[]{"0000",session,true}))
+                throw new Exception("Local fixture validation failed.");
+            RuntimeSessionData.Load("0000",session);
+            typeof(PinInputManager).GetMethod("ApplySessionInformation",Private).Invoke(manager,new object[]{session});
+            if(!loading.activeInHierarchy || !Flag(manager,"isLoading") || root.Find("PinPanel").gameObject.activeSelf || root.Find("NumberKeyboard").gameObject.activeSelf)
+                throw new Exception("Successful load did not retain loading-only UI.");
+            if(loading.transform.Find("Title").GetComponent<TMP_Text>().text!="세션 불러오는 중")
+                throw new Exception("Loading title changed to a completion message.");
+            ScreenCapture.CaptureScreenshot("Temp/RehearPin-transition-loading.png");
+            Phase("transition");Log("PASS LOCAL: loading title and input lock retained; automatic transition pending; requests=0.");return;
+        }
         if(phase=="ready" && File.Exists(Request))
         {
             string pin=File.ReadAllText(Request).Trim();
@@ -82,14 +126,9 @@ internal static class RehearPinReadbackCheck
         {
             if(RuntimeSessionData.Session!=null && PresentationSessionContext.Current.HasPresentation)
             {
-                // Keep the loaded session in memory; do not start tutorial, presentation, or recording.
-                manager.StopAllCoroutines();typeof(PinInputManager).GetField("isLoading",Private).SetValue(manager,false);
-                bool nativeContext=PresentationSessionContext.Current.HasPresentation;
-                Log("SUCCESS: server session parsed and cached; EVC context="+nativeContext+"; requests=1; presentation/recording not started.");
-                Phase("done");
-                loading.transform.Find("Title").GetComponent<TMP_Text>().text="세션 불러오기 완료";
-                loading.transform.Find("Description").GetComponent<TMP_Text>().text="웹에서 설정한 세션을 불러왔습니다.\n발표와 녹음은 시작하지 않았습니다.";
-                loading.SetActive(true);Capture("pin-readback-success");return;
+                // Observe the real application flow. Never stop navigation or replace its UI.
+                Log("LOADED: server session cached; waiting for automatic tutorial transition; requests=1.");
+                Phase("transition");return;
             }
             if(!Flag(manager,"isLoading"))
             {

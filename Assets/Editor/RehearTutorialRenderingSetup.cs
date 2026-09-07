@@ -133,6 +133,9 @@ internal static class RehearTutorialRenderingSetup
         volume.enabled = true;
         volume.weight = 1f;
         volume.sharedProfile = profile;
+        // The authored room PostFX stays above generic XR defaults regardless of
+        // volume registration order when entering the tutorial from another scene.
+        if (scene.path == ScenePath) volume.priority = -1f;
 
         foreach (var item in new Object[] { camera, data, volume })
         {

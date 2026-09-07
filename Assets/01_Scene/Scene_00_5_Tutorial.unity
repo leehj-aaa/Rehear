@@ -5769,7 +5769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
   m_IsGlobal: 1
-  priority: 0
+  priority: -1
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 843ec56e42ecbb44d835579a43aedc96, type: 2}
@@ -20279,12 +20279,16 @@ MonoBehaviour:
   pausePanel: {fileID: 1424436591}
   scriptPanel: {fileID: 324270377}
   scriptButtonText: {fileID: 1007580572}
-  sessionAudioSource: {fileID: 1855155105}
   qaManager: {fileID: 1738587707}
   useEvcPipeline: 0
   flowController: {fileID: 0}
   presentationManager: {fileID: 0}
   warningStartSeconds: 10
+  timerAudioSource: {fileID: 1855155105}
+  timeWarningClip: {fileID: 0}
+  timeUpClip: {fileID: 0}
+  warningSoundVolume: 0.35
+  timeUpSoundVolume: 1
   evcSegmentIntervalSeconds: 8
   warningColor: {r: 1, g: 0, b: 0, a: 1}
   blinkSpeed: 1.5

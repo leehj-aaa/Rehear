@@ -9,6 +9,10 @@ Shader "Rehear/UI/Rounded Translucent Panel"
         _UseBlur("Use background blur", Float) = 1
         _GlassTint("White glass tint", Range(0,1)) = 0.45
         _FillAlphaOffset("Fill alpha offset", Range(0,1)) = 0
+        _TopGlowStrength("Top radial highlight", Range(0,1)) = 0
+        _TopGlowColor("Top radial color", Color) = (0.26,0.42,1,1)
+        _FigmaGlowTex("Figma radial artwork", 2D) = "black" {}
+        _UseFigmaGlow("Use Figma additive radial", Float) = 0
         [HideInInspector] _BlurTex("Background blur", 2D) = "black" {}
         [HideInInspector] _CropRegion("Blur crop", Vector) = (0,0,1,1)
         _StencilComp("Stencil Comparison", Float) = 8
@@ -41,11 +45,15 @@ Shader "Rehear/UI/Rounded Translucent Panel"
             #include "UnityCG.cginc"
             #include "UnityUI.cginc"
             sampler2D _MainTex;
+            sampler2D _FigmaGlowTex;
+            float _UseFigmaGlow;
             UNITY_DECLARE_SCREENSPACE_TEXTURE(_BlurTex);
             float4 _CropRegion, _ClipRect;
             fixed4 _TextureSampleAdd;
             float4 _PanelSize;
             float _Radius, _BorderWidth, _UseBlur, _GlassTint, _FillAlphaOffset;
+            float _TopGlowStrength;
+            half4 _TopGlowColor;
             struct VertexInput
             {
                 float4 vertex : POSITION;
@@ -96,7 +104,25 @@ Shader "Rehear/UI/Rounded Translucent Panel"
                     float2 blurUV = (screenUV - _CropRegion.xy) / max(_CropRegion.zw - _CropRegion.xy, 0.0001);
                     half3 background = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_BlurTex, UnityStereoTransformScreenSpaceTex(blurUV)).rgb;
                     result.rgb = lerp(background, foreground.rgb, _GlassTint);
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    if (_UseFigmaGlow > 0.5)
+                        result.rgb = GammaToLinearSpace(lerp(LinearToGammaSpace(background), LinearToGammaSpace(foreground.rgb), _GlassTint));
+                    #endif
                 }
+                float2 glowPosition = (input.uv - float2(0.5, 1.08)) / float2(0.66, 0.47);
+                half glow = exp(-2.4 * dot(glowPosition, glowPosition)) * _TopGlowStrength;
+                result.rgb = lerp(result.rgb, _TopGlowColor.rgb, glow);
+                // Original 1041x519 ellipse at (-111,-322) inside the 804x577 Figma panel.
+                float2 designPosition = float2(input.uv.x, 1-input.uv.y) * float2(804,577);
+                float2 radialUV = (designPosition + float2(111,322)) / float2(1041,519);
+                half4 radial = tex2D(_FigmaGlowTex, float2(radialUV.x,1-radialUV.y));
+                half radialBounds = step(0,radialUV.x)*step(radialUV.x,1)*step(0,radialUV.y)*step(radialUV.y,1);
+                #ifndef UNITY_COLORSPACE_GAMMA
+                if (_UseFigmaGlow > 0.5)
+                    result.rgb = GammaToLinearSpace(saturate(LinearToGammaSpace(result.rgb) + LinearToGammaSpace(radial.rgb) * radial.a * radialBounds));
+                #else
+                result.rgb += radial.rgb * radial.a * radialBounds * _UseFigmaGlow;
+                #endif
                 result.rgb = lerp(result.rgb, half3(1,1,1), edge);
                 result.a = lerp(result.a, 1, edge) * coverage;
                 #ifdef UNITY_UI_CLIP_RECT
