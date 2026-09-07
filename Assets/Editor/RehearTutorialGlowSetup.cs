@@ -50,7 +50,7 @@ internal static class RehearTutorialGlowSetup
         material.SetVector("_ButtonSize", new Vector4(340, 56, 0, 0));
         material.SetFloat("_Padding", 24);
         material.SetFloat("_GlowWidth", 10);
-        material.SetFloat("_OutlineWidth", 2);
+        material.SetFloat("_OutlineWidth", 1);
         material.SetFloat("_GlowStrength", 0.85f);
         EditorUtility.SetDirty(material);
         AssetDatabase.SaveAssetIfDirty(material);

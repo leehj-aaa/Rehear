@@ -6,7 +6,7 @@ Shader "Rehear/UI/Button Outline Glow"
         _ButtonSize("Button size", Vector) = (340,56,0,0)
         _Padding("Glow padding", Float) = 24
         _GlowWidth("Glow spread", Float) = 10
-        _OutlineWidth("Outline width", Float) = 2
+        _OutlineWidth("Outline width", Float) = 1
         _GlowStrength("Glow strength", Range(0,1)) = 0.85
         _StencilComp("Stencil Comparison", Float) = 8
         _Stencil("Stencil ID", Float) = 0
@@ -78,12 +78,13 @@ Shader "Rehear/UI/Button Outline Glow"
                 // No fill over the button or its label; fade smoothly before the mesh edge.
                 half outside = smoothstep(-aa, aa, d);
                 halo *= outside * (1 - smoothstep(_Padding * 0.7, _Padding, max(d, 0)));
-                half alpha = saturate(ring * 0.8 + halo * 0.55) * _GlowStrength * input.color.a;
+                half alpha = saturate(ring * 0.35 + halo * 0.45) * _GlowStrength * input.color.a;
                 #ifdef UNITY_UI_CLIP_RECT
                 alpha *= UnityGet2DClipping(input.localPosition.xy, _ClipRect);
                 #endif
-                half3 color = lerp(input.color.rgb, half3(0.65, 0.9, 1), ring * 0.7);
-                return half4(color, alpha);
+                // Keep the outline blue: whitening the core clips to a solid white band
+                // when additively blended over the already bright button.
+                return half4(input.color.rgb, alpha);
             }
             ENDCG
         }

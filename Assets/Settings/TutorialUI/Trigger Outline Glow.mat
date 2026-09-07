@@ -32,7 +32,7 @@ Material:
     - _ColorMask: 15
     - _GlowStrength: 0.85
     - _GlowWidth: 10
-    - _OutlineWidth: 2
+    - _OutlineWidth: 1
     - _Padding: 24
     - _Stencil: 0
     - _StencilComp: 8
