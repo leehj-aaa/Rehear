@@ -86,7 +86,7 @@ internal static class RehearFigmaTutorialSetup
         for (int i = 0; i < 9; i++) view.steps[i] = Rect(root, "Step " + i, 0, 0, 1200, 866).gameObject;
         Guide(view.steps[0].transform);
         Practice(view.steps[1].transform, 282, "기본 조작을 연습해볼까요?", "오른손 컨트롤러로 간단한 조작을 따라 해보세요", -1);
-        Practice(view.steps[2].transform, 223, "화면의 버튼을 선택해보세요", "컨트롤러로 버튼을 가리키고 트리거를 눌러보세요", 0);
+        Practice(view.steps[2].transform, 223, "아래 버튼을 선택해보세요", "컨트롤러로 버튼을 가리키고 트리거를 눌러보세요", 0);
         Practice(view.steps[3].transform, 223, "잘했어요!", "이제 조이스틱을 좌우로 기울여 앞에 있는 슬라이드를 3회 넘겨보세요", 1);
         Practice(view.steps[4].transform, 223, "잠시 뒤를 돌아봐 주세요!", "뒤쪽의 큰 화면에서도 확인하실 수 있어요\n돌아서 3회 넘겨보세요", 1);
         Practice(view.steps[5].transform, 223, "좋아요!", "이번에는 조이스틱을 위아래로 기울여 대본을 3회 넘겨보세요", 2);

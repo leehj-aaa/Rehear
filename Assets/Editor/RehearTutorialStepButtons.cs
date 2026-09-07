@@ -27,9 +27,32 @@ internal static class RehearTutorialStepButtons
         nextPoll = EditorApplication.timeSinceStartup + 1;
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating ||
             EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
+        string command = File.ReadAllText(Request).Trim();
         File.Delete(Request);
-        try { Apply(); }
+        try { if (command == "button-copy") UpdateButtonInstruction(); else Apply(); }
         catch (Exception e) { File.WriteAllText(Report, "FAILED\n" + e); Debug.LogException(e); }
+    }
+
+    [MenuItem("Rehear/Update Button Practice Instruction")]
+    static void UpdateButtonInstruction()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+        if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity" ||
+            EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning)
+            throw new InvalidOperationException("Open the tutorial scene in Edit mode, outside a bake.");
+        var view = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<TutorialFigmaView>(true)).Single();
+        var title = view.steps[2].transform.Find("Practice glass/Title").GetComponent<TMP_Text>();
+        Undo.RecordObject(title, "Clarify button practice instruction");
+        title.text = "아래 버튼을 선택해보세요";
+        title.ForceMeshUpdate(true, true);
+        EditorUtility.SetDirty(title);
+        EditorSceneManager.MarkSceneDirty(scene);
+        if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Tutorial save failed.");
+        Selection.activeGameObject = title.gameObject;
+        EditorGUIUtility.PingObject(title);
+        SceneView.RepaintAll();
+        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+        File.WriteAllText("Temp/RehearTutorialButtonCopy.txt", $"title={title.text}\nsaved=true\n");
     }
 
     [MenuItem("Rehear/Repair Step-Owned Tutorial Buttons")]
