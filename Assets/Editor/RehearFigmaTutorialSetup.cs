@@ -185,6 +185,84 @@ internal static class RehearFigmaTutorialSetup
         Label(p, "Hint", "그립 버튼을 눌러 진행 중인 세션을 계속하세요", 20, 423, 497, 30, 20, "Medium", Color.white);
         var helper = Glass(parent, "Resume helper glass", 198, 650, 804, 135);
         Label(helper, "Description", "여기에서 세션을 다시 시작하거나 종료할 수 있어요\n그립 버튼을 다시 눌러 이어서 진행해볼까요?", 25, 30, 754, 75, 26, "Medium", Body);
+        MatchPauseDesign(parent);
+    }
+
+    // Figma UI design 2323:39413. Keep live blur and existing click events.
+    internal static void MatchPauseDesign(Transform step)
+    {
+        Undo.RegisterFullObjectHierarchyUndo(step.gameObject, "Match paused UI to Figma");
+        var panel = (RectTransform)step.Find("Pause glass");
+        var helper = (RectTransform)step.Find("Resume helper glass");
+        TutorialFigmaView.Place(panel, 331.5f, 135, 537, 498);
+        // Original panel bottom=750, helper top=830: 80px clear separation.
+        TutorialFigmaView.Place(helper, 198, 713, 804, 135);
+        SetGlass(panel, RehearBlurDiagnostics.PauseWhiteTint);
+        SetGlass(helper, RehearBlurDiagnostics.ResumeWhiteTint);
+        SetIcon(panel.Find("pause-large"), "pause-large", 210.5f, 47, 116, 116);
+        SetText(panel.Find("Title"), "일시정지", 33, 183, 471, 46, 36, "Bold", Ink);
+        SetPauseButton(panel.Find("Restart"), "처음부터 다시하기", "replay", 262);
+        SetPauseButton(panel.Find("Stop"), "세션 종료하기", "exit", 331);
+        SetText(panel.Find("Hint"), "그립 버튼을 눌러 진행 중인 세션을 계속하세요", 20, 423, 497, 30, 20, "Medium", Color.white);
+        SetText(helper.Find("Description"), "여기에서 세션을 다시 시작하거나 종료할 수 있어요\n그립 버튼을 다시 눌러 이어서 진행해볼까요?", 25, 30, 754, 75, 26, "Medium", Body);
+        helper.Find("Description").GetComponent<TMP_Text>().lineSpacing = 5.2f;
+        foreach (var text in step.GetComponentsInChildren<TMP_Text>(true)) text.ForceMeshUpdate(true, true);
+        foreach (var curve in step.GetComponentsInChildren<CurvedUIVertexEffect>(true)) curve.SetDirty();
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private static void SetGlass(RectTransform rect, float tint)
+    {
+        var glass = rect.GetComponent<TranslucentImage>();
+        Undo.RecordObject(glass.material, "Paused glass tint");
+        glass.foregroundOpacity = tint;
+        glass.material.SetFloat("_GlassTint", tint);
+        glass.material.SetFloat("_UseBlur", 1);
+        glass.material.SetFloat("_Radius", 48);
+        glass.material.SetFloat("_BorderWidth", 2);
+        glass.material.SetVector("_PanelSize", new Vector4(rect.rect.width, rect.rect.height, 0, 0));
+        EditorUtility.SetDirty(glass.material);
+        AssetDatabase.SaveAssetIfDirty(glass.material);
+        glass.SetAllDirty();
+    }
+
+    private static TMP_Text SetText(Transform target, string value, float x, float y, float w, float h, float size, string weight, Color color)
+    {
+        TutorialFigmaView.Place((RectTransform)target, x, y, w, h);
+        var text = target.GetComponent<TMP_Text>();
+        SetLabel(text, value, size, weight, color, TextAlignmentOptions.Center);
+        text.characterSpacing = -1;
+        text.lineSpacing = 0;
+        return text;
+    }
+
+    private static void SetIcon(Transform target, string asset, float x, float y, float w, float h)
+    {
+        TutorialFigmaView.Place((RectTransform)target, x, y, w, h);
+        var image = target.GetComponent<Image>();
+        image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/UI/FigmaTutorial/{asset}.png");
+        if (!image.sprite) throw new InvalidOperationException("Missing Figma icon: " + asset);
+        image.material = null;
+        image.color = Color.white;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+        image.SetAllDirty();
+    }
+
+    private static void SetPauseButton(Transform target, string value, string icon, float y)
+    {
+        TutorialFigmaView.Place((RectTransform)target, 33, y, 467, 56);
+        var image = target.GetComponent<Image>();
+        image.material = PanelMaterial("Paused Button 467x56", 467, 56, 40, 2, false);
+        image.color = Color.clear;
+        image.canvasRenderer.cullTransparentMesh = false;
+        AssetDatabase.SaveAssetIfDirty(image.material);
+        var label = SetText(target.Find("Label"), value, 0, 0, 250, 56, 24, "Medium", Color.white);
+        float width = label.GetPreferredValues(value, 1000, 56).x;
+        float left = (467 - (24 + 10 + width)) * .5f;
+        TutorialFigmaView.Place(label.rectTransform, left + 34, 0, width, 56);
+        SetIcon(target.Find(icon), icon, left, 16, 24, 24);
+        image.SetAllDirty();
     }
     private static Button PauseButton(Transform parent, string name, string text, string icon, float y)
     {

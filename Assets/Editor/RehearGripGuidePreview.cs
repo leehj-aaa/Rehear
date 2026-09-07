@@ -39,10 +39,59 @@ internal static class RehearGripScenePreview
     [MenuItem("Rehear/Tutorial/Stop Controller Preview")]
     static void Stop() { SessionState.SetBool(ActiveKey, false); Cleanup(); }
 
+    [MenuItem("Rehear/Tutorial/Preview Paused UI")]
+    static void ShowPausedUI()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode to edit the paused UI.");
+        var scene = EditorSceneManager.GetActiveScene();
+        if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity") throw new Exception("Open the tutorial scene.");
+        Stop();
+        var all = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
+        var guide = all.Select(t => t.GetComponent<TutorialControlGuideView>()).Single(c => c);
+        var view = all.Select(t => t.GetComponent<TutorialFigmaView>()).Single(c => c);
+        Undo.RecordObjects(view.steps, "Preview paused UI");
+        Undo.RecordObject(guide.gameObject, "Hide controller guide");
+        if (view.deskDirectionHints) Undo.RecordObject(view.deskDirectionHints, "Hide navigation");
+        if (view.scriptDirectionHints) Undo.RecordObject(view.scriptDirectionHints, "Hide navigation");
+        guide.Hide();
+        view.Show(7);
+        Canvas.ForceUpdateCanvases();
+        EditorSceneManager.MarkSceneDirty(scene);
+        if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Scene save failed.");
+        Selection.activeGameObject = view.steps[7];
+        var camera = all.Select(t => t.GetComponent<Camera>()).Single(c => c && c.CompareTag("MainCamera"));
+        if (SceneView.lastActiveSceneView)
+            SceneView.lastActiveSceneView.LookAt(camera.transform.position + camera.transform.forward * 3, camera.transform.rotation, 3);
+        File.WriteAllText("Temp/RehearPausedUIPreview.txt", "PASS\nstep=7 PauseResumePractice\nvisible=" + view.steps[7].activeInHierarchy +
+            "\ncontrollerGuide=false\ntext=" + string.Join(" | ", view.steps[7].GetComponentsInChildren<TMP_Text>().Select(t => t.text)));
+    }
+
     static void Tick()
     {
         const string request = "Temp/RehearGripGuidePreview.request";
         if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
+        const string designRequest = "Temp/RehearPausedUIDesign.request";
+        if (File.Exists(designRequest))
+        {
+            File.Delete(designRequest);
+            try
+            {
+                var scene = EditorSceneManager.GetActiveScene();
+                if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity") throw new Exception("Open tutorial scene.");
+                var view = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<TutorialFigmaView>(true)).Single();
+                RehearFigmaTutorialSetup.MatchPauseDesign(view.steps[7].transform);
+                ShowPausedUI();
+                File.WriteAllText("Temp/RehearPausedUIDesign.txt", "PASS\nsource=2323:39413\npanel=537x498\nhelper=804x135\ngap=80\nbuttons=467x56\niconGap=10\nfonts=Pretendard Bold/Medium\nclickEvents=retained\n");
+            }
+            catch (Exception e) { File.WriteAllText("Temp/RehearPausedUIDesign.txt", "FAIL\n" + e); Debug.LogException(e); }
+        }
+        const string pausedRequest = "Temp/RehearPausedUIPreview.request";
+        if (File.Exists(pausedRequest))
+        {
+            File.Delete(pausedRequest);
+            try { ShowPausedUI(); }
+            catch (Exception e) { File.WriteAllText("Temp/RehearPausedUIPreview.txt", "FAIL\n" + e); Debug.LogException(e); }
+        }
         if (File.Exists(request))
         {
             File.Delete(request);

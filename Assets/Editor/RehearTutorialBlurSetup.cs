@@ -142,7 +142,7 @@ internal static class RehearTutorialBlurSetup
             panel.flatten = 0;
             var view = panel.GetComponentInParent<TutorialFigmaView>();
             bool isIntro = view && view.steps.Length > 1 && panel.transform.IsChildOf(view.steps[1].transform);
-            panel.foregroundOpacity = isIntro ? RehearBlurDiagnostics.IntroWhiteTint : panel.name == "Controller guide glass" ? RehearBlurDiagnostics.GuideWhiteTint : 0.16f;
+            panel.foregroundOpacity = panel.name == "Pause glass" ? RehearBlurDiagnostics.PauseWhiteTint : panel.name == "Resume helper glass" ? RehearBlurDiagnostics.ResumeWhiteTint : isIntro ? RehearBlurDiagnostics.IntroWhiteTint : panel.name == "Controller guide glass" ? RehearBlurDiagnostics.GuideWhiteTint : 0.16f;
             if (panel.material.HasProperty("_GlassTint"))
                 panel.material.SetFloat("_GlassTint", panel.foregroundOpacity);
             panel.raycastTarget = false;

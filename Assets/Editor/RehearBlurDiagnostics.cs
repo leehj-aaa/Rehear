@@ -14,6 +14,8 @@ internal static class RehearBlurDiagnostics
     // User-approved glass balance over the live, linear-color VR scene.
     internal const float GuideWhiteTint = 0.10f;
     internal const float IntroWhiteTint = 0.16f;
+    internal const float PauseWhiteTint = 0.30f;
+    internal const float ResumeWhiteTint = 0.45f;
     const string Request = "Temp/RehearBlurDiagnostics.request";
     static double next;
     static RehearBlurDiagnostics() { EditorApplication.update += Poll; }
@@ -44,7 +46,7 @@ internal static class RehearBlurDiagnostics
             Undo.RecordObjects(new UnityEngine.Object[] { panel, panel.material }, "Reveal tutorial glass background");
             var view = panel.GetComponentInParent<TutorialFigmaView>();
             bool isIntro = view && view.steps.Length > 1 && panel.transform.IsChildOf(view.steps[1].transform);
-            panel.foregroundOpacity = isIntro ? IntroWhiteTint : panel.name == "Controller guide glass" ? GuideWhiteTint : 0.16f;
+            panel.foregroundOpacity = panel.name == "Pause glass" ? PauseWhiteTint : panel.name == "Resume helper glass" ? ResumeWhiteTint : isIntro ? IntroWhiteTint : panel.name == "Controller guide glass" ? GuideWhiteTint : 0.16f;
             panel.material.SetFloat("_GlassTint", panel.foregroundOpacity);
             panel.SetAllDirty();
             EditorUtility.SetDirty(panel);

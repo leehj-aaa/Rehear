@@ -98,7 +98,7 @@ internal static class RehearControllerGuideChecks
             Check(overlay.parent == hand.transform && overlay.localPosition == Vector3.zero && overlay.localRotation == Quaternion.identity, "Tracked grip pose parent");
             var prefab = (GameObject)Get(visual, "controllerModelPrefab");
             Check(overlay.GetChild(0).localScale == prefab.transform.localScale, "Imported scale retained");
-            foreach (var cue in new[] { Quest3TutorialControllerVisual.Cue.Trigger, Quest3TutorialControllerVisual.Cue.StickHorizontal, Quest3TutorialControllerVisual.Cue.Grip })
+            foreach (var cue in new[] { Quest3TutorialControllerVisual.Cue.Trigger, Quest3TutorialControllerVisual.Cue.StickHorizontal, Quest3TutorialControllerVisual.Cue.StickVertical, Quest3TutorialControllerVisual.Cue.Grip })
             {
                 visual.Show(cue);
                 var surface = (SkinnedMeshRenderer)Get(visual, "bodySurface");
@@ -109,8 +109,13 @@ internal static class RehearControllerGuideChecks
                 Check(overlay.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length == 2, "No duplicate highlight renderer");
                 int part = cue == Quest3TutorialControllerVisual.Cue.Trigger ? 1 : cue == Quest3TutorialControllerVisual.Cue.Grip ? 3 : 2;
                 Check(surface.sharedMaterials[part] == (Material)Get(visual, "runtimeHighlight"), "Only selected original button is emissive");
+                Check(surface.sharedMaterials.Count(m => m == (Material)Get(visual, "runtimeHighlight")) == 1, "Exactly one instructed control lights up");
+                Check(surface.sharedMaterials[part].shader.name == "Rehear/Controller Button Glow", "Shared blue rim style for every control");
                 Call(visual, "AnimateCue", .5f);
             }
+            visual.Show(Quest3TutorialControllerVisual.Cue.Hidden);
+            var hiddenSurface = (SkinnedMeshRenderer)Get(visual, "bodySurface");
+            Check(hiddenSurface.sharedMaterials.All(m => m == (Material)Get(visual, "originalSurfaceMaterial")), "Every surface resets when guide ends");
             // Inactive root deliberately cannot suppress the scene's renderers.
             Set(visual, "previousForceOff", new[] { false });
             Set(visual, "suppressingOriginal", true);
