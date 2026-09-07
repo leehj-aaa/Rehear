@@ -12,6 +12,7 @@ internal static class RehearTutorialGlowSetup
 {
     const string Request = "Temp/RehearTutorialGlow.request";
     const string MaterialPath = "Assets/Settings/TutorialUI/Trigger Outline Glow.mat";
+    const string PromptAudioPath = "Assets/08_Audio/Tutorial_ButtonPrompt.mp3";
     static double nextPoll;
     static RehearTutorialGlowSetup() { EditorApplication.update += Poll; }
     static void Poll()
@@ -20,9 +21,44 @@ internal static class RehearTutorialGlowSetup
         nextPoll = EditorApplication.timeSinceStartup + 1;
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating ||
             EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
+        string command = File.ReadAllText(Request).Trim();
         File.Delete(Request);
-        try { Apply(); }
+        try { if (command == "prompt-sound") ApplyPromptSound(); else Apply(); }
         catch (Exception e) { File.WriteAllText("Temp/RehearTutorialGlow-validation.txt", "FAILED\n" + e); Debug.LogException(e); }
+    }
+
+    [MenuItem("Rehear/Apply ClickMe Tutorial Prompt Sound")]
+    public static void ApplyPromptSound()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+        if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity" ||
+            EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning)
+            throw new InvalidOperationException("Open the tutorial scene in Edit mode, outside a bake.");
+        var manager = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<TutorialManager>(true)).Single();
+        if (!AssetDatabase.LoadAssetAtPath<AudioClip>(PromptAudioPath))
+        {
+            string error = AssetDatabase.MoveAsset("Assets/08_Audio/ClickMe.mp3", PromptAudioPath);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+        }
+        var prompt = AssetDatabase.LoadAssetAtPath<AudioClip>(PromptAudioPath);
+        if (!prompt || prompt.length <= 0) throw new InvalidOperationException("ClickMe audio is missing or invalid.");
+        var serialized = new SerializedObject(manager);
+        var audioSource = serialized.FindProperty("practiceAudioSource").objectReferenceValue as AudioSource;
+        if (!audioSource || audioSource.spatialBlend != 0 || audioSource.spatialize || audioSource.loop)
+            throw new InvalidOperationException("Expected existing non-looping 2D UI audio source.");
+        var previousClick = serialized.FindProperty("triggerInputSound").objectReferenceValue;
+        serialized.FindProperty("triggerPromptSound").objectReferenceValue = prompt;
+        serialized.ApplyModifiedProperties();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(manager);
+        EditorSceneManager.MarkSceneDirty(scene);
+        if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Tutorial save failed.");
+        serialized.Update();
+        if (serialized.FindProperty("triggerPromptSound").objectReferenceValue != prompt ||
+            serialized.FindProperty("triggerInputSound").objectReferenceValue != previousClick)
+            throw new InvalidOperationException("Prompt audio verification failed.");
+        File.WriteAllText("Temp/RehearTutorialPromptSound-validation.txt",
+            $"prompt={prompt.name}\nseconds={prompt.length}\nchannels={prompt.channels}\nloadType={prompt.loadType}\npreload={prompt.preloadAudioData}\nspatialBlend={audioSource.spatialBlend}\nvolume={serialized.FindProperty("triggerPromptVolume").floatValue}\nclickSoundPreserved=true\nplayback=onceOnPracticeEntry\nsaved=true\n");
+        Debug.Log("Rehear: ClickMe tutorial prompt connected; existing click sound preserved.");
     }
 
     [MenuItem("Rehear/Apply Button Practice Glow And Sound")]
@@ -91,11 +127,13 @@ internal static class RehearTutorialGlowSetup
 
         var click = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/08_Audio/UI_Click.mp3");
         if (!click) throw new InvalidOperationException("Missing existing UI click sound.");
+        var prompt = AssetDatabase.LoadAssetAtPath<AudioClip>(PromptAudioPath);
+        if (!prompt) throw new InvalidOperationException("Missing ClickMe prompt sound.");
         var serialized = new SerializedObject(manager);
         if (!serialized.FindProperty("practiceAudioSource").objectReferenceValue)
             throw new InvalidOperationException("Missing practice audio source.");
         serialized.FindProperty("triggerInputSound").objectReferenceValue = click;
-        serialized.FindProperty("triggerPromptSound").objectReferenceValue = click;
+        serialized.FindProperty("triggerPromptSound").objectReferenceValue = prompt;
         serialized.FindProperty("triggerPromptVolume").floatValue = 0.35f;
         serialized.ApplyModifiedProperties();
         EditorUtility.SetDirty(manager);
@@ -121,7 +159,7 @@ internal static class RehearTutorialGlowSetup
         UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
         File.WriteAllText("Temp/RehearTutorialGlow-validation.txt",
             $"shaderSupported=true\nshaderErrors=0\ncurvedGlow=true\nglowRaycast=false\nbuttonEvent=valid\npulsePeriod=1.6\npulseRange=0.35..1\n" +
-            $"promptSound={click.name}, volume=0.35, oncePerEntry=true\nclickSound={click.name}, acceptedClicksOnly=true\nclipSeconds={click.length}\npreview=Step 2\nsaved=true\n");
+            $"promptSound={prompt.name}, volume=0.35, oncePerEntry=true\nclickSound={click.name}, acceptedClicksOnly=true\nclipSeconds={click.length}\npreview=Step 2\nsaved=true\n");
         Debug.Log("Rehear: Button practice outline glow and sound saved.");
     }
 }
