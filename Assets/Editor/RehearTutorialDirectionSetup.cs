@@ -9,6 +9,7 @@ using UnityEngine;
 internal static class RehearTutorialDirectionSetup
 {
     const string Request = "Temp/RehearTutorialDirection.request";
+    const string ArrowSpritePath = "Assets/04_Images/Textures/UI/Next Arrow.png";
     static double next;
     static RehearTutorialDirectionSetup() { EditorApplication.update += Poll; }
     static void Poll()
@@ -34,21 +35,24 @@ internal static class RehearTutorialDirectionSetup
             throw new InvalidOperationException("Stop Play mode and wait for compilation/baking before previewing.");
         var scene = EditorSceneManager.GetActiveScene();
         if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity") throw new InvalidOperationException("Open tutorial scene.");
-        if (command == "style")
+        if (command == "style" || command == "sprite")
         {
             // Do not reset placements or the current preview when restyling existing hints.
             var hints = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<TutorialDirectionArrow>(true)).ToArray();
             if (hints.Length != 4) throw new InvalidOperationException("Expected four existing direction hints.");
-            Undo.RecordObjects(hints, "Remove white direction-hint borders");
+            var sprite = LoadArrowSprite();
+            Undo.RecordObjects(hints, "Use supplied Next Arrow sprite");
             foreach (var hint in hints)
             {
-                hint.color = new Color(0, .2f, 1, 1);
-                hint.SetVerticesDirty();
+                StyleArrow(hint, sprite);
                 EditorUtility.SetDirty(hint);
             }
+            if (hints.Any(h => h.sprite != sprite || h.color != Color.white || h.raycastTarget))
+                throw new InvalidOperationException("Direction sprite assignment failed.");
+            string pageReport = BindAndCheckPageHints(scene, hints);
             EditorSceneManager.MarkSceneDirty(scene);
             if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Save failed.");
-            File.WriteAllText("Temp/RehearTutorialDirection.txt", "arrows=4\ncolor=#0033FF\nwhiteBorder=removed\nplacementsAndPreview=unchanged\nsaved=true");
+            File.WriteAllText("Temp/RehearTutorialDirection.txt", "arrows=4\nsprite=Next Arrow\noriginalImageColor=true\nraycastTargets=0\nplacementsAndPreview=unchanged\nsaved=true\n" + pageReport);
             return;
         }
         var all = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
@@ -85,6 +89,7 @@ internal static class RehearTutorialDirectionSetup
             bool scriptPreview = command == "script";
             view.Show(scriptPreview ? 5 : 3);
             script.gameObject.SetActive(scriptPreview);
+            BindAndCheckPageHints(scene, arrows);
             if (desk.position != deskPosition || script.position != scriptPosition ||
                 desk.rotation != deskRotation || script.rotation != scriptRotation ||
                 desk.lossyScale != deskScale || script.lossyScale != scriptScale)
@@ -137,7 +142,80 @@ internal static class RehearTutorialDirectionSetup
         rect.anchoredPosition3D = new Vector3(offset.x, offset.y, -.05f);
         rect.sizeDelta = new Vector2(6, 6);
         rect.localRotation = Quaternion.Euler(0, 0, rotation); rect.localScale = Vector3.one;
-        arrow.color = new Color(0, .2f, 1, 1);
+        StyleArrow(arrow, LoadArrowSprite());
+    }
+
+    static Sprite LoadArrowSprite()
+    {
+        var importer = AssetImporter.GetAtPath(ArrowSpritePath) as TextureImporter;
+        if (!importer) throw new InvalidOperationException("Missing supplied Next Arrow image.");
+        if (importer.textureType != TextureImporterType.Sprite || importer.spriteImportMode != SpriteImportMode.Single ||
+            !importer.alphaIsTransparency || importer.wrapMode != TextureWrapMode.Clamp)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.SaveAndReimport();
+        }
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(ArrowSpritePath);
+        if (!sprite) throw new InvalidOperationException("Next Arrow sprite import failed.");
+        return sprite;
+    }
+
+    static string BindAndCheckPageHints(UnityEngine.SceneManagement.Scene scene, TutorialDirectionArrow[] arrows)
+    {
+        var up = arrows.Single(a => a.name == "Arrow_Up").gameObject;
+        var down = arrows.Single(a => a.name == "Arrow_Down").gameObject;
+        var panel = up.transform.parent.parent;
+        var scroller = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<ScriptScroller>(true))
+            .Single(s => {
+                var text = new SerializedObject(s).FindProperty("scriptText").objectReferenceValue as TMPro.TMP_Text;
+                return text && text.transform.IsChildOf(panel);
+            });
+        Undo.RecordObject(scroller, "Bind script page direction hints");
+        Undo.RecordObjects(new UnityEngine.Object[] { up, down }, "Update page hint visibility");
+        var so = new SerializedObject(scroller);
+        so.FindProperty("previousPageHint").objectReferenceValue = up;
+        so.FindProperty("nextPageHint").objectReferenceValue = down;
+        so.ApplyModifiedProperties();
+        int originalPage = scroller.CurrentPage;
+        scroller.RefreshPagination();
+        var textObject = (TMPro.TMP_Text)so.FindProperty("scriptText").objectReferenceValue;
+        // Keep inactive previews inactive; runtime RefreshPagination still updates the hints.
+        if (!textObject.gameObject.activeInHierarchy) return "pageHints=bound (inactive preview)";
+        try
+        {
+            scroller.ResetToFirstPage();
+            for (int page = 1; page <= scroller.PageCount; page++)
+            {
+                if (scroller.CurrentPage != page || up.activeSelf != (page > 1) || down.activeSelf != (page < scroller.PageCount))
+                    throw new InvalidOperationException("Incorrect page hint visibility at page " + page);
+                scroller.NextPage();
+            }
+            if (scroller.CurrentPage != scroller.PageCount) throw new InvalidOperationException("Past last page.");
+            for (int page = scroller.PageCount; page > 1; page--) scroller.PreviousPage();
+            scroller.PreviousPage();
+            if (scroller.CurrentPage != 1 || up.activeSelf) throw new InvalidOperationException("Before first page.");
+            return "pageBoundaries=PASS\npages=" + scroller.PageCount;
+        }
+        finally
+        {
+            scroller.ResetToFirstPage();
+            for (int page = 1; page < Mathf.Min(originalPage, scroller.PageCount); page++) scroller.NextPage();
+            EditorUtility.SetDirty(scroller);
+        }
+    }
+
+    static void StyleArrow(TutorialDirectionArrow arrow, Sprite sprite)
+    {
+        arrow.sprite = sprite;
+        arrow.overrideSprite = null;
+        arrow.type = UnityEngine.UI.Image.Type.Simple;
+        arrow.preserveAspect = true;
+        arrow.color = Color.white;
+        arrow.material = null;
         arrow.raycastTarget = false;
+        arrow.SetAllDirty();
     }
 }

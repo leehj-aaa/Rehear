@@ -9,6 +9,13 @@ public class ScriptScroller : MonoBehaviour
     [SerializeField]
     private TMP_Text pageIndicatorText;
 
+    [Header("Optional page direction hints")]
+    [SerializeField] private GameObject previousPageHint;
+    [SerializeField] private GameObject nextPageHint;
+
+    public int CurrentPage => currentPage;
+    public int PageCount => pageCount;
+
     [Header("Firebase 대본")]
     [SerializeField]
     private bool useRuntimeSessionScript = true;
@@ -55,7 +62,10 @@ public class ScriptScroller : MonoBehaviour
     public void RefreshPagination()
     {
         if (scriptText == null)
+        {
+            UpdateDirectionHints();
             return;
+        }
 
         scriptText.overflowMode =
             TextOverflowModes.Page;
@@ -133,5 +143,16 @@ public class ScriptScroller : MonoBehaviour
                 " / " +
                 pageCount;
         }
+
+        UpdateDirectionHints();
+    }
+
+    private void UpdateDirectionHints()
+    {
+        bool hasText = scriptText != null && !string.IsNullOrWhiteSpace(scriptText.text);
+        if (previousPageHint != null)
+            previousPageHint.SetActive(hasText && currentPage > 1);
+        if (nextPageHint != null)
+            nextPageHint.SetActive(hasText && currentPage < pageCount);
     }
 }
