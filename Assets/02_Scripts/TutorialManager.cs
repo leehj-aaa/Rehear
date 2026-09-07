@@ -643,6 +643,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void SetPrimaryButton(bool visible, string label)
     {
+        if (figmaView && figmaView.SetStepButton((int)currentStep, true, visible, label))
+            return;
         if (primaryButton != null)
             primaryButton.gameObject.SetActive(visible);
 
@@ -652,6 +654,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void SetSecondaryButton(bool visible, string label)
     {
+        if (figmaView && figmaView.SetStepButton((int)currentStep, false, visible, label))
+            return;
         if (secondaryButton != null)
             secondaryButton.gameObject.SetActive(visible);
 

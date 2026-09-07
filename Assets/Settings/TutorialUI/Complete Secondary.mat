@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Glass 1200x866
+  m_Name: Complete Secondary
   m_Shader: {fileID: 4800000, guid: 7e51ff2476113d14382f87a4d171d767, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -35,18 +35,18 @@ Material:
     m_Floats:
     - _BorderWidth: 2
     - _ColorMask: 15
-    - _GlassTint: 0.1
-    - _Radius: 48
+    - _GlassTint: 0.45
+    - _Radius: 40
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _UseBlur: 1
+    - _UseBlur: 0
     - _UseUIAlphaClip: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CropRegion: {r: 0, g: 0, b: 1, a: 1}
-    - _PanelSize: {r: 1200, g: 866, b: 0, a: 0}
+    - _PanelSize: {r: 340, g: 56, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

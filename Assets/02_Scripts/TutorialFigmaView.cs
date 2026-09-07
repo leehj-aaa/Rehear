@@ -11,9 +11,21 @@ public sealed class TutorialFigmaView : MonoBehaviour
     public Material primaryMaterial;
     public Material secondaryMaterial;
 
+    [Header("Buttons owned by each tutorial step")]
+    public Button[] primaryButtons;
+    public Button[] secondaryButtons;
+    private bool ownsLegacyMaterials;
+
+    public bool HasStepButtons => steps != null && primaryButtons != null &&
+        secondaryButtons != null && primaryButtons.Length == steps.Length &&
+        secondaryButtons.Length == steps.Length && primaryButtons.Length > 0 && primaryButtons[0];
+
     public void Show(int step)
     {
         for (int i = 0; i < steps.Length; i++) if (steps[i]) steps[i].SetActive(i == step);
+        // Authored child buttons already have their final position, label and material.
+        // Showing a step must not move or restyle another step's controls.
+        if (HasStepButtons) return;
         if (!primary || !secondary) return;
         if (step == 0)
         {
@@ -38,6 +50,24 @@ public sealed class TutorialFigmaView : MonoBehaviour
         }
     }
 
+    public bool SetStepButton(int step, bool isPrimary, bool visible, string label)
+    {
+        if (!HasStepButtons) return false;
+        var buttons = isPrimary ? primaryButtons : secondaryButtons;
+        if (step < 0 || step >= buttons.Length) return true;
+        var button = buttons[step];
+        if (!button) return true;
+        button.gameObject.SetActive(visible);
+        // Only the repeated trigger exercise has a changing label. Keep all other
+        // labels authored in the scene so designers can edit them in the Inspector.
+        if (isPrimary && step == 2)
+        {
+            var text = button.GetComponentInChildren<TMP_Text>(true);
+            if (text) text.text = label;
+        }
+        return true;
+    }
+
     public static void Place(RectTransform rect, float x, float y, float width, float height)
     {
         rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
@@ -50,13 +80,15 @@ public sealed class TutorialFigmaView : MonoBehaviour
 
     private void Awake()
     {
+        if (HasStepButtons) return;
+        ownsLegacyMaterials = true;
         // Mutable button sizes use scene-local material instances, never change assets in play mode.
         if (primaryMaterial) primary.GetComponent<Image>().material = primaryMaterial = new Material(primaryMaterial);
         if (secondaryMaterial) secondary.GetComponent<Image>().material = secondaryMaterial = new Material(secondaryMaterial);
     }
     private void OnDestroy()
     {
-        if (!Application.isPlaying) return;
+        if (!ownsLegacyMaterials || !Application.isPlaying) return;
         if (primaryMaterial) Destroy(primaryMaterial);
         if (secondaryMaterial) Destroy(secondaryMaterial);
     }

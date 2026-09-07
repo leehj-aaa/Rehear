@@ -140,7 +140,9 @@ internal static class RehearTutorialBlurSetup
             panel.vibrancy = 1;
             panel.brightness = 0;
             panel.flatten = 0;
-            panel.foregroundOpacity = panel.name == "Controller guide glass" ? 0.08f : 0.16f;
+            var view = panel.GetComponentInParent<TutorialFigmaView>();
+            bool isIntro = view && view.steps.Length > 1 && panel.transform.IsChildOf(view.steps[1].transform);
+            panel.foregroundOpacity = isIntro ? RehearBlurDiagnostics.IntroWhiteTint : panel.name == "Controller guide glass" ? RehearBlurDiagnostics.GuideWhiteTint : 0.16f;
             if (panel.material.HasProperty("_GlassTint"))
                 panel.material.SetFloat("_GlassTint", panel.foregroundOpacity);
             panel.raycastTarget = false;
@@ -202,7 +204,7 @@ internal static class RehearTutorialBlurSetup
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Tutorial blur scene save failed.");
         File.WriteAllText(ReportPath, $"scene={scene.path}\nblur=Translucent Image 7.0.1\ndownsample=2\nstrength=12\n" +
-            $"guideTint=0.08\notherTint=0.16\nworldMask={camera.cullingMask}\nuiMask={uiCamera.cullingMask}\n" +
+            $"guideTint={RehearBlurDiagnostics.GuideWhiteTint}\nintroTint={RehearBlurDiagnostics.IntroWhiteTint}\notherTint=0.16\nworldMask={camera.cullingMask}\nuiMask={uiCamera.cullingMask}\n" +
             $"stackCount={baseData.cameraStack.Count}\ncurve={canvas.GetComponent<CurvedUISettings>().Angle}\n" +
             $"stageReferencePreserved=true\nquestDeviceTested=false\nsaved={DateTime.UtcNow:O}\n");
         Debug.Log("Rehear: Native Figma tutorial backgrounds connected to Translucent Image.", canvas);

@@ -119,6 +119,7 @@ internal static class RehearFigmaTutorialSetup
             if (obj is Component component) component.gameObject.SetActive(false);
             else if (obj is GameObject go) go.SetActive(false);
         }
+        RehearTutorialStepButtons.Configure(view, manager);
         view.Show(0);
         primary.gameObject.SetActive(true);
         secondary.gameObject.SetActive(true);
@@ -139,7 +140,7 @@ internal static class RehearFigmaTutorialSetup
 
     private static void Guide(Transform parent)
     {
-        var p = Glass(parent, "Controller guide glass", 0, 0, 1200, 866, .08f);
+        var p = Glass(parent, "Controller guide glass", 0, 0, 1200, 866, RehearBlurDiagnostics.GuideWhiteTint);
         Label(p, "Title", "컨트롤러 조작 방법", 49, 65, 1102, 46, 36, "Bold", Ink);
         Label(p, "Description", "시작 전, 오른손 컨트롤러의 기본 조작을 확인해 주세요", 49, 122, 1102, 34, 24, "Medium", Body);
         Icon(p, "controller", 333, 67, 535, 720);

@@ -33,6 +33,22 @@ public class TranslucentImageShaderGUI : ShaderGUI
         float oldFieldWidth = EGU.fieldWidth;
         materialEditor.SetDefaultGUIWidths();
 
+        // Custom UI shaders may consume the blur texture without Paraform's
+        // refraction properties. Do not read past the end of their property list.
+        if (!properties.Any(property => property.name == "_REFRACTION_MODE"))
+        {
+            foreach (var property in properties)
+            {
+                var flags = property.propertyFlags;
+                if ((flags & PropFlagsCompat.HideInInspector) != 0 ||
+                    (skipUnimportants && (flags & PropFlagsCompat.PerRendererData) != 0)) continue;
+                materialEditor.ShaderProperty(property, property.displayName);
+            }
+            EGU.labelWidth = oldLabelWidth;
+            EGU.fieldWidth = oldFieldWidth;
+            return;
+        }
+
         // ReSharper disable once ConvertToConstant.Local
         bool haveParaform = false;
 #if LETAI_PARAFORM

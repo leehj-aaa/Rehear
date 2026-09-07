@@ -11,6 +11,9 @@ using UnityEditor.SceneManagement;
 [InitializeOnLoad]
 internal static class RehearBlurDiagnostics
 {
+    // User-approved glass balance over the live, linear-color VR scene.
+    internal const float GuideWhiteTint = 0.10f;
+    internal const float IntroWhiteTint = 0.16f;
     const string Request = "Temp/RehearBlurDiagnostics.request";
     static double next;
     static RehearBlurDiagnostics() { EditorApplication.update += Poll; }
@@ -39,7 +42,9 @@ internal static class RehearBlurDiagnostics
         foreach (var panel in scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<TranslucentImage>(true)))
         {
             Undo.RecordObjects(new UnityEngine.Object[] { panel, panel.material }, "Reveal tutorial glass background");
-            panel.foregroundOpacity = panel.name == "Controller guide glass" ? 0.08f : 0.16f;
+            var view = panel.GetComponentInParent<TutorialFigmaView>();
+            bool isIntro = view && view.steps.Length > 1 && panel.transform.IsChildOf(view.steps[1].transform);
+            panel.foregroundOpacity = isIntro ? IntroWhiteTint : panel.name == "Controller guide glass" ? GuideWhiteTint : 0.16f;
             panel.material.SetFloat("_GlassTint", panel.foregroundOpacity);
             panel.SetAllDirty();
             EditorUtility.SetDirty(panel);
@@ -57,7 +62,7 @@ internal static class RehearBlurDiagnostics
         if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Could not save tutorial glass.");
         SceneView.RepaintAll();
         UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-        File.WriteAllText("Temp/RehearBlurTuning.txt", "strength=12\nguideWhiteTint=0.08\notherWhiteTint=0.16\ncurvedEdgesCovered=true\nsaved=true\n");
+        File.WriteAllText("Temp/RehearBlurTuning.txt", $"strength=12\nguideWhiteTint={GuideWhiteTint}\nintroWhiteTint={IntroWhiteTint}\notherWhiteTint=0.16\ncurvedEdgesCovered=true\nsaved=true\n");
     }
     [MenuItem("Rehear/Inspect Live Tutorial Blur")]
     static void Inspect()
