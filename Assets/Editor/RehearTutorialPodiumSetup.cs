@@ -237,7 +237,7 @@ internal static class RehearTutorialPodiumSetup
             }
             foreach (var renderer in t.GetComponentsInChildren<Renderer>(true))
                 report.AppendLine($" RENDERER {renderer.name} center={renderer.bounds.center.ToString("F4")} size={renderer.bounds.size.ToString("F4")}");
-            if (t.name == "Slide" && t.TryGetComponent<MeshFilter>(out var filter))
+            if ((t.name == "Slide" || t.name == "Counter") && t.TryGetComponent<MeshFilter>(out var filter))
             {
                 var mesh = filter.sharedMesh;
                 var materials = t.GetComponent<MeshRenderer>().sharedMaterials;
