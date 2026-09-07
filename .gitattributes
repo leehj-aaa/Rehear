@@ -22,3 +22,4 @@
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.so filter=lfs diff=lfs merge=lfs -text
 *.bundle filter=lfs diff=lfs merge=lfs -text
+/Assets/07_Fonts/PretendardTMP/*.asset filter=lfs diff=lfs merge=lfs -text

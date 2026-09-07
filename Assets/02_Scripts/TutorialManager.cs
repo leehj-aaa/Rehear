@@ -22,6 +22,7 @@ public class TutorialManager : MonoBehaviour
 
     [Header("Common UI")]
     [SerializeField] private Image stageImage;
+    [SerializeField] private TutorialFigmaView figmaView;
     [SerializeField] private Image progressImage;
     [SerializeField] private Button primaryButton;
     [SerializeField] private TMP_Text primaryButtonText;
@@ -450,6 +451,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         if (currentStep == TutorialStep.PausePractice)
         {
             currentStep = TutorialStep.PauseResumePractice;
+            figmaView?.Show((int)currentStep);
 
             if (stageImage != null)
                 stageImage.gameObject.SetActive(false);
@@ -457,13 +459,13 @@ if (currentStep == TutorialStep.RearSlidePractice &&
             if (progressImage != null)
                 progressImage.gameObject.SetActive(false);
 
-            if (timerStopPanel != null)
+            if (timerStopPanel != null && figmaView == null)
             {
                 timerStopPanel.SetActive(true);
                 timerStopPanel.transform.SetAsLastSibling();
             }
 
-            if (tutorial5_1Object != null)
+            if (tutorial5_1Object != null && figmaView == null)
             {
                 tutorial5_1Object.SetActive(true);
                 tutorial5_1Object.transform.SetAsLastSibling();
@@ -616,15 +618,17 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void SetStage(Sprite sprite, bool showProgress, Sprite progressSprite, AudioClip ttsClip)
     {
+        figmaView?.Show((int)currentStep);
         if (stageImage != null)
         {
             stageImage.gameObject.SetActive(true);
             stageImage.sprite = sprite;
+            if (figmaView != null) stageImage.enabled = false;
         }
 
         if (progressImage != null)
         {
-            progressImage.gameObject.SetActive(showProgress);
+            progressImage.gameObject.SetActive(showProgress && figmaView == null);
             if (showProgress)
                 progressImage.sprite = progressSprite;
         }

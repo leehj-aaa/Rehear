@@ -27,6 +27,15 @@ namespace CurvedUI.Core.Integrations
             if (_tmPtext == null) _tmPtext = GetComponentInParent<TextMeshProUGUI>();
 
             if (_crvdVe == null) _crvdVe = gameObject.AddComponentIfMissing<CurvedUIVertexEffect>();
+            // TMP quads are already dense enough. On first enable, tessellating unused
+            // zero-area glyph quads can divide by zero before the effect caches TMP_SubMeshUI.
+            _crvdVe.DoNotTesselate = true;
+
+            if (_tmPsub.mesh.vertexCount == 0 || (_tmPtext != null && _tmPtext.textInfo.materialCount < 2))
+            {
+                _tmPsub.canvasRenderer.Clear();
+                return;
+            }
             
             if (_tmPsub.materialForRendering == null && _tmPsub.fallbackMaterial == null) return;
 
