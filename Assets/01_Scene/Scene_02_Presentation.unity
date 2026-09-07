@@ -632,6 +632,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &270704687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2514,6 +2515,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &976342271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3882,6 +3884,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &1228476768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5367,6 +5370,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &1617128135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5617,6 +5621,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: _Environment
       objectReference: {fileID: 0}
+    - target: {fileID: 5069869440175959097, guid: b757d597ea7af714f81048147bed42b8, type: 3}
+      propertyPath: sharedProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: 843ec56e42ecbb44d835579a43aedc96, type: 2}
     - target: {fileID: 5927707077962418799, guid: b757d597ea7af714f81048147bed42b8, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -5926,6 +5934,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 152005911}
     m_Modifications:
+    - target: {fileID: 1767192439, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_HDR
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_Name
       value: XR Origin (XR Rig)
@@ -5988,6 +6000,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6480925242510836759, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7032098985301169009, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_VolumeTrigger
+      value: 
+      objectReference: {fileID: 2089395741}
+    - target: {fileID: 7032098985301169009, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_AllowHDROutput
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7347985736721345035, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
@@ -6377,6 +6397,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &1802298774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6521,6 +6542,7 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
+  doNotInterruptActiveAction: 1
 --- !u!114 &1825097249
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6703,6 +6725,7 @@ MonoBehaviour:
   flowController: {fileID: 1737171926}
   presentationManager: {fileID: 1910796615}
   warningStartSeconds: 10
+  evcSegmentIntervalSeconds: 8
   warningColor: {r: 1, g: 0.20188677, b: 0.20188677, a: 1}
   blinkSpeed: 1.2
 --- !u!82 &1855155105

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f66862726533f8f47bc1cfe3f0bf1a11
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 260862
+  packageName: UGUI Canvas Blurred Background - Fast translucent UI Blur HDRP, URP,
+    Built-In RP
+  packageVersion: 1.5.1
+  assetPath: Assets/Kamgam/UGUIBlurredBackground/Examples/Materials/Checkers.mat
+  uploadId: 987122

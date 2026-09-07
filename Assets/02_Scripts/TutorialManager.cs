@@ -66,6 +66,9 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private PresentationManager presentationManager;
     [SerializeField] private ScriptScroller scriptScroller;
 
+    [Header("Quest 3 Controller Tutorial")]
+    [SerializeField] private Quest3TutorialControllerVisual controllerVisual;
+
     [Header("Practice Feedback Sound")]
     [SerializeField] private AudioSource practiceAudioSource;
     [SerializeField] private AudioClip stickInputSound;
@@ -465,6 +468,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 tutorial5_1Object.SetActive(true);
                 tutorial5_1Object.transform.SetAsLastSibling();
             }
+            controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Grip);
             PlayTutorialTts(tutorial5_1Tts);
 
             return;
@@ -487,6 +491,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowControllerGuide()
     {
         currentStep = TutorialStep.ControllerGuide;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Idle);
         SetStage(controllerGuideSprite, false, null,controllerGuideTts);
         SetPrimaryButton(true, "튜토리얼 시작하기");
         SetSecondaryButton(true, "건너뛰기");
@@ -495,6 +500,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowPracticeIntro()
     {
         currentStep = TutorialStep.PracticeIntro;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Idle);
         SetStage(tutorial1Sprite, false, null, tutorial1Tts);
         SetPrimaryButton(true, "시작하기");
         SetSecondaryButton(false, string.Empty);
@@ -521,6 +527,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     {
         currentStep = TutorialStep.TriggerPractice;
         practiceCount = 0;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Trigger);
         SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
@@ -533,6 +540,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         currentStep = TutorialStep.SlidePractice;
         practiceCount = 0;
         stickLatched = true;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickHorizontal);
         SetStage(tutorial3Sprite, true, progress1Sprite, tutorial3Tts);
         HideButtons();
     }
@@ -548,7 +556,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
         // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
         stickLatched = true;
-        
+
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickHorizontal);
 
         SetStage(
             tutorial3RearSprite,
@@ -567,6 +576,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         currentStep = TutorialStep.ScriptPractice;
         practiceCount = 0;
         stickLatched = true;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.StickVertical);
         SetStage(tutorial4Sprite, true, progress2Sprite, tutorial4Tts);
         HideButtons();
 
@@ -584,6 +594,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         practiceCount = 0;
         stickLatched = false;
 
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Grip);
+
         if (scriptPanel != null)
             scriptPanel.SetActive(false);
 
@@ -596,6 +608,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         PlayStepSuccessSound();
 
         currentStep = TutorialStep.Complete;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial6Sprite, true, progress4Sprite, tutorial6Tts);
         SetPrimaryButton(true, "세션 시작하기");
         SetSecondaryButton(true, "처음으로 돌아가기");
