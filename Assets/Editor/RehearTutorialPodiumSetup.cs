@@ -22,10 +22,30 @@ internal static class RehearTutorialPodiumSetup
             EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
         string command = File.ReadAllText(Request).Trim();
         File.Delete(Request);
-        try { if (command == "apply") Apply(); else if (command == "capture") Capture(); else Inspect(); }
+        try { if (command == "apply") Apply(); else if (command == "align") AlignDisplay(); else if (command == "capture") Capture(); else Inspect(); }
         catch (Exception e) { File.WriteAllText("Temp/RehearTutorialPodium.txt", "FAILED\n" + e); }
     }
     static string Path(Transform t) => t.parent ? Path(t.parent) + "/" + t.name : t.name;
+    static void AlignDisplay()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+        if (scene.path != "Assets/01_Scene/Scene_00_5_Tutorial.unity") throw new InvalidOperationException("Open tutorial scene.");
+        var screen = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<RectTransform>(true))
+            .Single(t => t.name == "DeskScreen" && t.parent && t.parent.name == "Counter");
+        var position = screen.localPosition; var scale = screen.localScale;
+        float tilt = screen.localEulerAngles.x;
+        Undo.RecordObject(screen, "Align presenter display with podium");
+        screen.localRotation = Quaternion.Euler(tilt, 0, 0);
+        if (Vector3.Angle(screen.right, screen.parent.right) > .01f || screen.localPosition != position || screen.localScale != scale)
+            throw new InvalidOperationException("Display alignment verification failed.");
+        EditorUtility.SetDirty(screen);
+        EditorSceneManager.MarkSceneDirty(scene);
+        if (!EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("Scene save failed.");
+        Selection.activeGameObject = screen.gameObject;
+        SceneView.RepaintAll();
+        File.WriteAllText("Temp/RehearTutorialDisplayAlignment.txt",
+            $"widthAlignedToPodium=true\nlocalTilt={tilt:F2}\nlocalYaw=0\nlocalRoll=0\npositionUnchanged=true\nscaleUnchanged=true\nsaved=true\n");
+    }
     static void Capture()
     {
         var camera = Camera.main;
@@ -128,7 +148,8 @@ internal static class RehearTutorialPodiumSetup
             Undo.SetTransformParent(screen, counter, "Parent screen to podium");
             Undo.RecordObject(screen, "Align screen to tabletop");
             screen.localScale = new Vector3(oldScale.x / counter.lossyScale.x, oldScale.y / counter.lossyScale.y, oldScale.z / counter.lossyScale.z);
-            Vector3 away = Vector3.ProjectOnPlane(counter.position - camera.transform.position, normal).normalized;
+            // Match the podium's orientation, not the viewer's current position.
+            Vector3 away = Vector3.ProjectOnPlane(counter.forward, normal).normalized;
             // Laptop-replacement display: upright with a modest backward tilt.
             // Its bottom edge rests just above the tabletop, never flat on it.
             const float tilt = 15f;
