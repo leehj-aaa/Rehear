@@ -990,6 +990,7 @@ GameObject:
   - component: {fileID: 51595003}
   - component: {fileID: 51595005}
   - component: {fileID: 51595004}
+  - component: {fileID: 51595006}
   m_Layer: 5
   m_Name: SlideScreen
   m_TagString: Untagged
@@ -1004,17 +1005,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 51595002}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: -521.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.7071068, y: -0.00000011920929, z: 0.00000011920929, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0.000024388137}
+  m_LocalScale: {x: -0.00009999997, y: 0.00009999997, z: 0.00009999997}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2028653237}
+  m_Father: {fileID: 1666310866}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25.78, y: -101.22}
-  m_SizeDelta: {x: 248.97, y: 135.16}
+  m_AnchoredPosition: {x: -0.00000020747014, y: 0.0003736115}
+  m_SizeDelta: {x: 248.61447, y: 133.74121}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &51595004
 MonoBehaviour:
@@ -1051,6 +1052,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 51595002}
   m_CullTransparentMesh: 1
+--- !u!223 &51595006
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51595002}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 2089395740}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 1
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!1 &77600695
 GameObject:
   m_ObjectHideFlags: 0
@@ -17399,11 +17423,19 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4724015585128673418, guid: b757d597ea7af714f81048147bed42b8, type: 3}
       insertIndex: 12
       addedObject: {fileID: 1716116522}
+    - targetCorrespondingSourceObject: {fileID: 9086196093897980061, guid: b757d597ea7af714f81048147bed42b8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 51595003}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b757d597ea7af714f81048147bed42b8, type: 3}
 --- !u!4 &1666310865 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4724015585128673418, guid: b757d597ea7af714f81048147bed42b8, type: 3}
+  m_PrefabInstance: {fileID: 1666310864}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1666310866 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9086196093897980061, guid: b757d597ea7af714f81048147bed42b8, type: 3}
   m_PrefabInstance: {fileID: 1666310864}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1668108963
@@ -21002,7 +21034,6 @@ RectTransform:
   - {fileID: 1435535655}
   - {fileID: 1560368832}
   - {fileID: 649103826}
-  - {fileID: 51595003}
   - {fileID: 574797990}
   - {fileID: 1041958919}
   - {fileID: 2050827496}

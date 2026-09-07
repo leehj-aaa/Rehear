@@ -171,6 +171,15 @@ internal static class RehearTutorialPodiumSetup
         var scene = EditorSceneManager.GetActiveScene();
         var transforms = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
         var report = new StringBuilder(scene.path + "\n");
+        foreach (var camera in transforms.Select(t => t.GetComponent<Camera>()).Where(c => c))
+        {
+            var data = camera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+            report.AppendLine($"CAMERA {camera.name}: enabled={camera.enabled}, mask={camera.cullingMask}, target={camera.targetTexture}, renderer={data?.scriptableRenderer?.GetType().Name}");
+        }
+        foreach (var source in transforms.Select(t => t.GetComponent<LeTai.Asset.TranslucentImage.TranslucentImageSource>()).Where(s => s))
+            report.AppendLine($"BLUR source={source.name}, enabled={source.isActiveAndEnabled}, rate={source.MaxUpdateRate}, texture={source.BlurredScreen}, created={(source.BlurredScreen && source.BlurredScreen.IsCreated())}, config={EditorJsonUtility.ToJson(source.BlurConfig)}");
+        foreach (var panel in transforms.Select(t => t.GetComponent<LeTai.Asset.TranslucentImage.TranslucentImage>()).Where(p => p))
+            report.AppendLine($"PANEL {Path(panel.transform)}: active={panel.IsActive()}, source={panel.source?.name}, canvasEnabled={panel.canvas?.enabled}, tint={panel.foregroundOpacity}, shader={panel.material?.shader?.name}");
         var audio = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/08_Audio/Tutorial_ButtonPrompt.mp3");
         if (audio && audio.LoadAudioData())
         {
@@ -189,7 +198,7 @@ internal static class RehearTutorialPodiumSetup
         foreach (var t in transforms.Where(t => t.GetComponent<Canvas>() || t.GetComponent<Camera>() ||
             t.name.IndexOf("screen", StringComparison.OrdinalIgnoreCase) >= 0 || t.name == "Counter" ||
             t.name.StartsWith("Aud_") || t.name.IndexOf("chair", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            t.name.IndexOf("table", StringComparison.OrdinalIgnoreCase) >= 0))
+            t.name.IndexOf("table", StringComparison.OrdinalIgnoreCase) >= 0 || t.name == "Slide"))
         {
             report.AppendLine($"{Path(t)} | active={t.gameObject.activeInHierarchy} world={t.position.ToString("F4")} local={t.localPosition.ToString("F4")} euler={t.eulerAngles} scale={t.lossyScale}");
             if (t.name.StartsWith("Aud_"))
@@ -207,6 +216,18 @@ internal static class RehearTutorialPodiumSetup
             }
             foreach (var renderer in t.GetComponentsInChildren<Renderer>(true))
                 report.AppendLine($" RENDERER {renderer.name} center={renderer.bounds.center.ToString("F4")} size={renderer.bounds.size.ToString("F4")}");
+            if (t.name == "Slide" && t.TryGetComponent<MeshFilter>(out var filter))
+            {
+                var mesh = filter.sharedMesh;
+                var materials = t.GetComponent<MeshRenderer>().sharedMaterials;
+                for (int i = 0; i < mesh.subMeshCount; i++)
+                {
+                    var vertices = mesh.vertices; var indices = mesh.GetIndices(i);
+                    var bounds = new Bounds(t.TransformPoint(vertices[indices[0]]), Vector3.zero);
+                    foreach (int index in indices) bounds.Encapsulate(t.TransformPoint(vertices[index]));
+                    report.AppendLine($" SUBMESH {i} material={materials[i].name} center={bounds.center.ToString("F5")} size={bounds.size.ToString("F5")}");
+                }
+            }
         }
         File.WriteAllText("Temp/RehearTutorialPodium.txt", report.ToString());
     }
