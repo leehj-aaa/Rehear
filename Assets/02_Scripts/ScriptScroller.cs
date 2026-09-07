@@ -91,28 +91,36 @@ public class ScriptScroller : MonoBehaviour
         ApplyPage();
     }
 
-    public void NextPage()
+    // Keep the void methods available to existing UnityEvent bindings.
+    public void NextPage() => TryNextPage();
+    public void PreviousPage() => TryPreviousPage();
+
+    public bool TryNextPage()
     {
         if (!CanChangePage() ||
             currentPage >= pageCount)
         {
-            return;
+            return false;
         }
 
         currentPage++;
+        ShowPagePress(nextPageHint);
         ApplyPage();
+        return true;
     }
 
-    public void PreviousPage()
+    public bool TryPreviousPage()
     {
         if (!CanChangePage() ||
             currentPage <= 1)
         {
-            return;
+            return false;
         }
 
         currentPage--;
+        ShowPagePress(previousPageHint);
         ApplyPage();
+        return true;
     }
 
     public void ResetToFirstPage()
@@ -125,7 +133,14 @@ public class ScriptScroller : MonoBehaviour
     {
         return
             scriptText != null &&
+            !string.IsNullOrWhiteSpace(scriptText.text) &&
             scriptText.gameObject.activeInHierarchy;
+    }
+
+    private static void ShowPagePress(GameObject hint)
+    {
+        if (Application.isPlaying && hint != null)
+            hint.GetComponent<TutorialDirectionArrow>()?.ShowPressedFeedback();
     }
 
     private void ApplyPage()

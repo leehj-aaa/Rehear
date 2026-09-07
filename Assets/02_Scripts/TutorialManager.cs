@@ -321,14 +321,19 @@ if (currentStep == TutorialStep.RearSlidePractice &&
             return;
 
         stickLatched = true;
+        HandleScriptPracticeInput(stick.y);
+    }
+
+    private bool HandleScriptPracticeInput(float direction)
+    {
+        if (scriptScroller == null || direction == 0f) return false;
+        bool changed = direction < 0f ? scriptScroller.TryNextPage() : scriptScroller.TryPreviousPage();
+        if (!changed) return false;
+
+        // Count and acknowledge actual page changes, never blocked boundary inputs.
         PlayPracticeSound(stickInputSound);
-
-        if (stick.y < 0f)
-            scriptScroller?.NextPage();
-        else
-            scriptScroller?.PreviousPage();
-
         CountStickPractice(TutorialStep.PausePractice);
+        return true;
     }
 
     // Connect both Button.OnClick and XR Simple Interactable.Select Entered here.
