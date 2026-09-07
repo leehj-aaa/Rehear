@@ -572,6 +572,7 @@ MonoBehaviour:
   triggerPromptSound: {fileID: 8300000, guid: a1edadcc8a92ebe4d83141581d6ba4aa, type: 3}
   triggerInputSound: {fileID: 8300000, guid: eb1bc1bc2fb8f5141b5570ac6d42b934, type: 3}
   scriptBoundarySound: {fileID: 8300000, guid: 4ea2f14034b63244c8474348cef29759, type: 3}
+  slideBoundarySound: {fileID: 8300000, guid: 4ea2f14034b63244c8474348cef29759, type: 3}
   scriptRemainingText: {fileID: 60360130}
   triggerPromptVolume: 0.35
   inputSoundVolume: 0.7
@@ -5619,7 +5620,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &557126095
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6121,7 +6122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &615570781
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8287,7 +8288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &933123682
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13346,7 +13347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1290108671
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21476,6 +21477,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PresentationManager
   deskScreen: {fileID: 1142486552}
   slideScreen: {fileID: 51595004}
+  previousSlideHint: {fileID: 1020667376}
+  nextSlideHint: {fileID: 1125707872}
   slides:
   - {fileID: 2800000, guid: 7a5c80fa964669e4faefe16472b19e1d, type: 3}
   - {fileID: 2800000, guid: e3e3990e9a61a544a9736481dbafe1d8, type: 3}

@@ -11,6 +11,10 @@ public class PresentationManager : MonoBehaviour
     public RawImage deskScreen;
     public RawImage slideScreen;
 
+    [Header("Optional slide direction feedback")]
+    [SerializeField] private TutorialDirectionArrow previousSlideHint;
+    [SerializeField] private TutorialDirectionArrow nextSlideHint;
+
     [Header("기본 발표자료")]
     public Texture2D[] slides;
 
@@ -148,30 +152,44 @@ public class PresentationManager : MonoBehaviour
         );
     }
 
-    public void NextSlide()
+    public bool IsAtSlideBoundary(bool next) => HasCurrentSlide() &&
+        (next ? currentIndex >= slides.Length - 1 : currentIndex <= 0);
+
+    private bool HasCurrentSlide() => slides != null && currentIndex >= 0 &&
+        currentIndex < slides.Length && slides[currentIndex];
+
+    // Preserve the void UnityEvent API used by other presentation scenes.
+    public void NextSlide() => TryNextSlide();
+    public void PrevSlide() => TryPrevSlide();
+
+    public bool TryNextSlide()
     {
-        if (slides == null ||
-            currentIndex >= slides.Length - 1)
+        if (!HasCurrentSlide()) return false;
+        nextSlideHint?.ShowPressedFeedback();
+        if (currentIndex >= slides.Length - 1 || !slides[currentIndex + 1])
         {
-            return;
+            return false;
         }
 
         currentIndex++;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
+        return true;
     }
 
-    public void PrevSlide()
+    public bool TryPrevSlide()
     {
-        if (slides == null ||
-            currentIndex <= 0)
+        if (!HasCurrentSlide()) return false;
+        previousSlideHint?.ShowPressedFeedback();
+        if (currentIndex <= 0 || !slides[currentIndex - 1])
         {
-            return;
+            return false;
         }
 
         currentIndex--;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
+        return true;
     }
 
     private void UpdateDisplay()

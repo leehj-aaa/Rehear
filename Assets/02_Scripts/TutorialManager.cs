@@ -78,6 +78,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip triggerPromptSound;
     [SerializeField] private AudioClip triggerInputSound;
     [SerializeField] private AudioClip scriptBoundarySound;
+    [SerializeField] private AudioClip slideBoundarySound;
     [SerializeField] private TMP_Text scriptRemainingText;
     [SerializeField, Range(0f, 1f)] private float triggerPromptVolume = 0.35f;
     [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
@@ -105,6 +106,8 @@ public class TutorialManager : MonoBehaviour
     private bool stickLatched;
     private int practiceCount;
     private bool scriptCompletionPending;
+    private bool slideCompletionPending;
+    private float slideCompletionAt;
     private float scriptCompletionAt;
     private float lastButtonTime = -10f;
     private Transform tutorialRig;
@@ -263,6 +266,7 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
+        if (ProcessSlideCompletion(Time.unscaledTime)) return;
         if (ProcessScriptCompletion(Time.unscaledTime)) return;
         // Stick input is deliberately ignored outside its own practice steps.
         if (currentStep != TutorialStep.SlidePractice &&
@@ -302,23 +306,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 return;
 
             stickLatched = true;
-            PlayPracticeSound(stickInputSound);
-
-            if (stick.x > 0f)
-                presentationManager?.NextSlide();
-            else
-                presentationManager?.PrevSlide();
-
-             if (currentStep == TutorialStep.SlidePractice)
-            {
-                // 앞 슬라이드 3회 후 뒤 디스플레이 연습으로 이동
-                CountStickPractice(TutorialStep.RearSlidePractice);
-            }
-            else
-            {
-                // 뒤 디스플레이에서도 3회 후 대본 연습으로 이동
-                CountStickPractice(TutorialStep.ScriptPractice);
-            }
+            HandleSlidePracticeInput(stick.x);
             return;
         }
 
@@ -327,6 +315,41 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
         stickLatched = true;
         HandleScriptPracticeInput(stick.y);
+    }
+
+    private bool HandleSlidePracticeInput(float direction)
+    {
+        if (slideCompletionPending || !presentationManager || direction == 0f) return false;
+        var display = currentStep == TutorialStep.RearSlidePractice ? presentationManager.slideScreen : presentationManager.deskScreen;
+        if (!display || !display.isActiveAndEnabled) return false;
+        bool changed = direction > 0f ? presentationManager.TryNextSlide() : presentationManager.TryPrevSlide();
+        if (!changed)
+        {
+            if (presentationManager.IsAtSlideBoundary(direction > 0f) && practiceAudioSource && slideBoundarySound)
+                practiceAudioSource.PlayOneShot(slideBoundarySound, .35f);
+            return false;
+        }
+        PlayPracticeSound(stickInputSound);
+        practiceCount++;
+        if (practiceCount >= requiredPracticeCount)
+        {
+            // Leave the final pressed state visible before hiding this step's hints.
+            slideCompletionPending = true;
+            slideCompletionAt = Time.unscaledTime + .2f;
+        }
+        return true;
+    }
+
+    private bool ProcessSlideCompletion(float now)
+    {
+        if (!slideCompletionPending) return false;
+        if (now >= slideCompletionAt)
+        {
+            slideCompletionPending = false;
+            if (currentStep == TutorialStep.SlidePractice) ShowRearSlidePractice();
+            else if (currentStep == TutorialStep.RearSlidePractice) ShowScriptPractice();
+        }
+        return true;
     }
 
     private bool HandleScriptPracticeInput(float direction)
@@ -469,27 +492,6 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         else if (practiceCount >= requiredPracticeCount)
         {
             ShowSlidePractice();
-        }
-    }
-
-    private void CountStickPractice(TutorialStep nextStep)
-    {
-        practiceCount++;
-
-        if (practiceCount < requiredPracticeCount)
-            return;
-
-        if (nextStep == TutorialStep.RearSlidePractice)
-        {
-            ShowRearSlidePractice();
-        }
-        else if (nextStep == TutorialStep.ScriptPractice)
-        {
-            ShowScriptPractice();
-        }
-        else
-        {
-            ShowPausePractice();
         }
     }
 
