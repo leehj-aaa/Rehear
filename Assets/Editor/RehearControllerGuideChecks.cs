@@ -101,8 +101,14 @@ internal static class RehearControllerGuideChecks
             foreach (var cue in new[] { Quest3TutorialControllerVisual.Cue.Trigger, Quest3TutorialControllerVisual.Cue.StickHorizontal, Quest3TutorialControllerVisual.Cue.Grip })
             {
                 visual.Show(cue);
-                var highlight = (SkinnedMeshRenderer)Get(visual, "highlight");
-                Check(highlight.sharedMesh && highlight.sharedMesh.triangles.Length > 0, "Nonempty highlighted button");
+                var surface = (SkinnedMeshRenderer)Get(visual, "bodySurface");
+                var originalMesh = prefab.transform.Find("oculus_controller_r_MeshX").GetComponent<SkinnedMeshRenderer>().sharedMesh;
+                Check(surface.sharedMesh.subMeshCount == 4, "Native button material partitions");
+                Check(surface.sharedMesh.vertices.SequenceEqual(originalMesh.vertices), "No displaced overlay vertices");
+                Check(surface.sharedMesh.triangles.Length == originalMesh.triangles.Length, "No added or missing button triangles");
+                Check(overlay.GetComponentsInChildren<SkinnedMeshRenderer>(true).Length == 2, "No duplicate highlight renderer");
+                int part = cue == Quest3TutorialControllerVisual.Cue.Trigger ? 1 : cue == Quest3TutorialControllerVisual.Cue.Grip ? 3 : 2;
+                Check(surface.sharedMaterials[part] == (Material)Get(visual, "runtimeHighlight"), "Only selected original button is emissive");
                 Call(visual, "AnimateCue", .5f);
             }
             // Inactive root deliberately cannot suppress the scene's renderers.
@@ -113,8 +119,11 @@ internal static class RehearControllerGuideChecks
             Check(!original.forceRenderingOff, "Original restored after guide");
             var material = (Material)Get(visual, "runtimeHighlight");
             if (material) UnityEngine.Object.DestroyImmediate(material);
+            var surfaceMesh = (Mesh)Get(visual, "runtimeSurfaceMesh");
+            if (surfaceMesh) UnityEngine.Object.DestroyImmediate(surfaceMesh);
             Set(visual, "visualRoot", null);
             Set(visual, "runtimeHighlight", null);
+            Set(visual, "runtimeSurfaceMesh", null);
         }
         finally
         {

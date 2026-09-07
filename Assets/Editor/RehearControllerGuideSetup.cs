@@ -48,8 +48,9 @@ internal static class RehearControllerGuideSetup
         var highlight = AssetDatabase.LoadAssetAtPath<Material>(highlightPath);
         if (!highlight)
         {
-            highlight = new Material(Shader.Find("Universal Render Pipeline/Unlit")) { name = "Controller Button Blue" };
-            highlight.SetColor("_BaseColor", new Color(0, .2f, 1));
+            highlight = new Material(Shader.Find("Rehear/Controller Button Glow")) { name = "Controller Button Blue" };
+            highlight.SetColor("_BaseColor", new Color(.025f, .10f, .32f));
+            highlight.SetColor("_EmissionColor", new Color(.005f, .20f, 1f) * 1.2f);
             AssetDatabase.CreateAsset(highlight, highlightPath);
         }
         Undo.IncrementCurrentGroup();
