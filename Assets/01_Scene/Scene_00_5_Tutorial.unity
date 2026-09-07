@@ -7160,7 +7160,7 @@ PrefabInstance:
     - target: {fileID: 2622195297580112769, guid: 4e9746c8f83eaff4ba76766ef83f755b, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
-      objectReference: {fileID: 3589333493158463532, guid: bdbde755ea84d984b9f7088d81f74d93, type: 3}
+      objectReference: {fileID: 2100000, guid: 0b6627428ecc2f246ae2d1c9148ce093, type: 2}
     - target: {fileID: 2639881281931860810, guid: 4e9746c8f83eaff4ba76766ef83f755b, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.089
@@ -9930,7 +9930,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -10005,15 +10005,15 @@ MonoBehaviour:
     \uB2E4\uC591\uC131 \uC911 \uBB34\uC5C7\uC774 \uB354 \uC911\uC694\uD558\uB2E4\uACE0
     \uC0DD\uAC01\uD558\uC2DC\uB294\uC9C0 \uD568\uAED8 \uC774\uC57C\uAE30\uD574 \uBCF4\uACA0\uC2B5\uB2C8\uB2E4.\n\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6a8d1b23d6336b2459153896431bfbf0, type: 2}
-  m_sharedMaterial: {fileID: -4119275681059756430, guid: 6a8d1b23d6336b2459153896431bfbf0, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a6ebddd90fc6de34f9ea58539eba780b, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 80087e17a4f13464daf7e317716ef504, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -10026,7 +10026,7 @@ MonoBehaviour:
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
+  m_overrideHtmlColors: 1
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
@@ -10136,15 +10136,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -19648,7 +19648,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831128672}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 

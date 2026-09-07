@@ -31,7 +31,7 @@ internal static class RehearTutorialScriptMountSetup
         var panel = (RectTransform)all.Single(t => t.name == "Panel_Script_New");
         var mesh = counter.GetComponent<MeshFilter>().sharedMesh;
         var materials = counter.GetComponent<MeshRenderer>().sharedMaterials;
-        int index = Array.FindIndex(materials, m => m && m.name == "Screen");
+        int index = Array.FindIndex(materials, m => m && (m.name == "Screen" || m.name == "Script Screen Black"));
         if (index < 0) throw new InvalidOperationException("Podium script surface not found.");
         var triangles = mesh.GetTriangles(index);
         var vertices = mesh.vertices;
