@@ -40,7 +40,12 @@ internal static class RehearGripScenePreview
     static void Stop() { SessionState.SetBool(ActiveKey, false); Cleanup(); }
 
     [MenuItem("Rehear/Tutorial/Preview Paused UI")]
-    static void ShowPausedUI()
+    static void ShowPausedUI() => ShowStepUI(7);
+
+    [MenuItem("Rehear/Tutorial/Preview Completion UI")]
+    static void ShowCompletionUI() => ShowStepUI(8);
+
+    static void ShowStepUI(int step)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode to edit the paused UI.");
         var scene = EditorSceneManager.GetActiveScene();
@@ -54,22 +59,35 @@ internal static class RehearGripScenePreview
         if (view.deskDirectionHints) Undo.RecordObject(view.deskDirectionHints, "Hide navigation");
         if (view.scriptDirectionHints) Undo.RecordObject(view.scriptDirectionHints, "Hide navigation");
         guide.Hide();
-        view.Show(7);
+        view.Show(step);
         Canvas.ForceUpdateCanvases();
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Scene save failed.");
-        Selection.activeGameObject = view.steps[7];
+        Selection.activeGameObject = view.steps[step];
         var camera = all.Select(t => t.GetComponent<Camera>()).Single(c => c && c.CompareTag("MainCamera"));
         if (SceneView.lastActiveSceneView)
-            SceneView.lastActiveSceneView.LookAt(camera.transform.position + camera.transform.forward * 3, camera.transform.rotation, 3);
-        File.WriteAllText("Temp/RehearPausedUIPreview.txt", "PASS\nstep=7 PauseResumePractice\nvisible=" + view.steps[7].activeInHierarchy +
-            "\ncontrollerGuide=false\ntext=" + string.Join(" | ", view.steps[7].GetComponentsInChildren<TMP_Text>().Select(t => t.text)));
+        {
+            var panel = view.steps[step].GetComponentsInChildren<RectTransform>().First(t => t.name.EndsWith("glass"));
+            Vector3 center = panel.TransformPoint(panel.rect.center);
+            float width = panel.rect.width * panel.lossyScale.x;
+            SceneView.lastActiveSceneView.LookAt(center, panel.rotation, width * .7f);
+        }
+        File.WriteAllText(step == 8 ? "Temp/RehearCompletionUIPreview.txt" : "Temp/RehearPausedUIPreview.txt",
+            "PASS\nstep=" + step + "\nvisible=" + view.steps[step].activeInHierarchy +
+            "\ncontrollerGuide=false\ntext=" + string.Join(" | ", view.steps[step].GetComponentsInChildren<TMP_Text>().Select(t => t.text)));
     }
 
     static void Tick()
     {
         const string request = "Temp/RehearGripGuidePreview.request";
         if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode || Lightmapping.isRunning) return;
+        const string completionRequest = "Temp/RehearCompletionUIPreview.request";
+        if (File.Exists(completionRequest))
+        {
+            File.Delete(completionRequest);
+            try { ShowCompletionUI(); }
+            catch (Exception e) { File.WriteAllText("Temp/RehearCompletionUIPreview.txt", "FAIL\n" + e); Debug.LogException(e); }
+        }
         const string designRequest = "Temp/RehearPausedUIDesign.request";
         if (File.Exists(designRequest))
         {

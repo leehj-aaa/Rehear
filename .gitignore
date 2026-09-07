@@ -19,6 +19,9 @@
 *.blend1
 *.blend1.meta
 
+# Oversized source excluded from GitHub; exported Unity models remain tracked.
+/_Blender/CT_08_Generic.blend
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
