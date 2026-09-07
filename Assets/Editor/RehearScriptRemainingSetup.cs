@@ -92,12 +92,13 @@ internal static class RehearScriptRemainingSetup
             EditorSceneManager.MarkSceneDirty(scene);
             if (!EditorSceneManager.SaveScene(scene)) throw new Exception("Save failed.");
             Undo.CollapseUndoOperations(group);
-            File.WriteAllText("Temp/RehearScriptRemaining.txt", "PASS\nlabel=RemainingCount\nfont=Pretendard Medium 24\ncolor=#0033FF\nremaining=3\npanelHeight=255\nlowerPadding=46\nscriptOnlyMaterial=true\nboundarySound=Tutorial_PageBoundary.wav\nsound=mono 22050Hz 0.18s\nsaved=true");
+            File.WriteAllText("Temp/RehearScriptRemaining.txt", "PASS\nlabel=RemainingCount\nfont=Pretendard Medium 24\ncolor=#0033FF\nremaining=3\npanelHeight=255\nlowerPadding=46\nscriptOnlyMaterial=true\nboundarySound=" + sound.name + "\nsaved=true");
         }
         catch { Undo.RevertAllDownToGroup(group); throw; }
     }
     static AudioClip EnsureBoundarySound()
     {
+        if (File.Exists(RehearBoundarySoundSetup.SoundPath)) return RehearBoundarySoundSetup.LoadSound();
         if (!File.Exists(SoundPath))
         {
             const int rate = 22050;
