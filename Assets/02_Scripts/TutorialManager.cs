@@ -75,6 +75,9 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private AudioClip stickInputSound;
     [SerializeField] private AudioClip gripInputSound;
     [SerializeField] private AudioClip stepSuccessSound;
+    [SerializeField] private AudioClip triggerPromptSound;
+    [SerializeField] private AudioClip triggerInputSound;
+    [SerializeField, Range(0f, 1f)] private float triggerPromptVolume = 0.35f;
     [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float successSoundVolume = 0.8f;
 
@@ -346,6 +349,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 break;
 
             case TutorialStep.TriggerPractice:
+                PlayPracticeSound(triggerInputSound);
                 CountTriggerPractice();
                 break;
 
@@ -533,6 +537,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
+        if (practiceAudioSource && triggerPromptSound)
+            practiceAudioSource.PlayOneShot(triggerPromptSound, triggerPromptVolume);
     }
 
     private void ShowSlidePractice()
