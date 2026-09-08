@@ -36,10 +36,10 @@ public class Scene03Manager : MonoBehaviour
     [SerializeField]
     private GameObject sessionEndedPanel;
 
-    // Figma 결과 화면: 등급 글자는 배경 없이 지표 색으로만 표시
-    private static readonly Color EngagementColor = Hex("0033FF");
-    private static readonly Color CredibilityColor = Hex("6C44FF");
-    private static readonly Color ClarityColor = Hex("CFFF5E");
+    // 웹 UI와 동일한 의미 색상: 우수(민트), 보통(앰버), 개선(레드)
+    private static readonly Color ExcellentTextColor = Hex("31C79A");
+    private static readonly Color AverageTextColor = Hex("FFBD21");
+    private static readonly Color ImproveTextColor = Hex("FF4C48");
 
     private void Start()
     {
@@ -108,9 +108,9 @@ public class Scene03Manager : MonoBehaviour
                 overall.ToString();
         }
 
-        ApplyRating(engagementText, engagementBadge, engagement, EngagementColor);
-        ApplyRating(clarityText, clarityBadge, clarity, ClarityColor);
-        ApplyRating(credibilityText, credibilityBadge, credibility, CredibilityColor);
+        ApplyRating(engagementText, engagementBadge, engagement);
+        ApplyRating(clarityText, clarityBadge, clarity);
+        ApplyRating(credibilityText, credibilityBadge, credibility);
 
         Debug.Log(
             "[피드백] AI 리포트 적용 완료" +
@@ -135,15 +135,30 @@ public class Scene03Manager : MonoBehaviour
         return "개선";
     }
 
-    private void ApplyRating(TMP_Text text, Image badge, int score, Color metricColor)
+    private void ApplyRating(TMP_Text text, Image badge, int score)
     {
         if (text == null)
             return;
 
-        text.text = ConvertScoreToLevel(score);
-        text.color = metricColor;
+        string level = ConvertScoreToLevel(score);
+        text.text = level;
+        text.fontWeight = FontWeight.Bold;
 
-        // Figma 디자인에는 등급 배경(네모)이 없으므로 배지 이미지는 숨긴다
+        Color textColor;
+        switch (level)
+        {
+            case "우수":
+                textColor = ExcellentTextColor;
+                break;
+            case "보통":
+                textColor = AverageTextColor;
+                break;
+            default:
+                textColor = ImproveTextColor;
+                break;
+        }
+
+        text.color = textColor;
         if (badge != null)
             badge.enabled = false;
     }
