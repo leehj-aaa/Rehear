@@ -29,6 +29,7 @@ namespace Rehear.Evc.Audio
         public event Action<MicrophonePermissionState> PermissionStateChanged;
 
         public bool IsRecording => recording != null && Microphone.IsRecording(DeviceName);
+        public string LastUtterancePosition { get; private set; } = "during_speech";
         public MicrophonePermissionState PermissionState { get; private set; } = MicrophonePermissionState.Unknown;
         private string DeviceName => string.IsNullOrWhiteSpace(microphoneDevice) ? null : microphoneDevice;
 
@@ -89,6 +90,9 @@ namespace Rehear.Evc.Audio
             if (samples.Length == 0 || CalculateRms(samples) < policy.SilenceRmsThreshold)
                 return null;
 
+            LastUtterancePosition = ClassifyUtterancePosition(samples, recording.channels,
+                recording.frequency, policy.SilenceRmsThreshold);
+
             return new BinaryFileDto
             {
                 bytes = WavEncoder.EncodePcm16(samples, recording.channels, recording.frequency),
@@ -124,6 +128,7 @@ namespace Rehear.Evc.Audio
         {
             if (Microphone.IsRecording(DeviceName))
                 Microphone.End(DeviceName);
+            if (recording != null) Destroy(recording);
             recording = null;
             lastPosition = 0;
         }
@@ -131,18 +136,26 @@ namespace Rehear.Evc.Audio
         private float[] ReadSamples(int startFrame, int frameCount)
         {
             var channels = Math.Max(1, recording.channels);
-            var all = new float[recording.samples * channels];
-            if (!recording.GetData(all, 0))
-                return Array.Empty<float>();
-
             var result = new float[frameCount * channels];
-            for (var frame = 0; frame < frameCount; frame++)
+            // GetData wraps at the ring boundary. Do not copy the entire two-minute
+            // buffer on every segment (large allocations can stall animation frames).
+            return recording.GetData(result, startFrame) ? result : Array.Empty<float>();
+        }
+
+        public static string ClassifyUtterancePosition(float[] samples, int channels, int sampleRate, float silenceThreshold)
+        {
+            if (samples == null || samples.Length == 0 || channels < 1 || sampleRate < 1) return "during_speech";
+            int window = Math.Max(channels, sampleRate / 50 * channels); // 20 ms RMS windows
+            int quietSamples = 0;
+            for (int end = samples.Length; end >= window; end -= window)
             {
-                var sourceFrame = (startFrame + frame) % recording.samples;
-                for (var channel = 0; channel < channels; channel++)
-                    result[frame * channels + channel] = all[sourceFrame * channels + channel];
+                double energy = 0;
+                for (int i = end - window; i < end; i++) energy += samples[i] * samples[i];
+                if (Math.Sqrt(energy / window) >= silenceThreshold) break;
+                quietSamples += window;
+                if (quietSamples >= sampleRate * channels * .6f) return "silence_or_pause";
             }
-            return result;
+            return quietSamples >= sampleRate * channels * .18f ? "utterance_boundary" : "during_speech";
         }
 
         private static float CalculateRms(float[] samples)

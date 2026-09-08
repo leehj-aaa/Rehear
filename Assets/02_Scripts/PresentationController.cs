@@ -501,7 +501,7 @@ public class PresentationController : MonoBehaviour
     try
     {
         await flowController.FlushSegmentAsync(
-            "utterance_boundary",
+            null, // Periodic capture is not necessarily a sentence boundary.
             slideIndex,
             lifetimeCancellation.Token
         );

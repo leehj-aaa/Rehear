@@ -107,7 +107,8 @@ namespace Rehear.Evc.Presentation
                 Audio = audio,
                 ClientTimeSeconds = clock.ElapsedSeconds,
                 SlideIndex = lastSlideIndex,
-                UtterancePosition = utterancePosition,
+                UtterancePosition = string.IsNullOrEmpty(utterancePosition)
+                    ? audioCapture.LastUtterancePosition : utterancePosition,
                 Language = language
             }, cancellationToken);
         }

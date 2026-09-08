@@ -44,6 +44,8 @@ namespace Rehear.Evc.Contracts
         public string row;
         public string seat;
         public bool has_laptop;
+        public float topic_interest;
+        public float prior_knowledge;
     }
 
     [Serializable]

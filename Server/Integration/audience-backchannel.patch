@@ -1,0 +1,190 @@
+diff --git a/sushi-fast/odi/EVC/behavior_engine.py b/sushi-fast/odi/EVC/behavior_engine.py
+index 8e646ae..cb39913 100644
+--- a/sushi-fast/odi/EVC/behavior_engine.py
++++ b/sushi-fast/odi/EVC/behavior_engine.py
+@@ -1,6 +1,6 @@
+ from __future__ import annotations
+ 
+-from dataclasses import dataclass
++from dataclasses import dataclass, replace
+ import math
+ import random
+ 
+@@ -519,7 +519,8 @@ def limit_synchronized_core_choice(
+     selection: SelectionResult,
+     candidates: CandidateSet,
+     variation_counts: dict[str, int],
+-    max_same_variation: int = 3,
++    max_same_variation: int = 2,
++    rng: random.Random | None = None,
+ ) -> SelectionResult:
+     """Keep one core animation from occupying most of the audience at a step.
+ 
+@@ -528,7 +529,10 @@ def limit_synchronized_core_choice(
+     safer than emitting a clip that failed the agent's hard scene gates.
+     """
+     choice = selection.core
+-    if choice is None or variation_counts.get(choice.variation_id, 0) < max_same_variation:
++    unused_alternative = any(clip.variation_id != (choice.variation_id if choice else None)
++                             and variation_counts.get(clip.variation_id, 0) == 0 for clip in candidates.core)
++    if choice is None or (variation_counts.get(choice.variation_id, 0) < max_same_variation
++                          and (variation_counts.get(choice.variation_id, 0) == 0 or not unused_alternative)):
+         if choice is not None:
+             variation_counts[choice.variation_id] = (
+                 variation_counts.get(choice.variation_id, 0) + 1
+@@ -559,7 +563,16 @@ def limit_synchronized_core_choice(
+             diagnostics=diagnostics,
+         )
+ 
+-    probability, clip = max(alternatives, key=lambda item: item[0])
++    # Prefer unused valid candidates before duplicating a peer, without leaving
++    # this actor's state/utterance/seat/cooldown candidate set.
++    least_used = min(variation_counts.get(clip.variation_id, 0) for _, clip in alternatives)
++    alternatives = [(p, clip) for p, clip in alternatives
++                    if variation_counts.get(clip.variation_id, 0) == least_used]
++    total = sum(p for p, _ in alternatives)
++    if rng is not None and total > 0:
++        probability, clip = alternatives[sample_categorical([p / total for p, _ in alternatives], rng)]
++    else:
++        probability, clip = max(alternatives, key=lambda item: item[0])
+     replacement = BehaviorChoice(
+         behavior_id=clip.behavior_id,
+         variation_id=clip.variation_id,
+@@ -579,6 +592,42 @@ def limit_synchronized_core_choice(
+     )
+ 
+ 
++def limit_synchronized_action_choice(
++    selection: SelectionResult,
++    candidates: CandidateSet,
++    variation_counts: dict[str, int],
++    rng: random.Random,
++) -> SelectionResult:
++    """Avoid a row of simultaneous phone checks, stretches or yawns.
++
++    Side conversation is intentionally a pair and retains both directional roles.
++    Only candidates already admitted by the actor's hard gates can replace a choice.
++    """
++    choice = selection.action
++    if choice is None:
++        return selection
++    limit = 2 if choice.behavior_id == "ACT_08" else 1
++    if variation_counts.get(choice.behavior_id, 0) < limit:
++        variation_counts[choice.behavior_id] = variation_counts.get(choice.behavior_id, 0) + 1
++        return selection
++    alternatives = [clip for clip in candidates.actions
++                    if variation_counts.get(clip.behavior_id, 0) == 0
++                    and clip.behavior_id != "ACT_08"]
++    diagnostics = dict(selection.diagnostics)
++    diagnostics["action_synchronization_limit"] = choice.variation_id
++    if not alternatives:
++        return replace(selection, action=None, diagnostics=diagnostics)
++    scores = [float(selection.diagnostics["actions"][clip.variation_id]["score"])
++              for clip in alternatives]
++    probabilities = softmax(scores)
++    index = sample_categorical(probabilities, rng)
++    clip = alternatives[index]
++    variation_counts[clip.behavior_id] = 1
++    return replace(selection, action=BehaviorChoice(
++        behavior_id=clip.behavior_id, variation_id=clip.variation_id,
++        probability=probabilities[index]), diagnostics=diagnostics)
++
++
+ def commit_selection(
+     agent: AudienceRuntimeState,
+     selection: SelectionResult,
+diff --git a/sushi-fast/odi/EVC/pipeline.py b/sushi-fast/odi/EVC/pipeline.py
+index c36d81d..4a02f33 100644
+--- a/sushi-fast/odi/EVC/pipeline.py
++++ b/sushi-fast/odi/EVC/pipeline.py
+@@ -10,6 +10,7 @@ from .behavior_engine import (
+     build_candidate_set,
+     commit_selection,
+     limit_synchronized_core_choice,
++    limit_synchronized_action_choice,
+     select_behaviors,
+     update_engagement_counters,
+ )
+@@ -205,10 +206,15 @@ async def update_pipeline(
+         commands = []
+         diagnostics: dict[str, object] = {}
+         core_variation_counts: dict[str, int] = {}
++        action_variation_counts: dict[str, int] = {}
+         current_slide_text = (
+             record.slides[context.current_slide_index].text if record.slides else ""
+         )
+-        for agent in working_agents:
++        # Rotate who gets first choice so sparse candidate sets do not permanently
++        # suppress the same seats. Keep the persisted audience list in canonical order.
++        offset = record.step % len(working_agents) if working_agents else 0
++        selection_order = working_agents[offset:] + working_agents[:offset]
++        for agent in selection_order:
+             previous_state = agent.state.model_copy()
+             next_state, sensitivity = update_audience_state(
+                 agent,
+@@ -241,7 +247,10 @@ async def update_pipeline(
+                 selection,
+                 candidate_set,
+                 core_variation_counts,
++                rng=working_rngs[agent.agent_id],
+             )
++            selection = limit_synchronized_action_choice(
++                selection, candidate_set, action_variation_counts, working_rngs[agent.agent_id])
+             agent_commands = build_unity_commands(
+                 agent=agent,
+                 core=selection.core,
+@@ -268,6 +277,8 @@ async def update_pipeline(
+             )
+             diagnostics[agent.agent_id] = selection.diagnostics
+ 
++        decision_order = {agent.agent_id: i for i, agent in enumerate(working_agents)}
++        decisions.sort(key=lambda decision: decision_order[decision.agent_id])
+         aggregate = aggregate_state(working_agents)
+         behavior = _legacy_behavior(decisions, commands, catalog)
+         next_step = record.step + 1
+diff --git a/sushi-fast/odi/EVC/tests/test_behavior_selection.py b/sushi-fast/odi/EVC/tests/test_behavior_selection.py
+index d274899..82e5b19 100644
+--- a/sushi-fast/odi/EVC/tests/test_behavior_selection.py
++++ b/sushi-fast/odi/EVC/tests/test_behavior_selection.py
+@@ -7,6 +7,7 @@ from odi.EVC.behavior_engine import (
+     build_candidate_set,
+     commit_selection,
+     limit_synchronized_core_choice,
++    limit_synchronized_action_choice,
+     preference_score,
+     sample_categorical,
+     score_core_candidate,
+@@ -180,3 +181,33 @@ def test_synchronization_limit_replaces_a_saturated_core_choice() -> None:
+     assert diversified.core is not None
+     assert diversified.core.variation_id != selection.core.variation_id
+     assert "synchronization_limit" in diversified.diagnostics
++
++
++def test_unused_valid_core_is_preferred_before_copying_a_peer() -> None:
++    target = agent(AudienceState(E=.8, V=.2, C=.3))
++    candidates = candidate_set(target, SegmentContext(utterance_position="utterance_boundary", client_time_s=10))
++    selection = select_behaviors(target, candidates, random.Random(3))
++    assert selection.core is not None
++    choice = selection.core.variation_id
++    result = limit_synchronized_core_choice(selection, candidates, {choice: 1}, rng=random.Random(9))
++    assert result.core is not None and result.core.variation_id != choice
++    assert result.core.variation_id in {clip.variation_id for clip in candidates.core}
++
++
++def test_same_action_is_not_issued_to_all_six_actors() -> None:
++    target = agent(AudienceState(E=-.8, V=-.8, C=-.8))
++    target.consecutive_low_engagement = 3
++    target.consecutive_low_arousal = 3
++    candidates = candidate_set(target, SegmentContext(utterance_position="silence_or_pause", client_time_s=50))
++    # Repeated identical random draw simulates six agents choosing the same gesture.
++    seed = next(s for s in range(100) if select_behaviors(target, candidates, random.Random(s)).action is not None)
++    selection = select_behaviors(target, candidates, random.Random(seed))
++    counts = {}
++    choices = []
++    for i in range(6):
++        result = limit_synchronized_action_choice(selection, candidates, counts, random.Random(i))
++        if result.action:
++            choices.append(result.action.variation_id)
++            assert result.action.variation_id in {clip.variation_id for clip in candidates.actions}
++    assert len(choices) == len(set(choices))
++    assert all(count <= 1 for count in counts.values())
