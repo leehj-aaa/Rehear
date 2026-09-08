@@ -91,12 +91,28 @@ namespace Rehear.Evc.Contracts
     }
 
     [Serializable]
+    public sealed class EvcStateDto
+    {
+        public float E;
+        public float V;
+        public float C;
+    }
+
+    [Serializable]
+    public sealed class AudienceUpdateDto
+    {
+        public string agent_id;
+        public EvcStateDto state;
+    }
+
+    [Serializable]
     public sealed class EvcUpdateResponse
     {
         public string session_id;
         public string request_id;
         public int step;
         public string status;
+        public AudienceUpdateDto[] audiences;
         public UnityCommandDto[] commands;
     }
 

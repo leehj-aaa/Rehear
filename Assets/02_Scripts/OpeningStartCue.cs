@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>Guides the tracked right trigger only while the opening CTA is waiting for input.</summary>
@@ -16,8 +17,19 @@ public sealed class OpeningStartCue : MonoBehaviour, IPointerEnterHandler, IPoin
     Quest3TutorialControllerVisual.Cue lastCue = Quest3TutorialControllerVisual.Cue.Hidden;
     float resumeAt;
     bool completed, paused, introReady;
+    InputAction anyOpeningButton;
 
-    void Awake() { button = GetComponent<Button>(); groups = GetComponentsInParent<CanvasGroup>(true); }
+    void Awake()
+    {
+        button = GetComponent<Button>();
+        groups = GetComponentsInParent<CanvasGroup>(true);
+
+        anyOpeningButton = new InputAction("Opening Start", InputActionType.Button);
+        anyOpeningButton.AddBinding("<XRController>{RightHand}/triggerPressed");
+        anyOpeningButton.AddBinding("<XRController>{RightHand}/gripPressed");
+        anyOpeningButton.AddBinding("<XRController>{RightHand}/primaryButton");
+        anyOpeningButton.AddBinding("<XRController>{RightHand}/secondaryButton");
+    }
     void OnEnable()
     {
         completed = false;
@@ -26,6 +38,7 @@ public sealed class OpeningStartCue : MonoBehaviour, IPointerEnterHandler, IPoin
         if (!button) button = GetComponent<Button>();
         groups = GetComponentsInParent<CanvasGroup>(true);
         button.onClick.AddListener(Complete);
+        anyOpeningButton?.Enable();
     }
     void Update()
     {
@@ -40,6 +53,15 @@ public sealed class OpeningStartCue : MonoBehaviour, IPointerEnterHandler, IPoin
 #if UNITY_EDITOR
         if (controllerVisual) controllerVisual.RefreshUntrackedEditorPreview();
 #endif
+
+        if (ready && anyOpeningButton != null && anyOpeningButton.WasPressedThisFrame())
+        {
+            // Mark first so the same physical trigger cannot activate the CTA twice
+            // through both this shortcut and the XR UI pointer in one frame.
+            completed = true;
+            SetCue(Quest3TutorialControllerVisual.Cue.Hidden);
+            button.onClick.Invoke();
+        }
     }
     public void SetIntroReady(bool ready)
     {
@@ -63,8 +85,11 @@ public sealed class OpeningStartCue : MonoBehaviour, IPointerEnterHandler, IPoin
     void OnApplicationPause(bool value) { paused = value; if (value) SetCue(Quest3TutorialControllerVisual.Cue.Hidden); }
     void OnDisable()
     {
+        anyOpeningButton?.Disable();
         if (button) button.onClick.RemoveListener(Complete);
         hovering.Clear(); pressing.Clear();
         SetCue(Quest3TutorialControllerVisual.Cue.Hidden);
     }
+
+    void OnDestroy() { anyOpeningButton?.Dispose(); }
 }

@@ -24,6 +24,11 @@ namespace Rehear.Evc.Update
         void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands);
     }
 
+    public interface IAudienceStateSink
+    {
+        void HandleAudienceStates(IReadOnlyList<AudienceUpdateDto> audiences);
+    }
+
     public sealed class EvcUpdateService : IDisposable
     {
         private readonly object gate = new object();
@@ -231,6 +236,8 @@ namespace Rehear.Evc.Update
                         "\nStep: " + response.step +
                         "\n명령 개수: " + commandCount
                     );
+                    if (commandSink is IAudienceStateSink stateSink)
+                        stateSink.HandleAudienceStates(response.audiences ?? Array.Empty<AudienceUpdateDto>());
                     commandSink?.HandleCommands(requestId, response.commands ?? Array.Empty<UnityCommandDto>());
                     succeeded = true;
                     return response;

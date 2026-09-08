@@ -1,7 +1,8 @@
 ﻿using System.Collections;
+using Rehear.Evc.Audience;
 using UnityEngine;
 
-public class AudienceGazeController : MonoBehaviour
+public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
 {
     public void ConfigureTargets(Transform presenter, Transform slide, Transform[] around)
     {
@@ -115,6 +116,10 @@ public class AudienceGazeController : MonoBehaviour
     private float serverOverrideEndTime;
     private GazeState serverOverrideState;
     private Transform serverOverrideTarget;
+
+    private float evaluatedPresenterProbability = -1f;
+    private float evaluatedSlideProbability = -1f;
+    private float evaluatedAroundProbability = -1f;
 
     private void Awake()
     {
@@ -270,10 +275,20 @@ public class AudienceGazeController : MonoBehaviour
 
     private void SelectNextRuleState()
     {
+        float activePresenterProbability = evaluatedPresenterProbability >= 0f
+            ? evaluatedPresenterProbability
+            : presenterProbability;
+        float activeSlideProbability = evaluatedSlideProbability >= 0f
+            ? evaluatedSlideProbability
+            : slideProbability;
+        float activeAroundProbability = evaluatedAroundProbability >= 0f
+            ? evaluatedAroundProbability
+            : aroundProbability;
+
         float totalProbability =
-            presenterProbability +
-            slideProbability +
-            aroundProbability;
+            activePresenterProbability +
+            activeSlideProbability +
+            activeAroundProbability;
 
         if (totalProbability <= 0f)
         {
@@ -292,7 +307,7 @@ public class AudienceGazeController : MonoBehaviour
             );
 
         if (randomValue <
-            presenterProbability)
+            activePresenterProbability)
         {
             SetState(
                 GazeState.Presenter,
@@ -301,8 +316,8 @@ public class AudienceGazeController : MonoBehaviour
         }
         else if (
             randomValue <
-            presenterProbability +
-            slideProbability)
+            activePresenterProbability +
+            activeSlideProbability)
         {
             SetState(
                 GazeState.Slide,
@@ -329,6 +344,35 @@ public class AudienceGazeController : MonoBehaviour
                 );
             }
         }
+    }
+
+    public void ApplyEvaluationState(float engagement, float clarity)
+    {
+        // E/C are supplied by the server on a 0..1 scale. Their mean controls
+        // sustained attention: high values favour the presenter, while low
+        // values favour the non-presenter points around the room.
+        float attention = Mathf.Clamp01((engagement + clarity) * 0.5f);
+        evaluatedPresenterProbability = Mathf.Lerp(0.20f, 0.85f, attention);
+        evaluatedSlideProbability = Mathf.Lerp(0.15f, 0.10f, attention);
+        evaluatedAroundProbability = Mathf.Max(
+            0f,
+            1f - evaluatedPresenterProbability - evaluatedSlideProbability
+        );
+
+        if (printStateLog)
+        {
+            Debug.Log(
+                "[청중 시선 E/C 반영] " + gameObject.name +
+                "\nE: " + engagement.ToString("F3") +
+                "\nC: " + clarity.ToString("F3") +
+                "\n발표자 응시 확률: " + evaluatedPresenterProbability.ToString("P0")
+            );
+        }
+    }
+
+    public void ApplyAudienceState(float engagement, float clarity)
+    {
+        ApplyEvaluationState(engagement, clarity);
     }
 
     private void SetState(

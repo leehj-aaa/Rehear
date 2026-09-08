@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Rehear.Evc.Audience
 {
-    public sealed class AudienceReactionCoordinator : MonoBehaviour, IAudienceCommandSink
+    public sealed class AudienceReactionCoordinator : MonoBehaviour, IAudienceCommandSink, IAudienceStateSink
     {
         [SerializeField] private AudienceAgent[] agents = Array.Empty<AudienceAgent>();
         [SerializeField, Min(1f)] private float dedupeTtlSeconds = 120f;
@@ -53,6 +53,25 @@ namespace Rehear.Evc.Audience
             serverMode = enabled;
             for (var index = 0; index < agents.Length; index++)
                 agents[index]?.SetServerMode(enabled);
+        }
+
+        public void HandleAudienceStates(IReadOnlyList<AudienceUpdateDto> audiences)
+        {
+            if (!serverMode || audiences == null)
+                return;
+
+            for (var index = 0; index < audiences.Count; index++)
+            {
+                var audience = audiences[index];
+                if (audience == null || audience.state == null ||
+                    string.IsNullOrWhiteSpace(audience.agent_id) ||
+                    !agentLookup.TryGetValue(audience.agent_id, out var agent))
+                {
+                    continue;
+                }
+
+                agent.ApplyAudienceState(audience.state.E, audience.state.C);
+            }
         }
 
         public void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands)
