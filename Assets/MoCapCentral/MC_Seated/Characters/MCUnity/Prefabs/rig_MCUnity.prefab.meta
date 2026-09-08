@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 89d6958e482782c47ab2191af57a74d7
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 289895
+  packageName: MC Seated - Believable 3D Animations by MoCap Central
+  packageVersion: 1.1.1
+  assetPath: Assets/MoCapCentral/MC_Seated/Characters/MCUnity/Prefabs/rig_MCUnity.prefab
+  uploadId: 896754

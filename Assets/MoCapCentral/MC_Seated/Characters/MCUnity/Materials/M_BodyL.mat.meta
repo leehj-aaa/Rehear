@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 805032d62f9943f439ed17a6a345ccb6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 289895
+  packageName: MC Seated - Believable 3D Animations by MoCap Central
+  packageVersion: 1.1.1
+  assetPath: Assets/MoCapCentral/MC_Seated/Characters/MCUnity/Materials/M_BodyL.mat
+  uploadId: 896754
