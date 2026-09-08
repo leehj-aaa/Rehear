@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Glass 537x498
+  m_Name: Ready Expertise
   m_Shader: {fileID: 4800000, guid: 7e51ff2476113d14382f87a4d171d767, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -37,24 +37,25 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BorderWidth: 2
+    - _BorderWidth: 0
     - _ColorMask: 15
     - _FillAlphaOffset: 0
-    - _GlassTint: 0.3
-    - _Radius: 48
+    - _GlassTint: 0.45
+    - _Radius: 40
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
     - _TopGlowStrength: 0
-    - _UseBlur: 1
+    - _UseBlur: 0
     - _UseFigmaGlow: 0
     - _UseUIAlphaClip: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CropRegion: {r: 0, g: 0, b: 1, a: 1}
-    - _PanelSize: {r: 537, g: 498, b: 0, a: 0}
+    - _FigmaDesignSize: {r: 804, g: 577, b: 0, a: 0}
+    - _PanelSize: {r: 362, g: 56, b: 0, a: 0}
     - _TopGlowColor: {r: 0.25999996, g: 0.41999996, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

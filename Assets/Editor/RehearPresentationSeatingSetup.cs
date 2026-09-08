@@ -253,7 +253,7 @@ internal static class RehearPresentationSeatingSetup
             }
         var layout=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<AudienceSeating>(true)).Single();
         for(int i=0;i<layout.seats.Length;i++) {
-            var prefab=layout.audiencePrefabs[i]; var instance=Object.Instantiate(prefab); instance.SetActive(true);
+            var prefab=layout.audiencePrefabs[i]; var instance=UnityEngine.Object.Instantiate(prefab); instance.SetActive(true);
             try {
                 var pose=instance.GetComponent<AudienceSeatedPose>(); var rotation=layout.seats[i].transform.rotation*(pose ? pose.facingCorrection : Quaternion.identity);
                 var position=layout.seats[i].transform.position;
@@ -261,7 +261,7 @@ internal static class RehearPresentationSeatingSetup
                 instance.transform.SetPositionAndRotation(position,rotation);
                 var rs=instance.GetComponentsInChildren<Renderer>(true); var b=rs[0].bounds; foreach(var r in rs.Skip(1)) b.Encapsulate(r.bounds);
                 report.AppendLine($"AUDIENCE seat={layout.seats[i].SeatId} minY={b.min.y} maxY={b.max.y} anchorY={layout.seats[i].transform.position.y} prefab={prefab.name}");
-            } finally { Object.DestroyImmediate(instance); }
+            } finally { UnityEngine.Object.DestroyImmediate(instance); }
         }
         File.WriteAllText("Temp/RehearGroundAudit.txt",report.ToString());
     }

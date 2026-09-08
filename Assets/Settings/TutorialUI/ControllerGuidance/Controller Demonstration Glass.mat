@@ -27,6 +27,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FigmaGlowTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -35,6 +39,7 @@ Material:
     m_Floats:
     - _BorderWidth: 2
     - _ColorMask: 15
+    - _FillAlphaOffset: 0
     - _GlassTint: 0.16
     - _Radius: 48
     - _Stencil: 0
@@ -42,11 +47,14 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _TopGlowStrength: 0
     - _UseBlur: 1
+    - _UseFigmaGlow: 0
     - _UseUIAlphaClip: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CropRegion: {r: 0, g: 0, b: 1, a: 1}
     - _PanelSize: {r: 804, g: 310, b: 0, a: 0}
+    - _TopGlowColor: {r: 0.25999996, g: 0.41999996, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

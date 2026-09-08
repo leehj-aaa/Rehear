@@ -21,9 +21,19 @@ internal static class RehearSessionReadySetup
     static RehearSessionReadySetup() => EditorApplication.update += Poll;
     static void Poll()
     {
+        if (AssetDatabase.IsAssetImportWorkerProcess()) return;
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating) return;
         if(EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying) return;
-        var command = File.ReadAllText(Request).Trim();
+        string command;
+        try
+        {
+            command = File.ReadAllText(Request).Trim();
+        }
+        catch (IOException)
+        {
+            // Another editor update callback may be handling the request.
+            return;
+        }
         if (command == "verify" && EditorApplication.isPlaying)
         {
             var pendingView = Object.FindFirstObjectByType<PresentationSessionReady>();
@@ -33,7 +43,8 @@ internal static class RehearSessionReadySetup
         // The replace command intentionally owns the Scene_02 save. It must be
         // allowed to run when the previous temporary panel left the scene dirty.
         if (!EditorApplication.isPlaying && EditorSceneManager.GetActiveScene().isDirty && command != "replace") return;
-        File.Delete(Request);
+        try { File.Delete(Request); }
+        catch (IOException) { return; }
         try { if(command == "apply") Build(); else if(command == "verify") Verify(); else if(command=="camera") CameraSetup(); else if(command=="dump-source") DumpSource(); else if(command=="replace") ReplaceWithAuthoredPanel(); }
         catch(Exception e) { File.WriteAllText(Report,e.ToString()); Debug.LogException(e); }
     }
@@ -170,7 +181,10 @@ internal static class RehearSessionReadySetup
     static void ReplaceWithAuthoredPanel()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode first");
-        var scene=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_02_Presentation.unity",OpenSceneMode.Single);
+        const string presentationScenePath="Assets/01_Scene/Scene_02_Presentation.unity";
+        var scene=EditorSceneManager.GetActiveScene();
+        if(scene.path!=presentationScenePath)
+            scene=EditorSceneManager.OpenScene(presentationScenePath,OpenSceneMode.Single);
         try {
             var source=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_01_Intro.unity",OpenSceneMode.Additive);
             var authored=source.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true)).Single(t=>t.name=="Panel_SessionReady");
@@ -191,6 +205,11 @@ internal static class RehearSessionReadySetup
             foreach(var t in clone.GetComponentsInChildren<Transform>(true)) t.gameObject.layer=LayerMask.NameToLayer("UI");
             var view=clone.AddComponent<PresentationSessionReady>();
             view.controller=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<PresentationController>(true)).Single();
+            // Keep the editor preview focused on the session confirmation panel.
+            // The question banner and Q&A action are enabled later by the presentation flow.
+            if (view.controller.qaButton) view.controller.qaButton.gameObject.SetActive(false);
+            var questionText=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<QuestionAnswerManager>(true)).FirstOrDefault()?.questionText;
+            if (questionText) questionText.gameObject.SetActive(false);
             // Bind the existing authored fields. The presentation panel must display the
             // same server-backed values as the intro panel instead of a parallel UI model.
             view.sessionType=FindValue(clone,"Panel_Settings_1/Image_Mode/Text_SessionType_Selected");
@@ -214,6 +233,7 @@ internal static class RehearSessionReadySetup
             view.presentationTitle=titleObject.GetComponent<TextMeshProUGUI>();
             var referenceFont=clone.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault(t=>t.font);
             view.presentationTitle.font=referenceFont ? referenceFont.font : AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/07_Fonts/PretendardTMP/Pretendard-Bold SDF.asset");
+            view.presentationTitle.text="발표 제목";
             view.presentationTitle.fontSize=22; view.presentationTitle.fontStyle=FontStyles.Bold; view.presentationTitle.color=new Color32(3,8,18,255);
             view.presentationTitle.alignment=TextAlignmentOptions.Center; view.presentationTitle.enableAutoSizing=true; view.presentationTitle.fontSizeMin=14; view.presentationTitle.fontSizeMax=22; view.presentationTitle.raycastTarget=false;
 
@@ -226,6 +246,8 @@ internal static class RehearSessionReadySetup
             clone.SetActive(true);
             EditorSceneManager.CloseScene(source,true);
             EditorSceneManager.MarkSceneDirty(scene); AssetDatabase.SaveAssets(); EditorSceneManager.SaveScene(scene);
+            Selection.activeGameObject=clone;
+            if(SceneView.lastActiveSceneView) SceneView.lastActiveSceneView.FrameSelected();
             File.WriteAllText("Temp/RehearSessionReady.txt","PASS reused authored Panel_SessionReady from Scene_01_Intro; no new visual hierarchy created.\n");
         } finally {
             if(SceneManager.sceneCount>1) {

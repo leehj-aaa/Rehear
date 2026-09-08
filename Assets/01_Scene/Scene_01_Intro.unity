@@ -2740,6 +2740,8 @@ MonoBehaviour:
   panel_PinInput: {fileID: 956942702}
   panel_SessionReady: {fileID: 1683167912}
   errorText: {fileID: 109783275}
+  continueToTutorial: 0
+  panel_Loading: {fileID: 0}
   sessionTypeValueText: {fileID: 1654437633}
   durationValueText: {fileID: 307292284}
   qaCountValueText: {fileID: 602637841}
@@ -2782,6 +2784,11 @@ MonoBehaviour:
   engagementText: {fileID: 0}
   clarityText: {fileID: 0}
   credibilityText: {fileID: 0}
+  engagementBadge: {fileID: 0}
+  clarityBadge: {fileID: 0}
+  credibilityBadge: {fileID: 0}
+  resultObjects: []
+  sessionEndedPanel: {fileID: 0}
 --- !u!1 &366444729
 GameObject:
   m_ObjectHideFlags: 0
@@ -6338,7 +6345,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: _Props
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3116167006237951314, guid: 4e9746c8f83eaff4ba76766ef83f755b, type: 3}
     m_RemovedGameObjects:
     - {fileID: 3808136785930274022, guid: 4e9746c8f83eaff4ba76766ef83f755b, type: 3}
     m_AddedGameObjects: []

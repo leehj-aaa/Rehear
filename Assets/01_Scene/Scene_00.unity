@@ -1518,8 +1518,8 @@ MonoBehaviour:
     \uD658\uACBD \uC870\uC131\uC744 \uC704\uD574 \uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uB294
     \uC911\uC785\uB2C8\uB2E4."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ab5bc002053846e4287dbc7ee25d71ad, type: 2}
-  m_sharedMaterial: {fileID: 750461761551676504, guid: ab5bc002053846e4287dbc7ee25d71ad, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 512a0ba5ef50a80499e880a381d1a66e, type: 2}
+  m_sharedMaterial: {fileID: -7305668305997476381, guid: 512a0ba5ef50a80499e880a381d1a66e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
