@@ -115,3 +115,8 @@ InitTestScene*.unity*
 .DS_Store
 /Assets/Resources/DS_Store
 /Assets/Resources/DS_Store.meta
+
+# Blender working files (scenes for editing animation clips) - never commit
+*.blend
+*.blend.meta
+/_Blender/
