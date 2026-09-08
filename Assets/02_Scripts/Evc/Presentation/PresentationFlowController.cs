@@ -192,6 +192,8 @@ namespace Rehear.Evc.Presentation
                     count,
                     true,
                     cancellationToken);
+                if (Questions == null || Questions.Count != count)
+                    throw new InvalidOperationException("웹에서 설정한 Q&A 개수와 받은 질문 개수가 다릅니다. 다시 시도해주세요.");
                 clock.Stop();
                 SetState(PresentationFlowState.QuestionsReady, string.Empty);
                 return Questions;

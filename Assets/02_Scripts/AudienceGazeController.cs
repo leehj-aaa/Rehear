@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class AudienceGazeController : MonoBehaviour
@@ -172,6 +172,9 @@ public class AudienceGazeController : MonoBehaviour
             hasServerOverride
                 ? serverOverrideTarget
                 : currentTarget;
+        var body=GetComponent<AudienceAnimationPlayer>();
+        if(body && body.TypingLookTarget) target=body.TypingLookTarget;
+        if(body && body.IsQuestionTurn && presenterTarget) target=presenterTarget;
 
         if (target == null)
             return;
@@ -236,7 +239,7 @@ public class AudienceGazeController : MonoBehaviour
             Quaternion.Slerp(
                 animatedHeadRotation,
                 limitedHeadRotation,
-                gazeWeight
+                gazeWeight * (body ? 1f - body.ConversationWeight : 1f)
             );
     }
 

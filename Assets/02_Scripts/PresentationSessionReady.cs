@@ -1,5 +1,6 @@
 using Rehear.Evc.Presentation;
 using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,19 +13,35 @@ public sealed class PresentationSessionReady : MonoBehaviour
     public TMP_Text presentationTitle;
     public TMP_Text sessionType, duration, questionCount, audienceCount, environment, expertise, interest;
     public Button continueButton, returnButton;
+    public Vector3 cameraLocalPosition = new Vector3(0f, 0f, 1.7f);
+    public Vector3 cameraLocalEuler;
     bool leaving;
     public bool IsOpen => gameObject.activeInHierarchy && RuntimeSessionData.IsLoaded && RuntimeSessionData.Session != null;
 
-    void Start()
+    IEnumerator Start()
     {
         if (!RuntimeSessionData.IsLoaded || RuntimeSessionData.Session == null)
         {
             gameObject.SetActive(false);
-            return;
+            yield break;
         }
 
         Populate();
+        AlignToViewer();
         if (continueButton) continueButton.interactable = true;
+        // Give the XR origin its first tracked pose before final placement.
+        yield return null;
+        AlignToViewer();
+    }
+
+    void AlignToViewer()
+    {
+        var camera = Camera.main;
+        if (!camera) return;
+        var heading = Quaternion.Euler(0f, camera.transform.eulerAngles.y, 0f);
+        transform.SetPositionAndRotation(
+            camera.transform.position + heading * cameraLocalPosition,
+            heading * Quaternion.Euler(cameraLocalEuler));
     }
 
     public void Populate()

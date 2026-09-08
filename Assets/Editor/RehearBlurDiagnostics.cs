@@ -21,11 +21,13 @@ internal static class RehearBlurDiagnostics
     static RehearBlurDiagnostics() { EditorApplication.update += Poll; }
     static void Poll()
     {
+        if (AssetDatabase.IsAssetImportWorkerProcess()) return;
         if (EditorApplication.timeSinceStartup < next) return;
         next = EditorApplication.timeSinceStartup + 1;
         if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating) return;
-        string command = File.ReadAllText(Request).Trim();
-        File.Delete(Request);
+        string command;
+        try { command = File.ReadAllText(Request).Trim(); File.Delete(Request); }
+        catch (IOException) { return; }
         try { if (command == "tune") Tune(); else if (command == "show-script") ShowScript(); else Inspect(); }
         catch (Exception e) { File.WriteAllText("Temp/RehearBlurDiagnostics.txt", e.ToString()); }
     }

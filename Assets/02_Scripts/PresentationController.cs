@@ -158,6 +158,12 @@ public class PresentationController : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
+        // The podium end button continues into Q&A; retire the old wall button.
+        if (endPresentationButton)
+        {
+            if (qaButton && qaButton != endPresentationButton) qaButton.gameObject.SetActive(false);
+            qaButton = endPresentationButton;
+        }
         qaManager?.Prepare(qaButton);
 
         if (qaButton != null)
@@ -180,8 +186,14 @@ public class PresentationController : MonoBehaviour
         }
         if (endPresentationButton)
         {
-            endPresentationButton.gameObject.SetActive(hasStarted && !hasEnded);
-            endPresentationButton.interactable = !isStarting && !isPaused;
+            endPresentationButton.gameObject.SetActive(hasStarted && (!hasEnded || qaButton == endPresentationButton));
+            // Q&A owns the enabled state during speech and the answer click lock.
+            if (!hasEnded)
+            {
+                endPresentationButton.interactable = !isStarting && !isPaused;
+                var label = endPresentationButton.GetComponentInChildren<TMP_Text>(true);
+                if (label) label.text = "발표 끝내기";
+            }
         }
     }
 
@@ -256,13 +268,26 @@ public class PresentationController : MonoBehaviour
 
     public async void EndPresentation()
     {
-        if (!hasStarted || hasEnded || isStarting || isPaused) return;
+        if (!hasStarted || isStarting || isPaused) return;
+        if (hasEnded)
+        {
+            OnActionButtonClick();
+            return;
+        }
+        isStarting = true;
         hasEnded = true;
         isRunning = false;
         isPaused = false;
+        SetScriptPanelVisible(false);
         StopTimerAudio();
         if (pausePanel) pausePanel.SetActive(false);
         RefreshSessionButtons();
+        if (qaButton)
+        {
+            qaButton.interactable = false;
+            var label = qaButton.GetComponentInChildren<TMP_Text>(true);
+            if (label) label.text = "발표 종료 중…";
+        }
         try
         {
             if (flowController != null)
@@ -271,6 +296,7 @@ public class PresentationController : MonoBehaviour
         }
         catch (OperationCanceledException) { return; }
         catch (Exception exception) { Debug.LogWarning("발표 종료 처리: " + exception.Message); }
+        finally { isStarting = false; }
         if (!this) return;
         if (qaButton) qaButton.gameObject.SetActive(true);
         if (RuntimeSessionData.QaCount <= 0)
@@ -286,7 +312,7 @@ public class PresentationController : MonoBehaviour
 
     public async void OnActionButtonClick()
     {
-        if (!hasStarted || isPaused) return;
+        if (!hasStarted || isPaused || isStarting) return;
         if (isGeneratingQuestions)
             return;
         hasEnded = true;
@@ -673,9 +699,9 @@ public class PresentationController : MonoBehaviour
     public void StartQA()
     {
         StopTimerAudio();
+        SetScriptPanelVisible(false);
         qaManager?.StartQAPhase(qaButton);
         UpdateTimerDisplay();
-        SetScriptPanelVisible(true);
     }
 
     public void CloseScriptPanel()

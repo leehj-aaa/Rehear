@@ -1,0 +1,24 @@
+services:
+  speech:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8091:8091"
+    environment:
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY:?Set Azure key in server environment}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-koreacentral}
+      AZURE_STT_MODE: ${AZURE_STT_MODE:-continuous}
+      AZURE_SPEECH_ENDPOINT: ${AZURE_SPEECH_ENDPOINT:-}
+      EVC_BASE_URL: ${EVC_BASE_URL:-https://rehear.chobab.app/odi/xreal_rehear/evc}
+      SPEECH_DATA_DIR: /data
+    volumes:
+      - answers:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+volumes:
+  answers:
