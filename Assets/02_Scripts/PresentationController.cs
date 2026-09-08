@@ -205,6 +205,7 @@ public class PresentationController : MonoBehaviour
         if (flowController == null)
         {
             hasStarted = isRunning = true;
+            SetScriptPanelVisible(true);
             isStarting = false;
             RefreshSessionButtons();
             return;
@@ -225,6 +226,7 @@ public class PresentationController : MonoBehaviour
             if (isRunning)
             {
                 hasStarted = true;
+                SetScriptPanelVisible(true);
                 nextEvcSegmentTime =
                     Time.unscaledTime +
                     evcSegmentIntervalSeconds;
@@ -562,17 +564,8 @@ public class PresentationController : MonoBehaviour
         if (qaButton != null)
             qaButton.gameObject.SetActive(true);
 
-        if (RuntimeSessionData.QaCount <= 0)
-        {
-            isRunning = false;
-            isQAPhaseStarted = true;
-            flowController?.PrepareFinishWithoutQuestions();
-            qaManager?.PrepareFinishWithoutQuestions(qaButton);
-
-            Debug.Log(
-                "[Q&A] 설정된 질문이 없어 발표 종료 버튼으로 전환합니다."
-            );
-        }
+        // Reaching the planned duration starts overtime. Only the explicit end
+        // action stops recording and selects Q&A or feedback, including zero Q&A.
     }
 
     public void TogglePause()

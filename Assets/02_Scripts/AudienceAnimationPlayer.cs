@@ -28,6 +28,9 @@ public class AudienceAnimationPlayer : MonoBehaviour
     private PlayableGraph playableGraph;
     private AnimationMixerPlayable mixer;
     private Voice target;
+    // Keep the evaluated listening pose alive underneath temporary actions.
+    private Voice core;
+    private float coreWeight = 1f;
     private float idleFrom, targetWeight, transitionElapsed, transitionDuration, remaining;
     private bool transitioning;
     private AnimationClip pendingTypingClip;
@@ -152,7 +155,11 @@ public class AudienceAnimationPlayer : MonoBehaviour
     private void PlayClip(string variationId, AnimationClip clip, float requestedDuration, float intensity)
     {
         // Repeated evaluations of the same gesture update its strength/time without rewinding it.
-        var next = voices.Find(v => v.variation == variationId && v.clip == clip);
+        // A completed one-shot needs a NEW input to crossfade into, never a time reset
+        // on an input which is still contributing to the visible pose.
+        bool isCore = !variationId.StartsWith("ACT_", System.StringComparison.Ordinal) && variationId != QuestionGesture;
+        var next = voices.Find(v => v.variation == variationId && v.clip == clip &&
+            (clip.isLooping || v.playable.GetTime() < clip.length - .01f));
         if (next == null)
         {
             int port = 1;
@@ -167,8 +174,12 @@ public class AudienceAnimationPlayer : MonoBehaviour
             next = new Voice { playable = playable, clip = clip, variation = variationId, port = port };
             voices.Add(next);
         }
-        remaining = Mathf.Max(.2f, requestedDuration);
-        BeginTransition(next, Mathf.Lerp(.7f, 1, Mathf.Clamp01(intensity)));
+        float weight = Mathf.Clamp01(intensity);
+        if (isCore) { core = next; coreWeight = weight; }
+        remaining = isCore ? float.PositiveInfinity : Mathf.Max(.2f, requestedDuration);
+        // Same target refreshes must not restart the easing curve every evaluation.
+        if (target != next || !Mathf.Approximately(targetWeight, weight))
+            BeginTransition(next, weight);
         if (printAnimationLog) Debug.Log($"[청중 전환] {name}: {variationId}, 요청 {remaining:F1}s, 블렌드 {transitionDuration:F1}s", this);
     }
 
@@ -188,6 +199,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
     public void StopAction()
     {
         pendingTypingClip=null;
+        core = null;
         if (mixer.IsValid()) BeginTransition(null, 0);
         else SetPhotoPhoneVisible(false);
     }
@@ -205,6 +217,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
         // One-shot clips hold their final pose rather than wrapping while fading out.
         foreach (var voice in voices)
         {
+            if (voice.clip.isLooping) continue;
             double end = Mathf.Max(0, voice.clip.length - .001f);
             if (voice.playable.GetTime() + delta >= end)
             {
@@ -217,16 +230,18 @@ public class AudienceAnimationPlayer : MonoBehaviour
             transitionElapsed += delta;
             float t = Mathf.Clamp01(transitionElapsed / transitionDuration);
             t = t * t * (3 - 2 * t);
-            mixer.SetInputWeight(0, Mathf.Lerp(idleFrom, 1 - targetWeight, t));
+            float backgroundWeight = core != null && target != core ? (1 - targetWeight) * coreWeight : 0;
+            mixer.SetInputWeight(0, Mathf.Lerp(idleFrom, 1 - targetWeight - backgroundWeight, t));
             foreach (var voice in voices)
-                mixer.SetInputWeight(voice.port, Mathf.Lerp(voice.from, voice == target ? targetWeight : 0, t));
+                mixer.SetInputWeight(voice.port, Mathf.Lerp(voice.from,
+                    voice == target ? targetWeight : voice == core ? backgroundWeight : 0, t));
             if (transitionElapsed >= transitionDuration)
             {
                 transitioning = false;
                 for (int i = voices.Count - 1; i >= 0; i--)
                 {
                     var voice = voices[i];
-                    if (voice == target) continue;
+                    if (voice == target || voice == core) continue;
                     playableGraph.Disconnect(mixer, voice.port);
                     voice.playable.Destroy();
                     voices.RemoveAt(i);
@@ -236,7 +251,11 @@ public class AudienceAnimationPlayer : MonoBehaviour
         if (target != null)
         {
             remaining -= delta;
-            if (remaining <= 0) BeginTransition(null, 0);
+            if (remaining <= 0)
+            {
+                remaining = float.PositiveInfinity;
+                BeginTransition(core, core != null ? coreWeight : 0);
+            }
         }
         float photoWeight = 0, deviceWeight = 0;
         foreach (var voice in voices)
@@ -294,7 +313,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
     {
         SetPhotoPhoneVisible(false);
         if (playableGraph.IsValid()) playableGraph.Destroy();
-        voices.Clear(); target = null; transitioning = false;
+        voices.Clear(); target = core = null; transitioning = false;
         pendingTypingClip=null; ownsSeatFacing=false;
         questionTurn = questionPaused = false;
     }

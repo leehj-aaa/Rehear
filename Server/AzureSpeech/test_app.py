@@ -92,7 +92,7 @@ class SpeechGatewayTests(unittest.TestCase):
             self.assertTrue(response.content.startswith(b"RIFF"))
             tts.assert_awaited_once_with("연구의 한계는?", "ko-KR-InJoonNeural")
 
-    def test_six_prefab_voices_and_invalid_voice(self):
+    def test_supported_prefab_voices_and_invalid_voice(self):
         with patch.object(speech, "synthesize", new=AsyncMock(return_value=wav())) as tts:
             for voice in speech.VOICES:
                 headers = {**self.headers, "X-Speech-Voice": voice}
@@ -100,14 +100,15 @@ class SpeechGatewayTests(unittest.TestCase):
                 self.assertEqual(tts.call_args.args[1], voice)
             headers = {**self.headers, "X-Speech-Voice": "unknown-voice"}
             self.assertEqual(self.client.post("/sessions/test-session/questions/0/speech", headers=headers).status_code, 422)
-            self.assertEqual(tts.await_count, 6)
+            self.assertEqual(tts.await_count, len(speech.VOICES))
 
 
 class AzureWireTests(unittest.IsolatedAsyncioTestCase):
     async def test_tts_escapes_text_and_returns_lipsync_wav(self):
         with patch.dict(os.environ, {"AZURE_SPEECH_REGION": "koreacentral", "AZURE_SPEECH_KEY": "test-key"}):
             with patch.object(speech, "checked_request", new=AsyncMock(return_value=httpx.Response(200, content=wav()))) as send:
-                await speech.synthesize('A < B & C', 'ko-KR-JiMinNeural')
+                await speech.synthesize('A < B & C', 'ko-KR-SoonBokNeural')
+                self.assertIn('ko-KR-SoonBokNeural', send.call_args.kwargs['content'].decode())
                 self.assertEqual(send.call_args.args[1], 'https://koreacentral.tts.speech.microsoft.com/cognitiveservices/v1')
                 self.assertIn('A &lt; B &amp; C', send.call_args.kwargs['content'].decode())
                 self.assertEqual(send.call_args.kwargs['headers']['X-Microsoft-OutputFormat'], 'riff-24khz-16bit-mono-pcm')

@@ -115,7 +115,7 @@ internal static class RehearAzureSpeechSetup
             }
         }
         AudienceAnimationCatalogBuilder.RebuildCatalog();
-        foreach (var entry in new[]{("Aud_M_01",0),("Aud_M_02",1),("Aud_M_03",2),("Aud_W_01",3),("Aud_W_02",4),("Aud_W_03",5)})
+        foreach (var entry in new[]{("Aud_M_01",0),("Aud_M_02",1),("Aud_M_03",2),("Aud_W_01",3),("Aud_W_02",6),("Aud_W_03",7)})
         {
             var path = "Assets/03_Prefabs/Audience/Presentation/" + entry.Item1 + ".prefab";
             var prefab = PrefabUtility.LoadPrefabContents(path);

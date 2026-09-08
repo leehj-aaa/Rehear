@@ -90,8 +90,23 @@ public class QuestionAnswerManager : MonoBehaviour
 
     public bool IsQAPhaseActive { get; private set; }
 
+    private void Awake() => HideLegacyQuestionDisplay();
+
+    private void HideLegacyQuestionDisplay()
+    {
+        // Question content remains in questionContents for speech and answer context.
+        // Older scenes may still reference the retired transcript panel.
+        if (questionText)
+        {
+            questionText.text = string.Empty;
+            questionText.gameObject.SetActive(false);
+        }
+        if (qaPanel) qaPanel.SetActive(false);
+    }
+
     public void Prepare(Button button)
     {
+        HideLegacyQuestionDisplay();
         IsQAPhaseActive = false;
         if (actionButton != button && questionProgressText != null)
         {
@@ -156,7 +171,7 @@ public class QuestionAnswerManager : MonoBehaviour
         currentIdx = 0;
         IsQAPhaseActive = true;
         AssignQuestionSpeakers();
-        if (qaPanel != null) qaPanel.SetActive(true);
+        HideLegacyQuestionDisplay();
         PlayCurrentQuestion();
     }
 
@@ -199,7 +214,7 @@ public class QuestionAnswerManager : MonoBehaviour
 
         state = QAState.PlayingQuestion;
         if (answerGuideText != null) answerGuideText.text = string.Empty;
-        if (questionText != null) questionText.text = questionContents[currentIdx];
+        HideLegacyQuestionDisplay();
         SetButtonState("청중 질문 중…", false);
 
        AudioClip clip =
@@ -276,7 +291,6 @@ public class QuestionAnswerManager : MonoBehaviour
             if (questionBody) questionBody.ReleaseQuestionTurn();
             state = QAState.QuestionAudioFailed;
             SetButtonState("질문 음성 다시 시도", true);
-            if (questionText) { questionText.gameObject.SetActive(true); questionText.text = "질문 음성을 준비하지 못했습니다."; }
             Debug.LogWarning("[Q&A] 질문 음성/청중 연결을 확인하세요. 발화 완료로 처리하지 않습니다.");
             return;
         }
@@ -643,13 +657,7 @@ private void LoadFeedbackScene()
 
     public void ShowGenerating()
     {
-        if (questionText) questionText.gameObject.SetActive(true);
-        if (qaPanel != null)
-            qaPanel.SetActive(true);
-
-        if (questionText != null)
-            questionText.text =
-                "질문을 생성하고 있습니다.";
+        HideLegacyQuestionDisplay();
 
         if (answerGuideText != null)
             answerGuideText.text =
@@ -663,12 +671,8 @@ private void LoadFeedbackScene()
 
     public void ShowGenerationFailed(string message)
     {
-        if (questionText) questionText.gameObject.SetActive(true);
-        if (qaPanel != null)
-            qaPanel.SetActive(true);
-
-        if (questionText != null)
-            questionText.text = message;
+        HideLegacyQuestionDisplay();
+        Debug.LogWarning("[Q&A] " + message);
 
         if (answerGuideText != null)
             answerGuideText.text =
@@ -677,7 +681,7 @@ private void LoadFeedbackScene()
         state = QAState.ReadyToStart;
 
         SetButtonState(
-            "다시 시도",
+            "질문 생성 다시 시도",
             true
         );
     }

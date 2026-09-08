@@ -72,13 +72,13 @@ public sealed class RehearDeviceSpeechCheck : MonoBehaviour
             Write("PASS Quest microphone start/PCM capture/stop; recorded data discarded, not uploaded.");
             captured=null;
             byte[] synthetic=await Get("answer");
-            var first=await client.SubmitAnswerAsync(0,synthetic,Guid.NewGuid().ToString("N"),"audience_02",CancellationToken.None);
+            var first=await client.SubmitAnswerAsync(0,synthetic,Guid.NewGuid().ToString("D"),"audience_02",CancellationToken.None);
             if(first==null||first.total!=2||first.next_question==null)throw new Exception("Adaptive answer failed");
             Write("PASS Quest -> Azure STT -> mock LLM -> next question, total=2");
             var next=await client.SynthesizeAsync(1,"ko-KR-BongJinNeural","audience_02",CancellationToken.None);
             if(!next||next.samples==0)throw new Exception("Next question TTS missing");
             Destroy(next);
-            var second=await client.SubmitAnswerAsync(1,synthetic,Guid.NewGuid().ToString("N"),null,CancellationToken.None);
+            var second=await client.SubmitAnswerAsync(1,synthetic,Guid.NewGuid().ToString("D"),null,CancellationToken.None);
             if(second==null||!second.saved||second.next_question!=null)throw new Exception("Final answer failed");
             Write("COMPLETE Quest speech check: six voices/OVR, microphone, synthetic STT, adaptive exchange. Production LLM/deployment not tested.");
         }

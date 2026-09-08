@@ -1,9 +1,9 @@
 diff --git a/sushi-fast/odi/EVC/AZURE_QA.md b/sushi-fast/odi/EVC/AZURE_QA.md
 new file mode 100644
-index 0000000..31b6476
+index 0000000..d1427cd
 --- /dev/null
 +++ b/sushi-fast/odi/EVC/AZURE_QA.md
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,83 @@
 +# Azure speech and adaptive Q&A
 +
 +The existing EVC question provider (`question_generation.py`, default model
@@ -19,6 +19,8 @@ index 0000000..31b6476
 +4. Only between Start Answer and Finish Answer does Unity record the microphone.
 +5. POST `/sessions/{id}/questions/{index}/answer` accepts mono PCM16 WAV, max ten minutes/20 MB,
 +   with `X-Request-Id` UUID and `X-Next-Audience-Id` when another question remains.
++   Responses normalize UUIDs to hyphenated form; clients should send canonical UUIDs
++   or compare parsed UUID values instead of raw strings.
 +6. Azure STT text is retained before calling the existing question provider. The LLM receives
 +   presentation evidence, actual Q&A history and the next speaker's profile/evaluation state.
 +   It may ask a follow-up or another relevant question. The next slot is replaced; total is unchanged.
@@ -59,7 +61,8 @@ index 0000000..31b6476
 +After deploying and verifying the routes, set Unity AzureSpeechConfig.bridgeBaseUrl to
 +`https://rehear.chobab.app/odi/xreal_rehear/evc`. Do not point it at the earlier standalone gateway.
 +The six Korean voices are selected by each Unity audience prefab's AudienceVoiceProfile;
-+the server accepts InJoon, BongJin, GookMin, SunHi, JiMin and SeoHyeon Neural voices.
++the server accepts InJoon, BongJin, GookMin, SunHi, JiMin, SeoHyeon and SoonBok Neural voices.
++The beige-suit audience (Aud_W_02) now uses SoonBok; JiMin remains accepted for older clients.
 +No Azure native SDK is bundled in the APK; Unity uploads WAV over HTTPS and plays the
 +returned WAV through its existing AudioSource/LipSync path.
 +
@@ -75,6 +78,15 @@ index 0000000..31b6476
 +The second command uses Azure quota for synthetic audio, never the user's microphone.
 +It uses a mock LLM and therefore is not a live LLM quality test. Deployment, real LLM,
 +Unity microphone and Quest APK end-to-end tests remain required.
++
++On 2026-09-08 the targeted regression command above passed all 29 tests. PC Unity
++tests exercised two Q&A turns with real Azure and a mock LLM. Quest verified all six
++original voice profiles driving OVR blendshapes and microphone capture; its test
++harness subsequently failed a raw UUID-format comparison on answer submission.
++The diagnostic client has been corrected to send canonical UUIDs, but the corrected
++Quest answer round trip has not yet been rerun. SoonBok was separately synthesized
++successfully against Azure. These checks do not validate production deployment or
++real-LLM question quality.
 diff --git a/sushi-fast/odi/EVC/answer_service.py b/sushi-fast/odi/EVC/answer_service.py
 new file mode 100644
 index 0000000..28dd6b7
@@ -270,7 +282,7 @@ index 0000000..cce058e
 +                pass
 diff --git a/sushi-fast/odi/EVC/azure_speech.py b/sushi-fast/odi/EVC/azure_speech.py
 new file mode 100644
-index 0000000..e0c2c05
+index 0000000..35d547b
 --- /dev/null
 +++ b/sushi-fast/odi/EVC/azure_speech.py
 @@ -0,0 +1,95 @@
@@ -346,7 +358,7 @@ index 0000000..e0c2c05
 +
 +
 +VOICES = ("ko-KR-InJoonNeural", "ko-KR-BongJinNeural", "ko-KR-GookMinNeural",
-+          "ko-KR-SunHiNeural", "ko-KR-JiMinNeural", "ko-KR-SeoHyeonNeural")
++          "ko-KR-SunHiNeural", "ko-KR-JiMinNeural", "ko-KR-SeoHyeonNeural", "ko-KR-SoonBokNeural")
 +
 +
 +async def synthesize(text, voice):

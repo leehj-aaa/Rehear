@@ -64,10 +64,10 @@ Unity Project 창에서 `Assets/03_Prefabs/Audience/Presentation`의 프리팹�
 | Aud_M_02 | ko-KR-BongJinNeural |
 | Aud_M_03 | ko-KR-GookMinNeural |
 | Aud_W_01 | ko-KR-SunHiNeural |
-| Aud_W_02 | ko-KR-JiMinNeural |
-| Aud_W_03 | ko-KR-SeoHyeonNeural |
+| Aud_W_02 (베이지색 정장) | ko-KR-SoonBokNeural |
+| Aud_W_03 | ko-KR-YuJinNeural |
 
-서버는 위 6개 음성만 허용합니다. 다른 음성을 추가하려면 Unity enum과 서버 `VOICES`를 함께 확장합니다. 재생속도·피치는 기본값이며 청음 후 조정합니다. 음성별 실제 제공 여부는 활성 리소스의 `/cognitiveservices/voices/list` 또는 Speech Studio에서 최종 확인합니다. [공식 한국어 음성 목록](https://learn.microsoft.com/ko-kr/azure/ai-services/speech-service/language-support).
+Aud_W_03의 SeoHyeon은 사용자 청음 피드백에 따라 YuJin으로 교체했습니다. 여섯 청중은 각각 다른 음성을 사용합니다. 서버는 이전 클라이언트 호환을 위해 JiMin·SeoHyeon도 허용하지만 위 프리팹에는 배정하지 않습니다. 다른 음성을 추가하려면 Unity enum과 서버 `VOICES`를 함께 확장합니다. 재생속도·피치는 기본값입니다. 음성별 실제 제공 여부는 활성 리소스의 `/cognitiveservices/voices/list` 또는 Speech Studio에서 최종 확인합니다. [공식 한국어 음성 목록](https://learn.microsoft.com/ko-kr/azure/ai-services/speech-service/language-support).
 
 ## APK
 

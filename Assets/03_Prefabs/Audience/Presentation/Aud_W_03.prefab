@@ -4088,7 +4088,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c6f157e0f33bf44894c4ca1cbc1f9fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudienceVoiceProfile
-  voice: 5
+  voice: 7
 --- !u!1 &2301759655838239159
 GameObject:
   m_ObjectHideFlags: 0
