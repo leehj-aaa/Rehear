@@ -25,6 +25,11 @@ namespace Rehear.Evc.Audience
         void StopCommand();
     }
 
+    public interface IAudienceStateReceiver
+    {
+        void ApplyAudienceState(float engagement, float clarity);
+    }
+
     public sealed class AudienceAgent : MonoBehaviour
     {
         [SerializeField] private string agentId;
@@ -158,6 +163,16 @@ namespace Rehear.Evc.Audience
                 var behaviour = behaviours[index];
                 if (behaviour != null && behaviour.GetType().Name == "RandomAudienceAnimator")
                     behaviour.enabled = !enabled;
+            }
+        }
+
+        public void ApplyAudienceState(float engagement, float clarity)
+        {
+            var behaviours = GetComponents<MonoBehaviour>();
+            for (var index = 0; index < behaviours.Length; index++)
+            {
+                if (behaviours[index] is IAudienceStateReceiver receiver)
+                    receiver.ApplyAudienceState(engagement, clarity);
             }
         }
 

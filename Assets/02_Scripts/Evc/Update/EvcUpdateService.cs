@@ -24,6 +24,11 @@ namespace Rehear.Evc.Update
         void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands);
     }
 
+    public interface IAudienceStateSink
+    {
+        void HandleAudienceStates(IReadOnlyList<AudienceUpdateDto> audiences);
+    }
+
     public sealed class EvcUpdateService : IDisposable
     {
         private readonly object gate = new object();
@@ -120,9 +125,21 @@ namespace Rehear.Evc.Update
             await AwaitWithCancellationAsync(tail, cancellationToken);
             Exception failure;
             lock (gate)
+            {
                 failure = queueFailure;
+                // 한 음성 조각의 실패가 질문/리포트 재시도를 영구적으로
+                // 막지 않도록 소비한 실패 상태를 비운다.
+                queueFailure = null;
+            }
+
             if (failure != null)
-                throw new InvalidOperationException("One or more queued EVC updates failed.", failure);
+            {
+                UnityEngine.Debug.LogWarning(
+                    "[EVC] 실패한 음성 조각을 제외하고 " +
+                    "이미 처리된 데이터로 계속 진행합니다." +
+                    "\n원인: " + failure.Message
+                );
+            }
         }
 
         public void Dispose()
@@ -219,6 +236,8 @@ namespace Rehear.Evc.Update
                         "\nStep: " + response.step +
                         "\n명령 개수: " + commandCount
                     );
+                    if (commandSink is IAudienceStateSink stateSink)
+                        stateSink.HandleAudienceStates(response.audiences ?? Array.Empty<AudienceUpdateDto>());
                     commandSink?.HandleCommands(requestId, response.commands ?? Array.Empty<UnityCommandDto>());
                     succeeded = true;
                     return response;
