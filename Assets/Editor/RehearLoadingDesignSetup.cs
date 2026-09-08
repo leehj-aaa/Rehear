@@ -106,18 +106,9 @@ internal static class RehearLoadingDesignSetup
         SetText(title,"세션 불러오는 중","Assets/07_Fonts/PretendardTMP/Pretendard-Bold SDF.asset",36*scale,new Color32(3,8,18,255));
         Rect(title.rectTransform,288,313,232,43,scale);
         var description=panel.Find("Description").GetComponent<TMP_Text>();
-        const string fontPath="Assets/07_Fonts/42dotSans-Medium SDF.asset";
+        const string fontPath="Assets/07_Fonts/PretendardTMP/Pretendard-Medium SDF.asset";
         var font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fontPath);
-        if (!font)
-        {
-            var source=AssetDatabase.LoadAssetAtPath<Font>("Assets/07_Fonts/42dotSans-Medium.ttf");
-            if (!source) throw new InvalidOperationException("42dot Sans Medium source missing.");
-            font=TMP_FontAsset.CreateFontAsset(source,90,9,UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA,1024,1024,AtlasPopulationMode.Dynamic,true);
-            AssetDatabase.CreateAsset(font,fontPath);
-            foreach(var atlas in font.atlasTextures) if(atlas) AssetDatabase.AddObjectToAsset(atlas,font);
-            AssetDatabase.AddObjectToAsset(font.material,font);
-        }
-        if (!font.TryAddCharacters(Caption,out string missing)) throw new InvalidOperationException("Caption glyphs missing: "+missing);
+        if (!font) throw new InvalidOperationException("Pretendard Medium SDF asset missing.");
         SetText(description,"<line-height=135%>"+Caption,fontPath,20*scale,new Color32(53,56,65,255));
         Rect(description.rectTransform,190,372,424,54,scale);
         foreach(var child in panel.GetComponentsInChildren<Transform>(true)) child.gameObject.layer=LayerMask.NameToLayer("UI");

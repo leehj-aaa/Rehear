@@ -72,6 +72,8 @@ internal static class RehearPinReadbackCheck
         var loading=root.Find("LoadingPanel").gameObject;
         if(phase=="opening")
         {
+            if (root.Find("PinPanel").gameObject.activeInHierarchy)
+            { Phase("firebase"); return; }
             var start=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(b=>b.name=="Btn_Scene00_to_Scene01");
             if(!start.isActiveAndEnabled || !start.IsInteractable() || start.GetComponent<CanvasGroup>().alpha<1)return;
             start.onClick.Invoke(); Phase("firebase");return;
