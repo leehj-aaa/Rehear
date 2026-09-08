@@ -14,7 +14,7 @@ namespace Rehear.Evc.Audience
         [SerializeField] private AudienceAgent[] agents = Array.Empty<AudienceAgent>();
         [SerializeField, Min(1f)] private float dedupeTtlSeconds = 120f;
         [SerializeField, Min(16)] private int maxDedupeEntries = 512;
-        [SerializeField, Min(0f)] private float lateCommandExpirySeconds = 2f;
+        [SerializeField, Range(0f, 2f)] private float reactionSpreadSeconds = 0.85f;
 
         private readonly Dictionary<string, AudienceAgent> agentLookup =
             new Dictionary<string, AudienceAgent>(StringComparer.Ordinal);
@@ -24,6 +24,8 @@ namespace Rehear.Evc.Audience
             new Dictionary<string, LayerReservation>(StringComparer.Ordinal);
         private IPresentationClock clock;
         private bool serverMode;
+        private int responseVersion;
+        private readonly Dictionary<string, int> latestAgentVersion = new Dictionary<string, int>(StringComparer.Ordinal);
 
         private void Awake()
         {
@@ -38,6 +40,12 @@ namespace Rehear.Evc.Audience
         public void SetClock(IPresentationClock presentationClock)
         {
             clock = presentationClock;
+        }
+
+        public void ConfigureAgents(AudienceAgent[] sceneAgents)
+        {
+            agents = sceneAgents ?? Array.Empty<AudienceAgent>();
+            RebuildAgentLookup();
         }
 
         public void SetServerMode(bool enabled)
@@ -83,10 +91,39 @@ namespace Rehear.Evc.Audience
                 group.Add(command);
             }
 
-            foreach (var pair in groups)
+            if (groups.Count == 0) return;
+            int version = ++responseVersion;
+            float firstStart = float.MaxValue;
+            var responseAgents = new List<string>();
+            var conversationAgents = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var group in groups.Values)
+                foreach (var command in group)
+                {
+                    firstStart = Mathf.Min(firstStart, command.start_time);
+                    latestAgentVersion[command.agent_id] = version;
+                    if (!responseAgents.Contains(command.agent_id)) responseAgents.Add(command.agent_id);
+                    if ((command.selected_variation_id ?? "").StartsWith("ACT_08", StringComparison.Ordinal))
+                        conversationAgents.Add(command.agent_id);
+                }
+            // Rotate the order per evaluation; one actor's Face/Body/Gaze keep the same offset.
+            responseAgents.Sort((a, b) => StableHash((requestId ?? "") + a).CompareTo(StableHash((requestId ?? "") + b)));
+            var delays = new Dictionary<string, float>(StringComparer.Ordinal);
+            for (int i = 0; i < responseAgents.Count; i++)
+                delays[responseAgents[i]] = responseAgents.Count < 2 ? 0 : reactionSpreadSeconds * i / (responseAgents.Count - 1);
+            float conversationDelay = float.MaxValue;
+            foreach (var id in conversationAgents) conversationDelay = Mathf.Min(conversationDelay, delays[id]);
+            foreach (var id in conversationAgents) delays[id] = conversationDelay;
+
+            // Server times refer to audio capture time, before STT/LLM latency. A fresh
+            // evaluation is still useful on receipt; shift the entire batch, retaining offsets.
+            double timeShift = Math.Max(0, clock.ElapsedSeconds - firstStart);
+            var orderedGroups = new List<KeyValuePair<string, List<UnityCommandDto>>>(groups);
+            orderedGroups.Sort((a, b) => IsBodyAction(a.Value[0]).CompareTo(IsBodyAction(b.Value[0])));
+            foreach (var pair in orderedGroups)
             {
                 recentlyExecuted[pair.Key] = Time.realtimeSinceStartup;
-                StartCoroutine(ExecuteGroupAtAbsoluteTime(requestId, pair.Value));
+                StartCoroutine(ExecuteGroupAtAbsoluteTime(requestId, pair.Value, version,
+                    timeShift + delays[pair.Value[0].agent_id]));
             }
         }
 
@@ -94,6 +131,7 @@ namespace Rehear.Evc.Audience
         {
             StopAllCoroutines();
             activeLayers.Clear();
+            latestAgentVersion.Clear();
             for (var index = 0; index < agents.Length; index++)
                 agents[index]?.StopAll();
         }
@@ -113,25 +151,27 @@ namespace Rehear.Evc.Audience
             return errors;
         }
 
-        private IEnumerator ExecuteGroupAtAbsoluteTime(string requestId, List<UnityCommandDto> commands)
+        private IEnumerator ExecuteGroupAtAbsoluteTime(string requestId, List<UnityCommandDto> commands, int version, double offset)
         {
             var earliestStart = float.MaxValue;
             for (var index = 0; index < commands.Count; index++)
                 earliestStart = Mathf.Min(earliestStart, commands[index].start_time);
 
-            var lateness = clock.ElapsedSeconds - earliestStart;
-            if (lateness > lateCommandExpirySeconds)
-                yield break;
+            double scheduledStart = earliestStart + offset;
 
             // Wait against presentation time so an app/presentation pause also pauses
             // scheduled audience reactions. Realtime waits would execute while the clock
             // is intentionally frozen.
             while (clock != null &&
                    clock.IsRunning &&
-                   (clock.IsPaused || clock.ElapsedSeconds < earliestStart))
+                   (clock.IsPaused || clock.ElapsedSeconds < scheduledStart))
+            {
+                if (!latestAgentVersion.TryGetValue(commands[0].agent_id, out var latest) || latest != version) yield break;
                 yield return null;
+            }
             if (clock == null || !clock.IsRunning)
                 yield break;
+            if (!latestAgentVersion.TryGetValue(commands[0].agent_id, out var current) || current != version) yield break;
 
             // All commands in this sync group execute in this same frame.
             commands.Sort((left, right) => right.priority.CompareTo(left.priority));
@@ -140,6 +180,8 @@ namespace Rehear.Evc.Audience
             {
                 var command = commands[index];
                 var layerKey = command.agent_id + "|" + command.layer;
+                // Core and temporary Body actions are separate destinations in the body mixer.
+                if (command.layer == "Body") layerKey += IsBodyAction(command) ? "|action" : "|core";
                 if (!touchedLayers.Add(layerKey))
                 {
                     EvcSafeDiagnostics.CommandDropped(requestId, command.agent_id, command.layer, "lower_priority_collision");
@@ -148,6 +190,7 @@ namespace Rehear.Evc.Audience
 
                 var now = clock.ElapsedSeconds;
                 if (activeLayers.TryGetValue(layerKey, out var reservation) &&
+                    reservation.Version == version &&
                     reservation.EndTime > now &&
                     reservation.Priority > command.priority)
                 {
@@ -179,6 +222,7 @@ namespace Rehear.Evc.Audience
                 activeLayers[layerKey] = new LayerReservation
                 {
                     Priority = command.priority,
+                    Version = version,
                     EndTime = now + Math.Max(0.01f, command.duration)
                 };
             }
@@ -208,7 +252,9 @@ namespace Rehear.Evc.Audience
                 reason = "missing_action";
                 return false;
             }
-            if (command.duration <= 0f || command.duration > 60f || command.intensity < 0f || command.intensity > 1f)
+            if (float.IsNaN(command.start_time) || float.IsInfinity(command.start_time) || command.start_time < 0 ||
+                float.IsNaN(command.duration) || float.IsNaN(command.intensity) ||
+                command.duration <= 0f || command.duration > 60f || command.intensity < 0f || command.intensity > 1f)
             {
                 reason = "invalid_timing_or_intensity";
                 return false;
@@ -251,8 +297,19 @@ namespace Rehear.Evc.Audience
 
         private struct LayerReservation
         {
+            public int Version;
             public int Priority;
             public double EndTime;
+        }
+
+        private static bool IsBodyAction(UnityCommandDto command) =>
+            (command.selected_variation_id ?? "").StartsWith("ACT_", StringComparison.Ordinal);
+
+        private static uint StableHash(string value)
+        {
+            uint hash = 2166136261;
+            foreach (char c in value) hash = unchecked((hash ^ c) * 16777619);
+            return hash;
         }
     }
 }

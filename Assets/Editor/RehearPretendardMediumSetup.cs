@@ -5,17 +5,11 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 
-[InitializeOnLoad]
 internal static class RehearPretendardMediumSetup
 {
     private const string SourcePath = "Assets/07_Fonts/Pretendard-Medium.otf";
     private const string AssetPath = "Assets/07_Fonts/Pretendard-Medium SDF.asset";
     private const string ScenePath = "Assets/01_Scene/Scene_00.unity";
-
-    static RehearPretendardMediumSetup()
-    {
-        EditorApplication.delayCall += CreateAndAssign;
-    }
 
     [MenuItem("Rehear/Create And Assign Pretendard Medium TMP Font")]
     private static void CreateAndAssign()

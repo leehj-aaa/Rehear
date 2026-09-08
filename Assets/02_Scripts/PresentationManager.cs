@@ -11,6 +11,10 @@ public class PresentationManager : MonoBehaviour
     public RawImage deskScreen;
     public RawImage slideScreen;
 
+    [Header("Optional slide direction feedback")]
+    [SerializeField] private TutorialDirectionArrow previousSlideHint;
+    [SerializeField] private TutorialDirectionArrow nextSlideHint;
+
     [Header("기본 발표자료")]
     public Texture2D[] slides;
 
@@ -148,30 +152,46 @@ public class PresentationManager : MonoBehaviour
         );
     }
 
-    public void NextSlide()
+    public bool IsAtSlideBoundary(bool next) => HasCurrentSlide() &&
+        (next ? currentIndex >= slides.Length - 1 : currentIndex <= 0);
+
+    private bool HasCurrentSlide() => slides != null && currentIndex >= 0 &&
+        currentIndex < slides.Length && slides[currentIndex];
+
+    // Preserve the void UnityEvent API used by other presentation scenes.
+    public void NextSlide() => TryNextSlide();
+    public void PrevSlide() => TryPrevSlide();
+
+    public bool TryNextSlide()
     {
-        if (slides == null ||
-            currentIndex >= slides.Length - 1)
+        RefreshSlideDirectionHints();
+        if (!HasCurrentSlide()) return false;
+        if (currentIndex >= slides.Length - 1 || !slides[currentIndex + 1])
         {
-            return;
+            return false;
         }
 
+        nextSlideHint?.ShowPressedFeedback();
         currentIndex++;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
+        return true;
     }
 
-    public void PrevSlide()
+    public bool TryPrevSlide()
     {
-        if (slides == null ||
-            currentIndex <= 0)
+        RefreshSlideDirectionHints();
+        if (!HasCurrentSlide()) return false;
+        if (currentIndex <= 0 || !slides[currentIndex - 1])
         {
-            return;
+            return false;
         }
 
+        previousSlideHint?.ShowPressedFeedback();
         currentIndex--;
         UpdateDisplay();
         SlideChanged?.Invoke(currentIndex);
+        return true;
     }
 
     private void UpdateDisplay()
@@ -179,6 +199,7 @@ public class PresentationManager : MonoBehaviour
         if (slides == null ||
             slides.Length == 0)
         {
+            RefreshSlideDirectionHints();
             return;
         }
 
@@ -197,6 +218,25 @@ public class PresentationManager : MonoBehaviour
 
         if (slideScreen != null)
             slideScreen.texture = currentSlide;
+
+        RefreshSlideDirectionHints();
+    }
+
+    // Keep availability correct when a tutorial step reopens or the deck changes.
+    private void LateUpdate() => RefreshSlideDirectionHints();
+
+    public void RefreshSlideDirectionHints()
+    {
+        bool valid = HasCurrentSlide();
+        SetHintVisible(previousSlideHint, valid && currentIndex > 0 && slides[currentIndex - 1]);
+        SetHintVisible(nextSlideHint, valid && currentIndex < slides.Length - 1 && slides[currentIndex + 1]);
+    }
+
+    private static void SetHintVisible(TutorialDirectionArrow hint, bool visible)
+    {
+        // Only change the arrow itself; its parent belongs to the tutorial step.
+        if (hint && hint.gameObject.activeSelf != visible)
+            hint.gameObject.SetActive(visible);
     }
 
     private void DestroyTextures(

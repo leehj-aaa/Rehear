@@ -4,6 +4,7 @@ using Rehear.Evc.Presentation;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Rehear.Evc.Contracts;
 
@@ -17,12 +18,11 @@ public class PresentationController : MonoBehaviour
     public Button qaButton;
     public GameObject pausePanel;
     public GameObject scriptPanel;
+    public Button startPresentationButton;
+    public Button endPresentationButton;
 
     [SerializeField]
     private TextMeshProUGUI scriptButtonText;
-
-    [SerializeField]
-    private AudioSource sessionAudioSource;
 
     public QuestionAnswerManager qaManager;
 
@@ -38,7 +38,26 @@ public class PresentationController : MonoBehaviour
 
     [Header("Timer Warning")]
     [SerializeField]
-    private float warningStartSeconds = 10f;
+    [Min(0f)]
+    private float warningStartSeconds = 30f;
+
+    [SerializeField]
+    [FormerlySerializedAs("sessionAudioSource")]
+    private AudioSource timerAudioSource;
+
+    [SerializeField]
+    private AudioClip timeWarningClip;
+
+    [SerializeField]
+    private AudioClip timeUpClip;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float warningSoundVolume = 0.35f;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float timeUpSoundVolume = 1f;
 
     [Header("EVC 자동 음성 전송")]
     [SerializeField]
@@ -51,22 +70,32 @@ public class PresentationController : MonoBehaviour
     private Color warningColor = Color.red;
 
     [SerializeField]
-    private float blinkSpeed = 1.5f;
+    private float blinkSpeed = 1f;
 
     private Color normalTimerColor;
 
     private float timeRemaining = 60f;
-    private bool isRunning = true;
+    private bool isRunning;
+    private bool hasStarted;
+    private bool hasEnded;
+    private bool isStarting;
+    private bool isPaused;
+    private bool wasRunningBeforePause;
     private bool isTimerFinished;
     private bool isQAPhaseStarted;
     private bool isGeneratingQuestions;
     private bool periodicFlushInProgress;
+    private bool isWarningSoundPlaying;
 
     private CancellationTokenSource lifetimeCancellation;
 
-    public bool IsPaused => !isRunning;
+    public bool IsPaused => isPaused;
+    public PresentationSessionReady sessionReady;
+    public bool IsConfirmingSession => sessionReady && sessionReady.IsOpen;
 
-    private async void Start()
+    public void SetSessionConfirmationVisible(bool visible) => RefreshSessionButtons();
+
+    private void Start()
     {
         lifetimeCancellation =
             new CancellationTokenSource();
@@ -129,13 +158,58 @@ public class PresentationController : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
+        // The podium end button continues into Q&A; retire the old wall button.
+        if (endPresentationButton)
+        {
+            if (qaButton && qaButton != endPresentationButton) qaButton.gameObject.SetActive(false);
+            qaButton = endPresentationButton;
+        }
         qaManager?.Prepare(qaButton);
 
         if (qaButton != null)
             qaButton.gameObject.SetActive(false);
 
+        if (sessionReady && RuntimeSessionData.IsLoaded)
+            sessionReady.gameObject.SetActive(true);
+
+        RefreshSessionButtons();
+    }
+
+    private void RefreshSessionButtons()
+    {
+        if (startPresentationButton)
+        {
+            startPresentationButton.gameObject.SetActive(!hasStarted);
+            startPresentationButton.interactable = !isStarting && !isPaused && !IsConfirmingSession;
+            var label = startPresentationButton.GetComponentInChildren<TMP_Text>(true);
+            if (label) label.text = isStarting ? "발표 준비 중…" : "발표 시작하기";
+        }
+        if (endPresentationButton)
+        {
+            endPresentationButton.gameObject.SetActive(hasStarted && (!hasEnded || qaButton == endPresentationButton));
+            // Q&A owns the enabled state during speech and the answer click lock.
+            if (!hasEnded)
+            {
+                endPresentationButton.interactable = !isStarting && !isPaused;
+                var label = endPresentationButton.GetComponentInChildren<TMP_Text>(true);
+                if (label) label.text = "발표 끝내기";
+            }
+        }
+    }
+
+    public async void BeginPresentation()
+    {
+        if (hasStarted || isStarting || isPaused || IsConfirmingSession || lifetimeCancellation == null) return;
+        isStarting = true;
+        RefreshSessionButtons();
         if (flowController == null)
+        {
+            hasStarted = isRunning = true;
+            SetScriptPanelVisible(true);
+            isStarting = false;
+            RefreshSessionButtons();
             return;
+        }
 
         // 서버 세션이 준비될 때까지 발표 타이머를 멈춘다.
         isRunning = false;
@@ -149,8 +223,10 @@ public class PresentationController : MonoBehaviour
                 flowController.State ==
                 PresentationFlowState.Running;
 
-           if (isRunning)
+            if (isRunning)
             {
+                hasStarted = true;
+                SetScriptPanelVisible(true);
                 nextEvcSegmentTime =
                     Time.unscaledTime +
                     evcSegmentIntervalSeconds;
@@ -185,12 +261,65 @@ public class PresentationController : MonoBehaviour
                 );
             }
         }
+        finally
+        {
+            isStarting = false;
+            if (this) RefreshSessionButtons();
+        }
+    }
+
+    public async void EndPresentation()
+    {
+        if (!hasStarted || isStarting || isPaused) return;
+        if (hasEnded)
+        {
+            OnActionButtonClick();
+            return;
+        }
+        isStarting = true;
+        hasEnded = true;
+        isRunning = false;
+        isPaused = false;
+        SetScriptPanelVisible(false);
+        StopTimerAudio();
+        if (pausePanel) pausePanel.SetActive(false);
+        RefreshSessionButtons();
+        if (qaButton)
+        {
+            qaButton.interactable = false;
+            var label = qaButton.GetComponentInChildren<TMP_Text>(true);
+            if (label) label.text = "발표 종료 중…";
+        }
+        try
+        {
+            if (flowController != null)
+                await flowController.PauseAsync(presentationManager ? presentationManager.CurrentSlideIndex : 0,
+                    lifetimeCancellation.Token);
+        }
+        catch (OperationCanceledException) { return; }
+        catch (Exception exception) { Debug.LogWarning("발표 종료 처리: " + exception.Message); }
+        finally { isStarting = false; }
+        if (!this) return;
+        if (qaButton) qaButton.gameObject.SetActive(true);
+        if (RuntimeSessionData.QaCount <= 0)
+        {
+            isQAPhaseStarted = true;
+            flowController?.PrepareFinishWithoutQuestions();
+            qaManager?.PrepareFinishWithoutQuestions(qaButton);
+            // The end button also confirms completion when no Q&A was selected.
+            qaManager?.OnActionButtonClick();
+        }
+        else OnActionButtonClick();
     }
 
     public async void OnActionButtonClick()
     {
+        if (!hasStarted || isPaused || isStarting) return;
         if (isGeneratingQuestions)
             return;
+        hasEnded = true;
+        isRunning = false;
+        RefreshSessionButtons();
 
         // 새 EVC 파이프라인을 사용하는 경우
         if (!isQAPhaseStarted &&
@@ -205,6 +334,7 @@ public class PresentationController : MonoBehaviour
         {
             isGeneratingQuestions = true;
             isRunning = false;
+            StopTimerAudio();
 
             qaManager?.ShowGenerating();
 
@@ -274,6 +404,7 @@ public class PresentationController : MonoBehaviour
         if (!isQAPhaseStarted)
             isQAPhaseStarted = true;
 
+        StopTimerAudio();
         qaManager?.OnActionButtonClick();
     }
 
@@ -302,6 +433,12 @@ public class PresentationController : MonoBehaviour
        
         UpdateTimerWarning();
 
+        if (qaManager != null && qaManager.IsQAPhaseActive)
+        {
+            UpdateTimerDisplay();
+            return;
+        }
+
         if (!isRunning ||
             isQAPhaseStarted)
         {
@@ -325,6 +462,7 @@ public class PresentationController : MonoBehaviour
         {
             timeRemaining -= Time.deltaTime;
             UpdateTimerDisplay();
+            UpdateTimerAudio();
 
             if (timeRemaining <= 0f)
                 FinishTimer();
@@ -363,7 +501,7 @@ public class PresentationController : MonoBehaviour
     try
     {
         await flowController.FlushSegmentAsync(
-            "utterance_boundary",
+            null, // Periodic capture is not necessarily a sentence boundary.
             slideIndex,
             lifetimeCancellation.Token
         );
@@ -394,7 +532,7 @@ public class PresentationController : MonoBehaviour
     {
         if (timerText != null)
             timerText.text =
-                FormatTime(timeRemaining);
+                qaManager != null && qaManager.IsQAPhaseActive ? "Q&A" : FormatTime(timeRemaining);
     }
 
     private string FormatTime(float time)
@@ -418,22 +556,16 @@ public class PresentationController : MonoBehaviour
 
     private void FinishTimer()
     {
+        timeRemaining = 0f;
         isTimerFinished = true;
+        StopWarningSound();
+        PlayTimeUpSound();
 
         if (qaButton != null)
             qaButton.gameObject.SetActive(true);
 
-        if (RuntimeSessionData.QaCount <= 0)
-        {
-            isRunning = false;
-            isQAPhaseStarted = true;
-            flowController?.PrepareFinishWithoutQuestions();
-            qaManager?.PrepareFinishWithoutQuestions(qaButton);
-
-            Debug.Log(
-                "[Q&A] 설정된 질문이 없어 발표 종료 버튼으로 전환합니다."
-            );
-        }
+        // Reaching the planned duration starts overtime. Only the explicit end
+        // action stops recording and selects Q&A or feedback, including zero Q&A.
     }
 
     public void TogglePause()
@@ -446,7 +578,12 @@ public class PresentationController : MonoBehaviour
 
     public async void PauseGame()
     {
+        if (isStarting || isPaused || IsConfirmingSession) return;
+        wasRunningBeforePause = isRunning;
+        isPaused = true;
+        qaManager?.SetPaused(true);
         isRunning = false;
+        RefreshSessionButtons();
 
         if (pausePanel != null)
         {
@@ -454,9 +591,9 @@ public class PresentationController : MonoBehaviour
             pausePanel.transform.SetAsLastSibling();
         }
 
-        sessionAudioSource?.Pause();
+        timerAudioSource?.Pause();
 
-        if (flowController == null)
+        if (flowController == null || !hasStarted || hasEnded)
             return;
 
         try
@@ -486,7 +623,8 @@ public class PresentationController : MonoBehaviour
 
     public async void ResumeGame()
     {
-        if (flowController != null)
+        if (isStarting || !isPaused) return;
+        if (flowController != null && hasStarted && !hasEnded)
         {
             try
             {
@@ -515,12 +653,15 @@ public class PresentationController : MonoBehaviour
             }
         }
 
-        isRunning = true;
+        isRunning = wasRunningBeforePause && !hasEnded;
+        isPaused = false;
+        qaManager?.SetPaused(false);
+        RefreshSessionButtons();
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
-        sessionAudioSource?.UnPause();
+        timerAudioSource?.UnPause();
     }
 
     public void RestartSession()
@@ -544,14 +685,16 @@ public class PresentationController : MonoBehaviour
         PlayerPrefs.Save();
 
         SceneManager.LoadScene(
-            "Scene_01_Intro"
+            "Scene_00"
         );
     }
 
     public void StartQA()
     {
+        StopTimerAudio();
+        SetScriptPanelVisible(false);
         qaManager?.StartQAPhase(qaButton);
-        SetScriptPanelVisible(true);
+        UpdateTimerDisplay();
     }
 
     public void CloseScriptPanel()
@@ -602,7 +745,7 @@ public class PresentationController : MonoBehaviour
             return;
 
         bool shouldBlink =
-            !isQAPhaseStarted &&
+            hasStarted && !hasEnded && !isQAPhaseStarted && !(qaManager != null && qaManager.IsQAPhaseActive) &&
             (
                 isTimerFinished ||
                 timeRemaining <=
@@ -617,10 +760,16 @@ public class PresentationController : MonoBehaviour
             return;
         }
 
+        float blinkTime =
+            isWarningSoundPlaying &&
+            timerAudioSource != null
+                ? timerAudioSource.time
+                : Time.unscaledTime;
+
         float blink =
             (
-                Mathf.Sin(
-                    Time.unscaledTime *
+                Mathf.Cos(
+                    blinkTime *
                     blinkSpeed *
                     Mathf.PI *
                     2f
@@ -633,6 +782,64 @@ public class PresentationController : MonoBehaviour
                 warningColor,
                 blink
             );
+    }
+
+    private void UpdateTimerAudio()
+    {
+        if (isWarningSoundPlaying ||
+            timerAudioSource == null ||
+            timeWarningClip == null ||
+            isTimerFinished ||
+            timeRemaining <= 0f ||
+            timeRemaining > warningStartSeconds)
+        {
+            return;
+        }
+
+        timerAudioSource.Stop();
+        timerAudioSource.clip = timeWarningClip;
+        timerAudioSource.loop = true;
+        timerAudioSource.volume = warningSoundVolume;
+        timerAudioSource.Play();
+        isWarningSoundPlaying = true;
+    }
+
+    private void StopWarningSound()
+    {
+        if (timerAudioSource == null)
+            return;
+
+        timerAudioSource.Stop();
+        timerAudioSource.loop = false;
+        timerAudioSource.clip = null;
+        isWarningSoundPlaying = false;
+    }
+
+    private void PlayTimeUpSound()
+    {
+        if (timerAudioSource == null ||
+            timeUpClip == null)
+        {
+            return;
+        }
+
+        timerAudioSource.volume = 1f;
+        timerAudioSource.PlayOneShot(
+            timeUpClip,
+            timeUpSoundVolume
+        );
+    }
+
+    private void StopTimerAudio()
+    {
+        if (timerAudioSource != null)
+        {
+            timerAudioSource.Stop();
+            timerAudioSource.loop = false;
+            timerAudioSource.clip = null;
+        }
+
+        isWarningSoundPlaying = false;
     }
 
     public void SkipPresentation()
@@ -649,6 +856,8 @@ public class PresentationController : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopTimerAudio();
+
         if (presentationManager != null)
         {
             presentationManager.SlideChanged -=

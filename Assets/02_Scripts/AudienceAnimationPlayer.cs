@@ -1,481 +1,324 @@
-using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
-public class AudienceAnimationPlayer :
-    MonoBehaviour
+public class AudienceAnimationPlayer : MonoBehaviour
 {
-    [Header("청중 설정")]
+    [SerializeField] private Animator targetAnimator;
+    [SerializeField] private AudienceGender gender = AudienceGender.Male;
+    [SerializeField] private AudienceAnimationCatalog catalog;
+    [SerializeField] private AnimationClip idleClipOverride;
+    [SerializeField] private string defaultIdleVariation = "BL_03.quiet_stable_posture";
+    [SerializeField] private bool randomizeIdleStartTime = true;
+    [SerializeField, Range(.1f, 2f)] private float blendDuration = .7f;
+    [SerializeField] private bool printAnimationLog = true;
+    [SerializeField] private GameObject photoPhone;
+    [SerializeField] private GameObject devicePhone;
 
-    [SerializeField]
-    private Animator targetAnimator;
-
-    [SerializeField]
-    private AudienceGender gender =
-        AudienceGender.Male;
-
-    [SerializeField]
-    private AudienceAnimationCatalog catalog;
-
-    [Header("기본 자세")]
-
-    [Tooltip(
-        "비워두면 Catalog에서 기본 Idle을 찾습니다."
-    )]
-    [SerializeField]
-    private AnimationClip idleClipOverride;
-
-    [SerializeField]
-    private string defaultIdleVariation =
-        "BL_03.quiet_stable_posture";
-
-    [SerializeField]
-    private bool randomizeIdleStartTime = true;
-
-    [Header("전환")]
-
-    [SerializeField]
-    [Range(0.1f, 2f)]
-    private float blendDuration = 0.7f;
-
-    [Header("디버그")]
-
-    [SerializeField]
-    private bool printAnimationLog = true;
-
+    private sealed class Voice
+    {
+        public AnimationClipPlayable playable;
+        public AnimationClip clip;
+        public string variation;
+        public int port;
+        public float from;
+    }
+    private readonly List<Voice> voices = new List<Voice>();
     private PlayableGraph playableGraph;
     private AnimationMixerPlayable mixer;
-
-    private AnimationClipPlayable idlePlayable;
-    private AnimationClipPlayable actionPlayable;
-
-    private Coroutine actionRoutine;
-
-    [SerializeField]
-    private bool doNotInterruptActiveAction = true;
-
-    public AudienceGender Gender =>
-        gender;
-
-    private void Reset()
+    private Voice target;
+    // Keep the evaluated listening pose alive underneath temporary actions.
+    private Voice core;
+    private float coreWeight = 1f;
+    private float idleFrom, targetWeight, transitionElapsed, transitionDuration, remaining;
+    private bool transitioning;
+    private AnimationClip pendingTypingClip;
+    private string pendingTypingVariation;
+    private float pendingTypingDuration, pendingTypingIntensity;
+    private bool ownsSeatFacing;
+    private bool questionTurn, questionPaused;
+    public bool IsQuestionTurn => questionTurn;
+    public bool IsAtBaseline => !IsBusy && !ownsSeatFacing;
+    public const string QuestionGesture = "QS_01.raise_hand_question";
+    public Transform TypingLookTarget
     {
-        targetAnimator =
-            GetComponentInChildren<Animator>();
+        get
+        {
+            bool typing = pendingTypingClip || voices.Exists(v => IsTyping(v.variation) && mixer.IsValid() && mixer.GetInputWeight(v.port) > .05f);
+            var assignment = GetComponent<AudienceSeatAssignment>();
+            return typing && assignment && assignment.Seat && assignment.Seat.HasLaptop ? assignment.Seat.laptopAnchor : null;
+        }
+    }
+    private static bool IsTyping(string variation) => variation == "ACT_01.laptoptyping";
+    public float ConversationWeight
+    {
+        get
+        {
+            if (!mixer.IsValid()) return 0;
+            float weight = 0;
+            foreach (var voice in voices)
+                if (AudienceSeatAssignment.IsSideConversation(voice.variation)) weight += mixer.GetInputWeight(voice.port);
+            return Mathf.Clamp01(weight);
+        }
+    }
+    public AudienceGender Gender => gender;
+    public bool IsBusy => target != null || transitioning || pendingTypingClip;
+
+    private void Reset() => targetAnimator = GetComponentInChildren<Animator>();
+    private void OnEnable() => CreateAnimationGraph();
+    private void OnDisable() => DestroyAnimationGraph();
+    private void OnDestroy() => DestroyAnimationGraph();
+    private void Update() { if (!questionPaused) Advance(Time.deltaTime); }
+
+    public bool HasQuestionGesture => catalog && catalog.TryGetClip(QuestionGesture, gender, out var clip) && clip.length > 0;
+
+    public void ReserveQuestionTurn()
+    {
+        questionTurn = true;
+        StopAction();
     }
 
-    private void OnEnable()
+    public bool PlayQuestionGesture()
     {
-        CreateAnimationGraph();
-    }
-
-    private void OnDisable()
-    {
-        if (actionRoutine != null)
-        {
-            StopCoroutine(actionRoutine);
-            actionRoutine = null;
-        }
-
-        DestroyAnimationGraph();
-    }
-
-    public bool PlayServerVariation(
-        string variationId,
-        float requestedDuration,
-        float intensity)
-    {
-        // 새 서버 명령이 기존 동작의 블렌드 아웃을 끊으면 자세가 순간적으로
-        // 튄다. 진행 중인 동작은 끝까지 재생하고 다음 주기 명령을 받는다.
-        if (doNotInterruptActiveAction && actionRoutine != null)
-            return true;
-
-        if (!playableGraph.IsValid() ||
-            !mixer.IsValid())
-        {
-            Debug.LogWarning(
-                gameObject.name +
-                ": 서버 애니메이션 그래프가 " +
-                "준비되지 않았습니다.",
-                this
-            );
-
-            return false;
-        }
-
-        if (catalog == null)
-        {
-            Debug.LogWarning(
-                gameObject.name +
-                ": AudienceAnimationCatalog가 " +
-                "연결되지 않았습니다.",
-                this
-            );
-
-            return false;
-        }
-
-        if (!catalog.TryGetClip(
-                variationId,
-                gender,
-                out AnimationClip clip))
-        {
-            Debug.LogWarning(
-                gameObject.name +
-                ": Catalog에서 클립을 찾지 못했습니다." +
-                "\nVariation ID: " +
-                variationId +
-                "\nGender: " +
-                gender,
-                this
-            );
-
-            return false;
-        }
-
-        if (actionRoutine != null)
-        {
-            StopCoroutine(actionRoutine);
-            actionRoutine = null;
-        }
-
-        RemoveActionPlayable();
-
-        actionRoutine =
-            StartCoroutine(
-                PlayActionRoutine(
-                    clip,
-                    variationId,
-                    requestedDuration,
-                    intensity
-                )
-            );
-
+        if (!questionTurn || !IsAtBaseline || !playableGraph.IsValid() || !catalog ||
+            !catalog.TryGetClip(QuestionGesture, gender, out var clip)) return false;
+        PlayClip(QuestionGesture, clip, clip.length, 1);
         return true;
+    }
+
+    public void SetQuestionPaused(bool paused)
+    {
+        questionPaused = paused;
+        if (mixer.IsValid()) mixer.SetSpeed(paused ? 0 : 1);
+    }
+
+    public void ReleaseQuestionTurn()
+    {
+        SetQuestionPaused(false);
+        questionTurn = false;
     }
 
     private bool CreateAnimationGraph()
     {
-        if (targetAnimator == null)
-        {
-            Debug.LogWarning(
-                gameObject.name +
-                ": Target Animator가 연결되지 않았습니다.",
-                this
-            );
-
-            return false;
-        }
-
-        AnimationClip idleClip =
-            GetIdleClip();
-
-        if (idleClip == null)
-        {
-            Debug.LogWarning(
-                gameObject.name +
-                ": 기본 Idle Clip을 찾지 못했습니다.",
-                this
-            );
-
-            return false;
-        }
-
         DestroyAnimationGraph();
-
-        playableGraph =
-            PlayableGraph.Create(
-                gameObject.name +
-                "_ServerAudienceGraph"
-            );
-
-        playableGraph.SetTimeUpdateMode(
-            DirectorUpdateMode.GameTime
-        );
-
-        AnimationPlayableOutput output =
-            AnimationPlayableOutput.Create(
-                playableGraph,
-                "AudienceAnimation",
-                targetAnimator
-            );
-
-        mixer =
-            AnimationMixerPlayable.Create(
-                playableGraph,
-                2
-            );
-
-        idlePlayable =
-            AnimationClipPlayable.Create(
-                playableGraph,
-                idleClip
-            );
-
+        if (!targetAnimator) targetAnimator = GetComponentInChildren<Animator>();
+        var idle = idleClipOverride;
+        if (!idle && catalog) catalog.TryGetClip(defaultIdleVariation, gender, out idle);
+        if (!idle && catalog) catalog.TryGetClip("BL_01.neutral_listening", gender, out idle);
+        if (!targetAnimator || !idle) return false;
+        playableGraph = PlayableGraph.Create(name + "_ServerAudienceGraph");
+        playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+        mixer = AnimationMixerPlayable.Create(playableGraph, 1);
+        var idlePlayable = AnimationClipPlayable.Create(playableGraph, idle);
         idlePlayable.SetApplyFootIK(false);
         idlePlayable.SetApplyPlayableIK(false);
-
-        if (
-            randomizeIdleStartTime &&
-            idleClip.length > 0.1f)
-        {
-            idlePlayable.SetTime(
-                Random.Range(
-                    0f,
-                    idleClip.length
-                )
-            );
-        }
-
-        playableGraph.Connect(
-            idlePlayable,
-            0,
-            mixer,
-            0
-        );
-
-        mixer.SetInputWeight(0, 1f);
-        mixer.SetInputWeight(1, 0f);
-
+        if (randomizeIdleStartTime) idlePlayable.SetTime(Random.Range(0, idle.length));
+        playableGraph.Connect(idlePlayable, 0, mixer, 0);
+        mixer.SetInputWeight(0, 1);
+        var output = AnimationPlayableOutput.Create(playableGraph, "AudienceAnimation", targetAnimator);
         output.SetSourcePlayable(mixer);
         playableGraph.Play();
-
         return true;
     }
 
-    private AnimationClip GetIdleClip()
+    public bool PlayServerVariation(string variationId, float requestedDuration, float intensity)
     {
-        if (idleClipOverride != null)
-            return idleClipOverride;
-
-        if (catalog != null &&
-            catalog.TryGetClip(
-                defaultIdleVariation,
-                gender,
-                out AnimationClip catalogIdle))
+        // Presentation reactions can interrupt each other; the explicit Q&A speaking turn is reserved.
+        if (questionTurn) return false;
+        var seat = GetComponent<AudienceSeatAssignment>();
+        if (seat && !seat.Allows(variationId)) return false;
+        if (AudienceSeatAssignment.IsSideConversation(variationId))
         {
-            return catalogIdle;
+            // Never trust a character ID or an incoming L/R suffix to choose the side.
+            if (!seat || !seat.TryGetConversationVariation(out variationId)) return false;
         }
-
-        if (catalog != null &&
-            catalog.TryGetClip(
-                "BL_01.neutral_listening",
-                gender,
-                out AnimationClip fallbackIdle))
+        if (!isActiveAndEnabled || !playableGraph.IsValid() || !catalog ||
+            !catalog.TryGetClip(variationId, gender, out var clip)) return false;
+        if(IsTyping(variationId))
         {
-            return fallbackIdle;
+            if(!seat || !seat.Seat || !seat.Seat.HasLaptop || !seat.Seat.laptopAnchor) return false;
+            ownsSeatFacing=true;
+            if(target == null || !IsTyping(target.variation))
+            {
+                if(!pendingTypingClip) BeginTransition(null,0);
+                pendingTypingClip=clip; pendingTypingVariation=variationId;
+                pendingTypingDuration=requestedDuration; pendingTypingIntensity=intensity;
+                return true;
+            }
         }
-
-        return null;
+        pendingTypingClip=null;
+        PlayClip(variationId,clip,requestedDuration,intensity);
+        return true;
     }
 
-    private IEnumerator PlayActionRoutine(
-        AnimationClip clip,
-        string variationId,
-        float requestedDuration,
-        float intensity)
+    private void PlayClip(string variationId, AnimationClip clip, float requestedDuration, float intensity)
     {
-        actionPlayable =
-            AnimationClipPlayable.Create(
-                playableGraph,
-                clip
-            );
-
-        actionPlayable.SetTime(0);
-        actionPlayable.SetApplyFootIK(false);
-        actionPlayable.SetApplyPlayableIK(false);
-
-        float safeRequestedDuration =
-            Mathf.Max(
-                0.2f,
-                requestedDuration
-            );
-
-        float playbackSpeed =
-            clip.length /
-            safeRequestedDuration;
-
-        playbackSpeed =
-            Mathf.Clamp(
-                playbackSpeed,
-                0.9f,
-                1.1f
-            );
-
-        actionPlayable.SetSpeed(
-            playbackSpeed
-        );
-
-        playableGraph.Connect(
-            actionPlayable,
-            0,
-            mixer,
-            1
-        );
-
-        mixer.SetInputWeight(1, 0f);
-
-        float playableClipDuration =
-            clip.length /
-            playbackSpeed;
-
-        // 자연스러운 속도로 재생하되,
-        // 서버가 요청한 시간까지만 보여준다.
-        float actualDuration =
-            Mathf.Min(
-                safeRequestedDuration,
-                playableClipDuration
-            );
-
-        float transitionDuration =
-            Mathf.Min(
-                blendDuration,
-                actualDuration * 0.35f
-            );
-
-        transitionDuration =
-            Mathf.Max(
-                0.05f,
-                transitionDuration
-            );
-
-        float actionWeight =
-            Mathf.Lerp(
-                0.7f,
-                1f,
-                Mathf.Clamp01(intensity)
-            );
-
-        if (printAnimationLog)
+        // Repeated evaluations of the same gesture update its strength/time without rewinding it.
+        // A completed one-shot needs a NEW input to crossfade into, never a time reset
+        // on an input which is still contributing to the visible pose.
+        bool isCore = !variationId.StartsWith("ACT_", System.StringComparison.Ordinal) && variationId != QuestionGesture;
+        var next = voices.Find(v => v.variation == variationId && v.clip == clip &&
+            (clip.isLooping || v.playable.GetTime() < clip.length - .01f));
+        if (next == null)
         {
-            Debug.Log(
-                "[청중 애니메이션 재생]" +
-                "\n청중: " +
-                gameObject.name +
-                "\nVariation ID: " +
-                variationId +
-                "\n클립: " +
-                clip.name +
-                "\n성별: " +
-                gender +
-                "\n재생 시간: " +
-                actualDuration.ToString("F2") +
-                "초" +
-                "\n전환 시간: " +
-                transitionDuration.ToString("F2") +
-                "초"
-            );
+            int port = 1;
+            while (voices.Exists(v => v.port == port)) port++;
+            if (port >= mixer.GetInputCount()) mixer.SetInputCount(port + 1);
+            var playable = AnimationClipPlayable.Create(playableGraph, clip);
+            playable.SetApplyFootIK(false);
+            playable.SetApplyPlayableIK(false);
+            playable.SetSpeed(1);
+            // Stable looping listening clips need not all begin at the same frame.
+            // One-shot actions always start at their authored beginning (hands/props).
+            if (isCore && clip.isLooping && randomizeIdleStartTime)
+                playable.SetTime(Random.Range(0, clip.length));
+            playableGraph.Connect(playable, 0, mixer, port);
+            mixer.SetInputWeight(port, 0);
+            next = new Voice { playable = playable, clip = clip, variation = variationId, port = port };
+            voices.Add(next);
         }
-
-        yield return BlendWeights(
-            0f,
-            actionWeight,
-            transitionDuration
-        );
-
-        float holdDuration =
-            Mathf.Max(
-                0f,
-                actualDuration -
-                transitionDuration * 2f
-            );
-
-        if (holdDuration > 0f)
-        {
-            yield return new WaitForSeconds(
-                holdDuration
-            );
-        }
-
-        yield return BlendWeights(
-            actionWeight,
-            0f,
-            transitionDuration
-        );
-
-        RemoveActionPlayable();
-        actionRoutine = null;
+        float weight = Mathf.Clamp01(intensity);
+        if (isCore) { core = next; coreWeight = weight; }
+        remaining = isCore ? float.PositiveInfinity : Mathf.Max(.2f, requestedDuration);
+        // Same target refreshes must not restart the easing curve every evaluation.
+        if (target != next || !Mathf.Approximately(targetWeight, weight))
+            BeginTransition(next, weight);
+        if (printAnimationLog) Debug.Log($"[청중 전환] {name}: {variationId}, 요청 {remaining:F1}s, 블렌드 {transitionDuration:F1}s", this);
     }
 
-    private IEnumerator BlendWeights(
-        float startWeight,
-        float endWeight,
-        float duration)
+    private void BeginTransition(Voice next, float weight)
     {
-        float elapsed = 0f;
-        float safeDuration =
-            Mathf.Max(0.01f, duration);
-
-        while (elapsed < safeDuration)
-        {
-            elapsed += Time.deltaTime;
-
-            float t =
-                Mathf.Clamp01(
-                    elapsed / safeDuration
-                );
-
-            // Smooth Step
-            t =
-                t * t *
-                (3f - 2f * t);
-
-            float actionWeight =
-                Mathf.Lerp(
-                    startWeight,
-                    endWeight,
-                    t
-                );
-
-            mixer.SetInputWeight(
-                0,
-                1f - actionWeight
-            );
-
-            mixer.SetInputWeight(
-                1,
-                actionWeight
-            );
-
-            yield return null;
-        }
-
-        mixer.SetInputWeight(
-            0,
-            1f - endWeight
-        );
-
-        mixer.SetInputWeight(
-            1,
-            endWeight
-        );
+        // Snapshot ALL live weights, including an unfinished previous blend.
+        // Never destroy the outgoing pose or insert an idle frame at command arrival.
+        idleFrom = mixer.GetInputWeight(0);
+        foreach (var voice in voices) voice.from = mixer.GetInputWeight(voice.port);
+        target = next;
+        targetWeight = next != null ? weight : 0;
+        transitionElapsed = 0;
+        transitionDuration = Mathf.Max(.1f, blendDuration);
+        transitioning = true;
     }
 
-    private void RemoveActionPlayable()
+    public void StopAction()
     {
-        if (!playableGraph.IsValid() ||
-            !mixer.IsValid())
-        {
-            return;
-        }
-
-        mixer.SetInputWeight(0, 1f);
-        mixer.SetInputWeight(1, 0f);
-
-        if (actionPlayable.IsValid())
-        {
-            playableGraph.Disconnect(
-                mixer,
-                1
-            );
-
-            actionPlayable.Destroy();
-        }
+        pendingTypingClip=null;
+        core = null;
+        if (mixer.IsValid()) BeginTransition(null, 0);
+        else SetPhotoPhoneVisible(false);
     }
 
+    private void Advance(float delta)
+    {
+        if (!mixer.IsValid()) return;
+        if (target != null && AudienceSeatAssignment.IsSideConversation(target.variation))
+        {
+            var assignment = GetComponent<AudienceSeatAssignment>();
+            if (!assignment || !assignment.TryGetConversationVariation(out var direction) || direction != target.variation)
+                StopAction();
+        }
+        UpdateSeatFacing(delta);
+        // One-shot clips hold their final pose rather than wrapping while fading out.
+        foreach (var voice in voices)
+        {
+            if (voice.clip.isLooping) continue;
+            double end = Mathf.Max(0, voice.clip.length - .001f);
+            if (voice.playable.GetTime() + delta >= end)
+            {
+                voice.playable.SetTime(end);
+                voice.playable.SetSpeed(0);
+            }
+        }
+        if (transitioning)
+        {
+            transitionElapsed += delta;
+            float t = Mathf.Clamp01(transitionElapsed / transitionDuration);
+            t = t * t * (3 - 2 * t);
+            float backgroundWeight = core != null && target != core ? (1 - targetWeight) * coreWeight : 0;
+            mixer.SetInputWeight(0, Mathf.Lerp(idleFrom, 1 - targetWeight - backgroundWeight, t));
+            foreach (var voice in voices)
+                mixer.SetInputWeight(voice.port, Mathf.Lerp(voice.from,
+                    voice == target ? targetWeight : voice == core ? backgroundWeight : 0, t));
+            if (transitionElapsed >= transitionDuration)
+            {
+                transitioning = false;
+                for (int i = voices.Count - 1; i >= 0; i--)
+                {
+                    var voice = voices[i];
+                    if (voice == target || voice == core) continue;
+                    playableGraph.Disconnect(mixer, voice.port);
+                    voice.playable.Destroy();
+                    voices.RemoveAt(i);
+                }
+            }
+        }
+        if (target != null)
+        {
+            remaining -= delta;
+            if (remaining <= 0)
+            {
+                remaining = float.PositiveInfinity;
+                BeginTransition(core, core != null ? coreWeight : 0);
+            }
+        }
+        float photoWeight = 0, deviceWeight = 0;
+        foreach (var voice in voices)
+        {
+            if (voice.variation == "ACT_02.photoslide") photoWeight += mixer.GetInputWeight(voice.port);
+            if (voice.variation == "ACT_03.devicechecking") deviceWeight += mixer.GetInputWeight(voice.port);
+        }
+        // Photo uses both hands; device checking holds the phone in the right hand.
+        // During a crossfade show only the dominant action's grip, never two phones.
+        SetPhotoPhoneVisible(photoWeight > .05f && photoWeight >= deviceWeight,
+            deviceWeight > .05f && deviceWeight > photoWeight);
+    }
+
+    private void UpdateSeatFacing(float delta)
+    {
+        if(!ownsSeatFacing) return;
+        var assignment=GetComponent<AudienceSeatAssignment>();
+        var seat=assignment ? assignment.Seat : null;
+        if(!seat) { pendingTypingClip=null; ownsSeatFacing=false; return; }
+        if((pendingTypingClip || (target != null && IsTyping(target.variation))) && (!seat.HasLaptop || !seat.laptopAnchor))
+        {
+            pendingTypingClip=null;
+            BeginTransition(null,0);
+        }
+        bool faceLaptop=pendingTypingClip || (target != null && IsTyping(target.variation));
+        var pose=GetComponent<AudienceSeatedPose>();
+        var correction=pose ? pose.facingCorrection : Quaternion.identity;
+        var facing=seat.transform.rotation;
+        if(faceLaptop)
+        {
+            var direction=seat.laptopAnchor.position-seat.transform.position;
+            direction.y=0;
+            if(direction.sqrMagnitude>.0001f) facing=Quaternion.LookRotation(direction,Vector3.up);
+        }
+        var desired=facing*correction;
+        transform.rotation=Quaternion.Slerp(transform.rotation,desired,1f-Mathf.Exp(-6f*Mathf.Max(0,delta)));
+        // Turn around the seated hip, not the FBX's offset root pivot.
+        if(pose) transform.position=seat.transform.position-transform.rotation*Vector3.Scale(pose.localHip,transform.localScale);
+        float angle=Quaternion.Angle(transform.rotation,desired);
+        if(pendingTypingClip && angle<4f)
+        {
+            var clip=pendingTypingClip;
+            pendingTypingClip=null;
+            PlayClip(pendingTypingVariation,clip,pendingTypingDuration,pendingTypingIntensity);
+        }
+        if(!faceLaptop && angle<.1f) {transform.rotation=desired; ownsSeatFacing=false;}
+    }
+
+    private void SetPhotoPhoneVisible(bool visible, bool deviceVisible = false)
+    {
+        if (photoPhone && photoPhone.activeSelf != visible) photoPhone.SetActive(visible);
+        if (devicePhone && devicePhone.activeSelf != deviceVisible) devicePhone.SetActive(deviceVisible);
+    }
     private void DestroyAnimationGraph()
     {
-        if (playableGraph.IsValid())
-            playableGraph.Destroy();
+        SetPhotoPhoneVisible(false);
+        if (playableGraph.IsValid()) playableGraph.Destroy();
+        voices.Clear(); target = core = null; transitioning = false;
+        pendingTypingClip=null; ownsSeatFacing=false;
+        questionTurn = questionPaused = false;
     }
 }

@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Rehear.Evc.Contracts;
 
 public class Scene03Manager : MonoBehaviour
@@ -18,8 +19,31 @@ public class Scene03Manager : MonoBehaviour
     [SerializeField]
     private TMP_Text credibilityText;
 
+    [Header("평가 상태 배지")]
+    [SerializeField]
+    private Image engagementBadge;
+
+    [SerializeField]
+    private Image clarityBadge;
+
+    [SerializeField]
+    private Image credibilityBadge;
+
+    [Header("결과 화면 흐름")]
+    [SerializeField]
+    private GameObject[] resultObjects;
+
+    [SerializeField]
+    private GameObject sessionEndedPanel;
+
+    // 웹 UI와 동일한 의미 색상: 우수(민트), 보통(앰버), 개선(레드)
+    private static readonly Color ExcellentTextColor = Hex("31C79A");
+    private static readonly Color AverageTextColor = Hex("FFBD21");
+    private static readonly Color ImproveTextColor = Hex("FF4C48");
+
     private void Start()
     {
+        ShowResults();
         ApplyReport();
     }
 
@@ -84,23 +108,9 @@ public class Scene03Manager : MonoBehaviour
                 overall.ToString();
         }
 
-        if (engagementText != null)
-        {
-            engagementText.text =
-                ConvertScoreToLevel(engagement);
-        }
-
-        if (clarityText != null)
-        {
-            clarityText.text =
-                ConvertScoreToLevel(clarity);
-        }
-
-        if (credibilityText != null)
-        {
-            credibilityText.text =
-                ConvertScoreToLevel(credibility);
-        }
+        ApplyRating(engagementText, engagementBadge, engagement);
+        ApplyRating(clarityText, clarityBadge, clarity);
+        ApplyRating(credibilityText, credibilityBadge, credibility);
 
         Debug.Log(
             "[피드백] AI 리포트 적용 완료" +
@@ -117,12 +127,40 @@ public class Scene03Manager : MonoBehaviour
     private string ConvertScoreToLevel(int score)
     {
         if (score >= 70)
-            return "높음";
+            return "우수";
 
         if (score >= 40)
             return "보통";
 
-        return "낮음";
+        return "개선";
+    }
+
+    private void ApplyRating(TMP_Text text, Image badge, int score)
+    {
+        if (text == null)
+            return;
+
+        string level = ConvertScoreToLevel(score);
+        text.text = level;
+        text.fontWeight = FontWeight.Bold;
+
+        Color textColor;
+        switch (level)
+        {
+            case "우수":
+                textColor = ExcellentTextColor;
+                break;
+            case "보통":
+                textColor = AverageTextColor;
+                break;
+            default:
+                textColor = ImproveTextColor;
+                break;
+        }
+
+        text.color = textColor;
+        if (badge != null)
+            badge.enabled = false;
     }
 
     private void ShowFallback()
@@ -149,10 +187,51 @@ public class Scene03Manager : MonoBehaviour
 
     public void GoToScene1()
     {
+        if (sessionEndedPanel != null)
+        {
+            if (resultObjects != null)
+            {
+                foreach (GameObject resultObject in resultObjects)
+                {
+                    if (resultObject != null)
+                        resultObject.SetActive(false);
+                }
+            }
+
+            sessionEndedPanel.SetActive(true);
+            return;
+        }
+
+        ReturnToStart();
+    }
+
+    public void ReturnToStart()
+    {
         RuntimeReportData.Clear();
 
         SceneManager.LoadScene(
             "Scene_01_Intro"
         );
+    }
+
+    private void ShowResults()
+    {
+        if (resultObjects != null)
+        {
+            foreach (GameObject resultObject in resultObjects)
+            {
+                if (resultObject != null)
+                    resultObject.SetActive(true);
+            }
+        }
+
+        if (sessionEndedPanel != null)
+            sessionEndedPanel.SetActive(false);
+    }
+
+    private static Color Hex(string rgb)
+    {
+        ColorUtility.TryParseHtmlString("#" + rgb, out Color color);
+        return color;
     }
 }

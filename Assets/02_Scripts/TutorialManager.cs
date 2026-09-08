@@ -22,6 +22,7 @@ public class TutorialManager : MonoBehaviour
 
     [Header("Common UI")]
     [SerializeField] private Image stageImage;
+    [SerializeField] private TutorialFigmaView figmaView;
     [SerializeField] private Image progressImage;
     [SerializeField] private Button primaryButton;
     [SerializeField] private TMP_Text primaryButtonText;
@@ -66,11 +67,22 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private PresentationManager presentationManager;
     [SerializeField] private ScriptScroller scriptScroller;
 
+    [Header("Quest 3 Controller Tutorial")]
+    [SerializeField] private Quest3TutorialControllerVisual controllerVisual;
+    [SerializeField] private TutorialControlGuideView controlGuide;
+    [SerializeField, Min(1.35f)] private float demonstrationDuration = 2.7f;
+
     [Header("Practice Feedback Sound")]
     [SerializeField] private AudioSource practiceAudioSource;
     [SerializeField] private AudioClip stickInputSound;
     [SerializeField] private AudioClip gripInputSound;
     [SerializeField] private AudioClip stepSuccessSound;
+    [SerializeField] private AudioClip triggerPromptSound;
+    [SerializeField] private AudioClip triggerInputSound;
+    [SerializeField] private AudioClip scriptBoundarySound;
+    [SerializeField] private AudioClip slideBoundarySound;
+    [SerializeField] private TMP_Text scriptRemainingText;
+    [SerializeField, Range(0f, 1f)] private float triggerPromptVolume = 0.35f;
     [SerializeField, Range(0f, 1f)] private float inputSoundVolume = 0.7f;
     [SerializeField, Range(0f, 1f)] private float successSoundVolume = 0.8f;
 
@@ -88,17 +100,26 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private int requiredPracticeCount = 3;
 
     [Header("Scenes")]
-    [SerializeField] private string pinSceneName = "Scene_01_Intro";
+    [UnityEngine.Serialization.FormerlySerializedAs("pinSceneName")]
+    [SerializeField] private string presentationSceneName = "Scene_02_Presentation";
 
     private TutorialStep currentStep;
     private InputAction stickAction;
     private InputAction gripAction;
     private bool stickLatched;
     private int practiceCount;
+    private bool scriptCompletionPending;
+    private bool slideCompletionPending;
+    private float slideCompletionAt;
+    private float scriptCompletionAt;
     private float lastButtonTime = -10f;
     private Transform tutorialRig;
     private Vector3 authoredRigPosition;
     private float authoredRigYaw;
+    private bool demonstrating;
+    private bool waitingForGuideRelease;
+    private float demonstrationReadyAt;
+    private InputAction triggerAction;
 
     private void Awake()
     {
@@ -120,6 +141,8 @@ public class TutorialManager : MonoBehaviour
         gripAction.AddBinding("<XRController>{RightHand}/gripButton");
         gripAction.AddBinding("<Keyboard>/p");
         gripAction.performed += OnGripPerformed;
+        triggerAction = new InputAction("Tutorial Trigger Release", InputActionType.Button,
+            "<XRController>{RightHand}/triggerButton");
     }
 
     private void Start()
@@ -221,12 +244,15 @@ public class TutorialManager : MonoBehaviour
     {
         stickAction?.Enable();
         gripAction?.Enable();
+        triggerAction?.Enable();
     }
 
     private void OnDisable()
     {
         stickAction?.Disable();
         gripAction?.Disable();
+        triggerAction?.Disable();
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
     }
 
     private void OnDestroy()
@@ -236,6 +262,7 @@ public class TutorialManager : MonoBehaviour
 
         stickAction?.Dispose();
         gripAction?.Dispose();
+        triggerAction?.Dispose();
     }
 
     private void PlayTutorialTts(AudioClip clip)
@@ -252,6 +279,9 @@ public class TutorialManager : MonoBehaviour
 
     private void Update()
     {
+        if (ProcessDemonstration(Time.unscaledTime)) return;
+        if (ProcessSlideCompletion(Time.unscaledTime)) return;
+        if (ProcessScriptCompletion(Time.unscaledTime)) return;
         // Stick input is deliberately ignored outside its own practice steps.
         if (currentStep != TutorialStep.SlidePractice &&
             currentStep != TutorialStep.RearSlidePractice &&
@@ -290,23 +320,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 return;
 
             stickLatched = true;
-            PlayPracticeSound(stickInputSound);
-
-            if (stick.x > 0f)
-                presentationManager?.NextSlide();
-            else
-                presentationManager?.PrevSlide();
-
-             if (currentStep == TutorialStep.SlidePractice)
-            {
-                // 앞 슬라이드 3회 후 뒤 디스플레이 연습으로 이동
-                CountStickPractice(TutorialStep.RearSlidePractice);
-            }
-            else
-            {
-                // 뒤 디스플레이에서도 3회 후 대본 연습으로 이동
-                CountStickPractice(TutorialStep.ScriptPractice);
-            }
+            HandleSlidePracticeInput(stick.x);
             return;
         }
 
@@ -314,20 +328,100 @@ if (currentStep == TutorialStep.RearSlidePractice &&
             return;
 
         stickLatched = true;
+        HandleScriptPracticeInput(stick.y);
+    }
+
+    private bool HandleSlidePracticeInput(float direction)
+    {
+        if (demonstrating || slideCompletionPending || !presentationManager || direction == 0f) return false;
+        var display = currentStep == TutorialStep.RearSlidePractice ? presentationManager.slideScreen : presentationManager.deskScreen;
+        if (!display || !display.isActiveAndEnabled) return false;
+        bool changed = direction > 0f ? presentationManager.TryNextSlide() : presentationManager.TryPrevSlide();
+        if (!changed)
+        {
+            if (presentationManager.IsAtSlideBoundary(direction > 0f) && practiceAudioSource && slideBoundarySound)
+                practiceAudioSource.PlayOneShot(slideBoundarySound, .35f);
+            return false;
+        }
         PlayPracticeSound(stickInputSound);
+        practiceCount++;
+        if (practiceCount >= requiredPracticeCount)
+        {
+            // Leave the final pressed state visible before hiding this step's hints.
+            slideCompletionPending = true;
+            slideCompletionAt = Time.unscaledTime + .2f;
+        }
+        return true;
+    }
 
-        if (stick.y < 0f)
-            scriptScroller?.NextPage();
-        else
-            scriptScroller?.PreviousPage();
+    private bool ProcessSlideCompletion(float now)
+    {
+        if (!slideCompletionPending) return false;
+        if (now >= slideCompletionAt)
+        {
+            slideCompletionPending = false;
+            if (currentStep == TutorialStep.SlidePractice) BeginDemonstration(TutorialStep.RearSlidePractice);
+            else if (currentStep == TutorialStep.RearSlidePractice) BeginDemonstration(TutorialStep.ScriptPractice);
+        }
+        return true;
+    }
 
-        CountStickPractice(TutorialStep.PausePractice);
+    private bool HandleScriptPracticeInput(float direction)
+    {
+        if (demonstrating || scriptCompletionPending || scriptScroller == null || direction == 0f) return false;
+        bool changed = direction < 0f ? scriptScroller.TryNextPage() : scriptScroller.TryPreviousPage();
+        if (!changed)
+        {
+            if (scriptScroller.IsAtPageBoundary(direction < 0f) && practiceAudioSource && scriptBoundarySound)
+                practiceAudioSource.PlayOneShot(scriptBoundarySound, .35f);
+            return false;
+        }
+
+        // Count and acknowledge actual page changes, never blocked boundary inputs.
+        PlayPracticeSound(stickInputSound);
+        practiceCount++;
+        UpdateScriptRemaining();
+        if (practiceCount >= requiredPracticeCount)
+        {
+            scriptCompletionPending = true;
+            scriptCompletionAt = Time.unscaledTime + .65f;
+        }
+        return true;
+    }
+
+    private void UpdateScriptRemaining()
+    {
+        if (scriptRemainingText)
+        {
+            int remaining = Mathf.Max(0, requiredPracticeCount - practiceCount);
+            scriptRemainingText.text = remaining > 0 ? remaining + "회 남음" : "완료!";
+        }
+    }
+
+    private bool ProcessScriptCompletion(float now)
+    {
+        if (!scriptCompletionPending) return false;
+        if (now >= scriptCompletionAt)
+        {
+            scriptCompletionPending = false;
+            BeginDemonstration(TutorialStep.PausePractice);
+        }
+        return true;
     }
 
     // Connect both Button.OnClick and XR Simple Interactable.Select Entered here.
     // The short guard prevents one physical click from being counted twice.
     public void OnPrimaryButtonPressed()
     {
+        if (demonstrating)
+        {
+            if (Time.unscaledTime >= demonstrationReadyAt && !waitingForGuideRelease)
+            {
+                waitingForGuideRelease = true;
+                controlGuide?.SetWaitingForRelease();
+            }
+            return;
+        }
         if (!AcceptButtonEvent())
             return;
 
@@ -338,10 +432,11 @@ if (currentStep == TutorialStep.RearSlidePractice &&
                 break;
 
             case TutorialStep.PracticeIntro:
-                ShowTriggerPractice();
+                BeginDemonstration(TutorialStep.TriggerPractice);
                 break;
 
             case TutorialStep.TriggerPractice:
+                PlayPracticeSound(triggerInputSound);
                 CountTriggerPractice();
                 break;
 
@@ -353,6 +448,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     public void OnSecondaryButtonPressed()
     {
+        if (demonstrating) return;
         if (!AcceptButtonEvent())
             return;
 
@@ -404,6 +500,9 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void CountTriggerPractice()
     {
+        var practiceButton = figmaView && figmaView.HasStepButtons
+            ? figmaView.primaryButtons[(int)TutorialStep.TriggerPractice] : primaryButton;
+        if (practiceButton) practiceButton.GetComponent<TutorialButtonGlow>()?.NotifyAcceptedClick();
         practiceCount++;
 
         if (practiceCount == 1)
@@ -416,37 +515,18 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         }
         else if (practiceCount >= requiredPracticeCount)
         {
-            ShowSlidePractice();
-        }
-    }
-
-    private void CountStickPractice(TutorialStep nextStep)
-    {
-        practiceCount++;
-
-        if (practiceCount < requiredPracticeCount)
-            return;
-
-        if (nextStep == TutorialStep.RearSlidePractice)
-        {
-            ShowRearSlidePractice();
-        }
-        else if (nextStep == TutorialStep.ScriptPractice)
-        {
-            ShowScriptPractice();
-        }
-        else
-        {
-            ShowPausePractice();
+            BeginDemonstration(TutorialStep.SlidePractice);
         }
     }
 
     private void OnGripPerformed(InputAction.CallbackContext context)
     {
+        if (demonstrating) return;
         // Grip is deliberately ignored until the pause practice step.
         if (currentStep == TutorialStep.PausePractice)
         {
             currentStep = TutorialStep.PauseResumePractice;
+            figmaView?.Show((int)currentStep);
 
             if (stageImage != null)
                 stageImage.gameObject.SetActive(false);
@@ -454,17 +534,18 @@ if (currentStep == TutorialStep.RearSlidePractice &&
             if (progressImage != null)
                 progressImage.gameObject.SetActive(false);
 
-            if (timerStopPanel != null)
+            if (timerStopPanel != null && figmaView == null)
             {
                 timerStopPanel.SetActive(true);
                 timerStopPanel.transform.SetAsLastSibling();
             }
 
-            if (tutorial5_1Object != null)
+            if (tutorial5_1Object != null && figmaView == null)
             {
                 tutorial5_1Object.SetActive(true);
                 tutorial5_1Object.transform.SetAsLastSibling();
             }
+            controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
             PlayTutorialTts(tutorial5_1Tts);
 
             return;
@@ -487,6 +568,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowControllerGuide()
     {
         currentStep = TutorialStep.ControllerGuide;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(controllerGuideSprite, false, null,controllerGuideTts);
         SetPrimaryButton(true, "튜토리얼 시작하기");
         SetSecondaryButton(true, "건너뛰기");
@@ -495,6 +577,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     private void ShowPracticeIntro()
     {
         currentStep = TutorialStep.PracticeIntro;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial1Sprite, false, null, tutorial1Tts);
         SetPrimaryButton(true, "시작하기");
         SetSecondaryButton(false, string.Empty);
@@ -521,9 +604,16 @@ if (currentStep == TutorialStep.RearSlidePractice &&
     {
         currentStep = TutorialStep.TriggerPractice;
         practiceCount = 0;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial2Sprite, true, progress0Sprite, tutorial2Tts);
         SetPrimaryButton(true, "눌러보기");
         SetSecondaryButton(false, string.Empty);
+        var practiceButton = figmaView && figmaView.HasStepButtons
+            ? figmaView.primaryButtons[(int)TutorialStep.TriggerPractice] : primaryButton;
+        var glow = practiceButton ? practiceButton.GetComponent<TutorialButtonGlow>() : null;
+        if (glow) glow.ConfigurePrompt(triggerPromptSound, triggerPromptVolume);
+        else if (practiceAudioSource && triggerPromptSound)
+            practiceAudioSource.PlayOneShot(triggerPromptSound, triggerPromptVolume);
     }
 
     private void ShowSlidePractice()
@@ -533,6 +623,7 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         currentStep = TutorialStep.SlidePractice;
         practiceCount = 0;
         stickLatched = true;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial3Sprite, true, progress1Sprite, tutorial3Tts);
         HideButtons();
     }
@@ -548,7 +639,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
         // 스틱을 가운데로 되돌린 뒤부터 다시 입력받기
         stickLatched = true;
-        
+
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
 
         SetStage(
             tutorial3RearSprite,
@@ -566,7 +658,10 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
         currentStep = TutorialStep.ScriptPractice;
         practiceCount = 0;
+        scriptCompletionPending = false;
+        UpdateScriptRemaining();
         stickLatched = true;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial4Sprite, true, progress2Sprite, tutorial4Tts);
         HideButtons();
 
@@ -584,6 +679,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         practiceCount = 0;
         stickLatched = false;
 
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
+
         if (scriptPanel != null)
             scriptPanel.SetActive(false);
 
@@ -596,22 +693,109 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         PlayStepSuccessSound();
 
         currentStep = TutorialStep.Complete;
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
         SetStage(tutorial6Sprite, true, progress4Sprite, tutorial6Tts);
         SetPrimaryButton(true, "세션 시작하기");
         SetSecondaryButton(true, "처음으로 돌아가기");
     }
 
+    private void BeginDemonstration(TutorialStep practice)
+    {
+        // Keep the nine authored Figma step indices stable. Demonstrations are a
+        // separate, input-blocking phase before each practice, never a counted action.
+        if (!controlGuide) { EnterPractice(practice); return; }
+        currentStep = practice;
+        practiceCount = 0;
+        scriptCompletionPending = slideCompletionPending = false;
+        demonstrating = true;
+        waitingForGuideRelease = false;
+        demonstrationReadyAt = Time.unscaledTime + demonstrationDuration;
+        stickLatched = true;
+        tutorialTtsAudioSource?.Stop();
+        if (scriptPanel) scriptPanel.SetActive(false);
+        if (stageImage) stageImage.gameObject.SetActive(false);
+        if (progressImage) progressImage.gameObject.SetActive(false);
+        HideButtons();
+        figmaView?.Show(-1);
+        var cue = Quest3TutorialControllerVisual.Cue.Trigger;
+        string title = "검지로 트리거를 눌러요";
+        string body = "오른손 컨트롤러 앞쪽의 파란 버튼을 확인해 주세요.\n버튼을 가리킨 뒤 검지로 트리거를 눌러 선택해요.";
+        if (practice == TutorialStep.SlidePractice || practice == TutorialStep.RearSlidePractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.StickHorizontal;
+            title = "조이스틱을 좌우로 움직여요";
+            body = practice == TutorialStep.RearSlidePractice
+                ? "이번에는 뒤쪽 화면을 보며 슬라이드를 넘겨요.\n오른손 조이스틱을 좌우로 기울인 뒤 가운데로 놓아 주세요."
+                : "오른손 조이스틱을 왼쪽·오른쪽으로 기울여요.\n한 번 넘긴 뒤 가운데로 놓으면 다시 넘길 수 있어요.";
+        }
+        else if (practice == TutorialStep.ScriptPractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.StickVertical;
+            title = "조이스틱을 위아래로 움직여요";
+            body = "오른손 조이스틱을 위·아래로 기울여 대본을 넘겨요.\n한 번 넘긴 뒤 가운데로 놓으면 다시 넘길 수 있어요.";
+        }
+        else if (practice == TutorialStep.PausePractice)
+        {
+            cue = Quest3TutorialControllerVisual.Cue.Grip;
+            title = "중지로 그립을 눌러요";
+            body = "오른손 컨트롤러 옆면의 파란 버튼을 확인해 주세요.\n그립을 쥐면 일시정지하고, 놓았다 다시 쥐면 재개해요.";
+        }
+        controlGuide.Show(title, body);
+        controllerVisual?.Show(cue);
+    }
+
+    private bool ProcessDemonstration(float now)
+    {
+        return AdvanceDemonstration(now, triggerAction?.IsPressed() ?? false,
+            gripAction?.IsPressed() ?? false, stickAction?.ReadValue<Vector2>() ?? Vector2.zero);
+    }
+
+    private bool AdvanceDemonstration(float now, bool triggerHeld, bool gripHeld, Vector2 stick)
+    {
+        if (!demonstrating) return false;
+        if (!waitingForGuideRelease)
+        {
+            controlGuide?.SetReady(now >= demonstrationReadyAt);
+            return true;
+        }
+        // The click used to leave the guide must never become the first exercise
+        // input. Also require the stick and grip to be released before arming.
+        if (triggerHeld || gripHeld || stick.sqrMagnitude > releaseThreshold * releaseThreshold) return true;
+        demonstrating = false;
+        waitingForGuideRelease = false;
+        controlGuide?.Hide();
+        controllerVisual?.Show(Quest3TutorialControllerVisual.Cue.Hidden);
+        lastButtonTime = now;
+        EnterPractice(currentStep);
+        return true;
+    }
+
+    private void EnterPractice(TutorialStep practice)
+    {
+        switch (practice)
+        {
+            case TutorialStep.TriggerPractice: ShowTriggerPractice(); break;
+            case TutorialStep.SlidePractice: ShowSlidePractice(); break;
+            case TutorialStep.RearSlidePractice: ShowRearSlidePractice(); break;
+            case TutorialStep.ScriptPractice: ShowScriptPractice(); break;
+            case TutorialStep.PausePractice: ShowPausePractice(); break;
+        }
+    }
+
     private void SetStage(Sprite sprite, bool showProgress, Sprite progressSprite, AudioClip ttsClip)
     {
+        controlGuide?.Hide();
+        figmaView?.Show((int)currentStep);
         if (stageImage != null)
         {
             stageImage.gameObject.SetActive(true);
             stageImage.sprite = sprite;
+            if (figmaView != null) stageImage.enabled = false;
         }
 
         if (progressImage != null)
         {
-            progressImage.gameObject.SetActive(showProgress);
+            progressImage.gameObject.SetActive(showProgress && figmaView == null);
             if (showProgress)
                 progressImage.sprite = progressSprite;
         }
@@ -626,6 +810,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void SetPrimaryButton(bool visible, string label)
     {
+        if (figmaView && figmaView.SetStepButton((int)currentStep, true, visible, label))
+            return;
         if (primaryButton != null)
             primaryButton.gameObject.SetActive(visible);
 
@@ -635,6 +821,8 @@ if (currentStep == TutorialStep.RearSlidePractice &&
 
     private void SetSecondaryButton(bool visible, string label)
     {
+        if (figmaView && figmaView.SetStepButton((int)currentStep, false, visible, label))
+            return;
         if (secondaryButton != null)
             secondaryButton.gameObject.SetActive(visible);
 
@@ -647,6 +835,6 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         PlayerPrefs.DeleteKey("ShowSessionReadyOnLoad");
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(pinSceneName);
+        SceneManager.LoadScene(presentationSceneName);
     }
 }

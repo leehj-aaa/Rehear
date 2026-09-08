@@ -9,6 +9,14 @@ public class ScriptScroller : MonoBehaviour
     [SerializeField]
     private TMP_Text pageIndicatorText;
 
+    [Header("Optional page direction hints")]
+    [SerializeField] private GameObject previousPageHint;
+    [SerializeField] private GameObject nextPageHint;
+
+    public int CurrentPage => currentPage;
+    public int PageCount => pageCount;
+    public bool IsAtPageBoundary(bool next) => CanChangePage() && (next ? currentPage >= pageCount : currentPage <= 1);
+
     [Header("Firebase 대본")]
     [SerializeField]
     private bool useRuntimeSessionScript = true;
@@ -55,7 +63,10 @@ public class ScriptScroller : MonoBehaviour
     public void RefreshPagination()
     {
         if (scriptText == null)
+        {
+            UpdateDirectionHints();
             return;
+        }
 
         scriptText.overflowMode =
             TextOverflowModes.Page;
@@ -81,28 +92,36 @@ public class ScriptScroller : MonoBehaviour
         ApplyPage();
     }
 
-    public void NextPage()
+    // Keep the void methods available to existing UnityEvent bindings.
+    public void NextPage() => TryNextPage();
+    public void PreviousPage() => TryPreviousPage();
+
+    public bool TryNextPage()
     {
         if (!CanChangePage() ||
             currentPage >= pageCount)
         {
-            return;
+            return false;
         }
 
         currentPage++;
+        ShowPagePress(nextPageHint);
         ApplyPage();
+        return true;
     }
 
-    public void PreviousPage()
+    public bool TryPreviousPage()
     {
         if (!CanChangePage() ||
             currentPage <= 1)
         {
-            return;
+            return false;
         }
 
         currentPage--;
+        ShowPagePress(previousPageHint);
         ApplyPage();
+        return true;
     }
 
     public void ResetToFirstPage()
@@ -115,7 +134,14 @@ public class ScriptScroller : MonoBehaviour
     {
         return
             scriptText != null &&
+            !string.IsNullOrWhiteSpace(scriptText.text) &&
             scriptText.gameObject.activeInHierarchy;
+    }
+
+    private static void ShowPagePress(GameObject hint)
+    {
+        if (Application.isPlaying && hint != null)
+            hint.GetComponent<TutorialDirectionArrow>()?.ShowPressedFeedback();
     }
 
     private void ApplyPage()
@@ -133,5 +159,16 @@ public class ScriptScroller : MonoBehaviour
                 " / " +
                 pageCount;
         }
+
+        UpdateDirectionHints();
+    }
+
+    private void UpdateDirectionHints()
+    {
+        bool hasText = scriptText != null && !string.IsNullOrWhiteSpace(scriptText.text);
+        if (previousPageHint != null)
+            previousPageHint.SetActive(hasText && currentPage > 1);
+        if (nextPageHint != null)
+            nextPageHint.SetActive(hasText && currentPage < pageCount);
     }
 }

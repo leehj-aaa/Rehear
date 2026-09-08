@@ -95,6 +95,24 @@ namespace Rehear.Evc.Editor
                             errors.Add("Duplicate audience id: " + agents[index].AgentId);
                     }
 
+                    // Runtime-spawned audiences are validated from their serialized
+                    // prefab pool rather than requiring duplicate scene characters.
+                    foreach (var seating in root.GetComponentsInChildren<AudienceSeating>(true))
+                    {
+                        if (seating.audiencePrefabs == null || seating.audiencePrefabs.Length != 6 ||
+                            seating.actionRegistries == null || seating.actionRegistries.Length != 6 ||
+                            seating.seats == null || seating.seats.Length != 6)
+                        { errors.Add("Audience seating requires six prefabs, registries and seats."); continue; }
+                        var seatIds = new HashSet<string>();
+                        for (int i = 0; i < 6; i++)
+                        {
+                            if (!seating.audiencePrefabs[i] || !seating.seats[i])
+                            { errors.Add("Missing audience seating reference at " + i); continue; }
+                            if (!seatIds.Add(seating.seats[i].SeatId)) errors.Add("Duplicate seat id.");
+                            if (!ids.Add(EvcContractRules.RequiredAudienceIds[i])) errors.Add("Duplicate spawned audience id.");
+                        }
+                    }
+
                     flows.AddRange(root.GetComponentsInChildren<PresentationFlowController>(true));
                     captures.AddRange(root.GetComponentsInChildren<AudioSegmentCapture>(true));
                     coordinators.AddRange(root.GetComponentsInChildren<AudienceReactionCoordinator>(true));

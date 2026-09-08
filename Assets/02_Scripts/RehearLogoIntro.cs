@@ -29,6 +29,9 @@ public sealed class RehearLogoIntro : MonoBehaviour
     private float elapsed;
     private bool isPlaying;
     private Coroutine delayedPlay;
+    private Coroutine buttonFade;
+    private CanvasGroup buttonGroup;
+    private OpeningStartCue triggerCue;
 
     private void Awake()
     {
@@ -41,10 +44,16 @@ public sealed class RehearLogoIntro : MonoBehaviour
         symbol = CreatePart("LogoPart_Symbol", "RehearLogoParts/Symbol", 3);
 
         source.enabled = false;
-        startButton = GameObject.Find("Btn_Scene00_to_Scene01");
+        startButton = transform.parent ? transform.parent.Find("Btn_Scene00_to_Scene01")?.gameObject : null;
+        if (!startButton) startButton = GameObject.Find("Btn_Scene00_to_Scene01");
+        if (startButton)
+        {
+            buttonGroup = startButton.GetComponent<CanvasGroup>();
+            if (!buttonGroup) buttonGroup = startButton.AddComponent<CanvasGroup>();
+            triggerCue = startButton.GetComponent<OpeningStartCue>();
+        }
         SetAllPartsHidden();
-        if (startButton != null)
-            startButton.SetActive(false);
+        HideStartButton();
     }
 
     private void OnEnable()
@@ -64,24 +73,19 @@ public sealed class RehearLogoIntro : MonoBehaviour
 
         elapsed = 0f;
         isPlaying = true;
-        if (startButton != null)
-            StartCoroutine(FadeInStartButton());    
+        if (buttonFade != null) { StopCoroutine(buttonFade); buttonFade = null; }
+        HideStartButton();
         Evaluate(0f);
         Debug.Log("[RehearLogoIntro] Visible 4.4 second playback started.", this);
     }
 
     private IEnumerator FadeInStartButton()
     {
+        // The group must block input before activation fires button OnEnable.
+        buttonGroup.alpha = 0f;
+        buttonGroup.interactable = false;
+        buttonGroup.blocksRaycasts = false;
         startButton.SetActive(true);
-
-        CanvasGroup canvasGroup = startButton.GetComponent<CanvasGroup>();
-
-        if (canvasGroup == null)
-            canvasGroup = startButton.AddComponent<CanvasGroup>();
-
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
 
         float elapsedTime = 0f;
 
@@ -91,15 +95,31 @@ public sealed class RehearLogoIntro : MonoBehaviour
                 ? Time.unscaledDeltaTime
                 : Time.deltaTime;
 
-            canvasGroup.alpha =
+            buttonGroup.alpha =
                 Mathf.Clamp01(elapsedTime / buttonFadeDuration);
 
             yield return null;
         }
 
-        canvasGroup.alpha = 1f;
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
+        buttonGroup.alpha = 1f;
+        buttonGroup.interactable = true;
+        buttonGroup.blocksRaycasts = true;
+        // This is the single point where the CTA and the physical trigger cue become ready.
+        if (triggerCue) triggerCue.SetIntroReady(true);
+        buttonFade = null;
+    }
+
+    private void HideStartButton()
+    {
+        if (triggerCue) triggerCue.SetIntroReady(false);
+        if (buttonGroup) { buttonGroup.alpha = 0; buttonGroup.interactable = false; buttonGroup.blocksRaycasts = false; }
+        if (startButton) startButton.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines(); delayedPlay = null; buttonFade = null; isPlaying = false;
+        HideStartButton();
     }
 
     private void Update()
@@ -114,7 +134,7 @@ public sealed class RehearLogoIntro : MonoBehaviour
         {
             isPlaying = false;
             if (startButton != null)
-                startButton.SetActive(true);
+                buttonFade = StartCoroutine(FadeInStartButton());
             Debug.Log("[RehearLogoIntro] Playback completed at 4.4 seconds.", this);
         }
     }

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using System;
 using System.Collections.Generic;
@@ -376,24 +376,8 @@ public static class AudienceAnimationCatalogBuilder
                 "_F"
             );
 
-        // ACT_08 Side Conversation은
-        // L/R 파일이지만 서버 Variation은 하나다.
-        if (normalized.StartsWith(
-                "ACT_08_",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            normalized =
-                RemoveEnding(
-                    normalized,
-                    "_L"
-                );
-
-            normalized =
-                RemoveEnding(
-                    normalized,
-                    "_R"
-                );
-        }
+        // Keep ACT_08 L/R as distinct local clips. The server's common
+        // ACT_08.side_conversation ID is resolved using the occupied seat.
 
         string[] parts =
             normalized.Split(
