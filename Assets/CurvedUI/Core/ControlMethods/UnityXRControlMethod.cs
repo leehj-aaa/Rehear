@@ -40,7 +40,7 @@ namespace CurvedUI.Core.ControlMethods
             if (rightController == null || leftController == null)
                 FindControllerReferences();
             
-            if(isPlayMode && (rightController != null || leftController != null))
+            if(isPlayMode && (rightController == null || leftController == null))
                 Debug.LogError("CURVEDUI: Unity XR Control Method is missing controller references. " +
                                "Please assign them in the inspector.");
         }

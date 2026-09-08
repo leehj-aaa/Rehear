@@ -19,6 +19,9 @@
 *.blend1
 *.blend1.meta
 
+# Oversized source excluded from GitHub; exported Unity models remain tracked.
+/_Blender/CT_08_Generic.blend
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
@@ -112,3 +115,14 @@ InitTestScene*.unity*
 .DS_Store
 /Assets/Resources/DS_Store
 /Assets/Resources/DS_Store.meta
+
+# Blender working files (scenes for editing animation clips) - never commit
+*.blend
+*.blend.meta
+/_Blender/
+
+# Speech server local secrets, environments and recorded research data
+/Server/AzureSpeech/.env
+/Server/AzureSpeech/.venv/
+/Server/AzureSpeech/data/
+/Server/AzureSpeech/__pycache__/

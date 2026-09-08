@@ -109,6 +109,80 @@ namespace Rehear.Evc.Tests
             fixture.Dispose();
         }
 
+        [UnityTest]
+        public IEnumerator FreshEvaluation_InterruptsHigherPriorityAndCancelsOlderScheduledReaction()
+        {
+            var fixture = CreateFixture();
+            var old = Command("Body", "body.high", "old", 100);
+            old.duration = 30;
+            fixture.Coordinator.HandleCommands("old", new[] { old });
+            var scheduled = Command("Body", "body.high", "future", 100);
+            scheduled.start_time = 10;
+            fixture.Coordinator.HandleCommands("future", new[] { scheduled });
+            fixture.Clock.Elapsed = 5; // STT + evaluation took five seconds.
+            fixture.Coordinator.HandleCommands("fresh", new[] { Command("Body", "body.low", "fresh", 50) });
+            yield return null;
+            fixture.Clock.Elapsed = 20;
+            yield return null;
+            Assert.That(fixture.Players["Body"].PlayedActionIds, Is.EqualTo(new[] { "body.high", "body.low" }));
+            fixture.Dispose();
+        }
+
+        [UnityTest]
+        public IEnumerator BodyCoreAndAction_AreBothDeliveredEvenWhenOverlayIsListedFirst()
+        {
+            var fixture = CreateFixture();
+            var overlay = Command("Body", "body.high", "overlay", 100);
+            overlay.selected_variation_id = "ACT_05.seatadjust";
+            var core = Command("Body", "body.low", "core", 50);
+            core.selected_variation_id = "AL_01.stable_attention";
+            fixture.Coordinator.HandleCommands("combined", new[] { overlay, core });
+            yield return null;
+            Assert.That(fixture.Players["Body"].PlayedActionIds, Is.EqualTo(new[] { "body.low", "body.high" }));
+            fixture.Dispose();
+        }
+
+        [UnityTest]
+        public IEnumerator AudienceStarts_AreStaggeredButEachActorsLayersStayTogether()
+        {
+            var fixture = CreateFixture();
+            var face = fixture.Players["Face"];
+            var body = fixture.Players["Body"];
+            var commands = new List<UnityCommandDto>();
+            for (int i = 1; i <= 6; i++)
+                foreach (string layer in new[] { "Body", "Face" })
+                {
+                    var command = Command(layer, layer == "Body" ? "body.test" : "face.test", "actor-" + i, 50);
+                    command.agent_id = "audience_0" + i;
+                    commands.Add(command);
+                }
+            // Give all actors trackers so we measure actual scheduling, not just configured delays.
+            var trackers = new List<TrackingActionPlayer> { body };
+            foreach (var agent in fixture.Agents)
+            {
+                if (agent.AgentId == "audience_01") continue;
+                trackers.Add(AddPlayer(agent.gameObject, "Body"));
+                AddPlayer(agent.gameObject, "Face");
+                SetPrivateField(agent, "actionPlayerBehaviours", System.Array.Empty<MonoBehaviour>());
+                agent.Configure(agent.AgentId, fixture.Registry);
+            }
+            fixture.Coordinator.HandleCommands("stagger", commands);
+            for (int frame = 0; frame < 70; frame++)
+            {
+                fixture.Clock.Elapsed = frame / 60d;
+                yield return null;
+            }
+            var starts = new HashSet<int>();
+            foreach (var tracker in trackers)
+            {
+                Assert.That(tracker.PlayFrames, Has.Count.EqualTo(1));
+                starts.Add(tracker.PlayFrames[0]);
+            }
+            Assert.That(starts.Count, Is.EqualTo(6));
+            Assert.That(face.PlayFrames[0], Is.EqualTo(body.PlayFrames[0]));
+            fixture.Dispose();
+        }
+
         private static UnityCommandDto Command(string layer, string actionId, string syncGroup, int priority)
         {
             return new UnityCommandDto
@@ -241,6 +315,8 @@ namespace Rehear.Evc.Tests
             }
 
             public AudienceReactionCoordinator Coordinator { get; }
+            public AudienceActionRegistry Registry => registry;
+            public AudienceAgent[] Agents => root.GetComponentsInChildren<AudienceAgent>();
             public FakeClock Clock { get; }
             public Dictionary<string, TrackingActionPlayer> Players { get; }
 

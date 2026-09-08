@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Rehear.Evc.Data;
 using Rehear.Evc.Presentation;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PinInputManager : MonoBehaviour
 {
@@ -15,6 +17,13 @@ public class PinInputManager : MonoBehaviour
     [SerializeField] private GameObject panel_PinInput;
     [SerializeField] private GameObject panel_SessionReady;
     [SerializeField] private TMP_Text errorText;
+    [Header("Opening scene flow")]
+    [SerializeField] private bool continueToTutorial;
+    [SerializeField] private GameObject panel_Loading;
+    private int requestVersion;
+    private float loadingStarted;
+    private const float LoadTimeoutSeconds = 25f;
+    private bool InputVisible => isActiveAndEnabled && panel_PinInput && panel_PinInput.activeInHierarchy;
 
     [Header("세션 정보 표시")]
     [SerializeField] private TMP_Text sessionTypeValueText;
@@ -43,37 +52,45 @@ public class PinInputManager : MonoBehaviour
     private bool firebaseReady;
     private bool firebaseInitializing;
     private bool isLoading;
+    private bool isChangingScene;
     private void Awake()
     {
-        // 씬이 표시되는 첫 프레임부터 PIN 화면을 기본값으로 설정
-        ShowPinInputPanel();
+        // A loaded session must not flash the old PIN panel after the tutorial.
+        if (!continueToTutorial && RuntimeSessionData.Session != null &&
+            PresentationSessionContext.Current.HasPresentation)
+            ApplySessionInformation(RuntimeSessionData.Session);
+        else
+            ShowPinInputPanel();
     }
 
     private void Start()
     {
-        InitializeFirebase();
-
-        bool returnFromPresentation =
-            PlayerPrefs.GetInt(ShowSessionReadyKey, 0) == 1;
-
         PlayerPrefs.DeleteKey(ShowSessionReadyKey);
         PlayerPrefs.Save();
 
-        if (returnFromPresentation)
+        if (!continueToTutorial && RuntimeSessionData.Session != null &&
+            PresentationSessionContext.Current.HasPresentation)
         {
-            ShowSessionReadyPanel();
+            ApplySessionInformation(RuntimeSessionData.Session);
         }
         else
         {
             ShowPinInputPanel();
+            InitializeFirebase();
         }
     }
     private void Update()
 {
+    if (isLoading && !isChangingScene && Time.unscaledTime - loadingStarted > LoadTimeoutSeconds)
+    {
+        requestVersion++;
+        isLoading = false;
+        ShowError("서버 응답이 늦어지고 있습니다. 연결을 확인하고 다시 시도해 주세요.");
+    }
 #if UNITY_EDITOR || UNITY_STANDALONE
     Keyboard keyboard = Keyboard.current;
 
-    if (keyboard == null || isLoading)
+    if (keyboard == null || isLoading || !InputVisible)
         return;
 
     for (int number = 0; number <= 9; number++)
@@ -184,9 +201,12 @@ private bool WasNumberPressed(
     return;
 #endif
 
+    try
+    {
     FirebaseApp.CheckAndFixDependenciesAsync()
         .ContinueWithOnMainThread(task =>
         {
+            if (!this) return;
             firebaseInitializing = false;
 
             if (task.IsCanceled)
@@ -226,11 +246,20 @@ private bool WasNumberPressed(
                 );
             }
         });
+    }
+    catch (System.Exception exception)
+    {
+        firebaseInitializing = false;
+        firebaseReady = false;
+        ShowError("서버 연결 모듈을 초기화하지 못했습니다. Firebase 설치 상태를 확인해 주세요.");
+        Debug.LogException(exception);
+    }
 }
 
     // PIN 입력 영역을 누르면 숫자 키보드를 엽니다.
     public void OpenKeyboard()
     {
+        if (isLoading || !InputVisible) return;
         if (numberKeyboardPanel != null)
             numberKeyboardPanel.SetActive(true);
     }
@@ -238,13 +267,14 @@ private bool WasNumberPressed(
     // 숫자 키보드 버튼에서 문자열 숫자를 전달합니다.
     public void AddNumber(string number)
     {
-        if (isLoading)
+        if (isLoading || !InputVisible)
             return;
 
         if (currentIndex >= 4)
             return;
 
-        if (string.IsNullOrEmpty(number))
+        if (string.IsNullOrEmpty(number) || number.Length != 1 || number[0] < '0' || number[0] > '9' ||
+            pinTextSlots == null || currentIndex >= pinTextSlots.Length || !pinTextSlots[currentIndex])
             return;
 
         pinTextSlots[currentIndex].text = number;
@@ -263,7 +293,7 @@ private bool WasNumberPressed(
     // PIN 번호를 처음부터 다시 입력합니다.
     public void ResetInput()
     {
-        if (isLoading)
+        if (isLoading || !InputVisible)
             return;
 
         currentPin = "";
@@ -292,7 +322,7 @@ private bool WasNumberPressed(
     // 세션 불러오기 버튼에 연결합니다.
     public void OnSubmitButtonClicked()
     {
-        if (isLoading)
+        if (isLoading || !InputVisible)
             return;
 
         string pin = GetFullPin();
@@ -324,6 +354,14 @@ private bool WasNumberPressed(
     private void LoadSessionFromFirebase(string pin)
     {
         isLoading = true;
+        loadingStarted = Time.unscaledTime;
+        int version = ++requestVersion;
+        if (panel_Loading)
+        {
+            panel_PinInput.SetActive(false);
+            if (numberKeyboardPanel) numberKeyboardPanel.SetActive(false);
+            panel_Loading.SetActive(true);
+        }
 
         if (errorText != null)
         {
@@ -339,6 +377,7 @@ private bool WasNumberPressed(
         sessionReference.GetValueAsync()
             .ContinueWithOnMainThread(task =>
             {
+                if (!this || !isActiveAndEnabled || version != requestVersion) return;
                 isLoading = false;
 
                 if (task.IsCanceled)
@@ -438,18 +477,21 @@ private bool WasNumberPressed(
 
     NormalizeSessionData(session);
 
+    if (!LoadEvcPresentationContext(pin, session))
+    {
+        ShowError("세션 정보가 올바르지 않습니다. 웹에서 대본과 세션 설정을 확인해 주세요.");
+        return;
+    }
+
     RuntimeSessionData.Load(
         pin,
         session
     );
 
-    LoadEvcPresentationContext(pin, session);
-
     ApplySessionInformation(session);
 
     Debug.Log(
         "세션 불러오기 완료" +
-        "\nPIN: " + pin +
         "\n발표 제목: " +
         RuntimeSessionData.PresentationTitle +
         "\n발표 시간: " +
@@ -583,8 +625,43 @@ private void ApplySessionInformation(
     }
 
     ClearError();
+    if (continueToTutorial)
+    {
+        if (isChangingScene) return;
+        isChangingScene = true;
+        isLoading = true;
+        loadingStarted = Time.unscaledTime;
+        if (panel_PinInput) panel_PinInput.SetActive(false);
+        if (numberKeyboardPanel) numberKeyboardPanel.SetActive(false);
+        if (panel_Loading) panel_Loading.SetActive(true);
+        StartCoroutine(ContinueAfterLoading());
+        return;
+    }
     ShowSessionReadyPanel();
 }
+
+    private IEnumerator ContinueAfterLoading()
+    {
+        // Keep the loading screen visible while the next scene is prepared.
+        yield return new WaitForSecondsRealtime(.5f);
+        const string nextScene = "Scene_00_5_Tutorial";
+        if (!Application.CanStreamedLevelBeLoaded(nextScene))
+        {
+            isChangingScene = false;
+            isLoading = false;
+            ShowError("튜토리얼 씬을 불러올 수 없습니다. 빌드의 씬 설정을 확인해 주세요.");
+            yield break;
+        }
+        yield return SceneManager.LoadSceneAsync(nextScene);
+    }
+
+    private void OnDisable()
+    {
+        requestVersion++;
+        isLoading = false;
+        isChangingScene = false;
+        StopAllCoroutines();
+    }
 
     
 
@@ -621,7 +698,7 @@ private void ApplySessionInformation(
 
             page_2 = new Page2
             {
-                presentation_script_content = ""
+                presentation_script_content = "안녕하세요. Re:hear 시연용 발표입니다."
             },
 
             page_3 = new Page3
@@ -637,12 +714,8 @@ private void ApplySessionInformation(
             }
         };
 
-    RuntimeSessionData.Load(
-        pin,
-        demoSession
-    );
-
-    LoadEvcPresentationContext(pin, demoSession);
+    if (!LoadEvcPresentationContext(pin, demoSession, true)) return false;
+    RuntimeSessionData.Load(pin, demoSession);
 
     ApplySessionInformation(
         demoSession
@@ -653,11 +726,12 @@ private void ApplySessionInformation(
 
     private void ShowPinInputPanel()
     {
+        if (panel_Loading) panel_Loading.SetActive(false);
         if (panel_PinInput != null)
             panel_PinInput.SetActive(true);
 
         if (numberKeyboardPanel != null)
-            numberKeyboardPanel.SetActive(false);
+            numberKeyboardPanel.SetActive(continueToTutorial);
 
         if (panel_SessionReady != null)
             panel_SessionReady.SetActive(false);
@@ -665,6 +739,7 @@ private void ApplySessionInformation(
 
     private void ShowSessionReadyPanel()
     {
+        if (panel_Loading) panel_Loading.SetActive(false);
         if (panel_PinInput != null)
             panel_PinInput.SetActive(false);
 
@@ -680,6 +755,7 @@ private void ApplySessionInformation(
 
     private void ShowError(string message)
     {
+        if (panel_Loading && panel_Loading.activeSelf) ShowPinInputPanel();
         Debug.LogWarning(message);
 
         if (errorText != null)
@@ -692,12 +768,12 @@ private void ApplySessionInformation(
             errorText.text = "";
     }
 
-    private void LoadEvcPresentationContext(
+    private bool LoadEvcPresentationContext(
     string pin,
-    SessionData session)
+    SessionData session, bool isDemo = false)
     {
         if (session == null)
-            return;
+            return false;
 
         PresentationDataDto evcData =
             new PresentationDataDto
@@ -748,7 +824,7 @@ private void ApplySessionInformation(
                     },
 
                 is_demo_fallback =
-                    pin == "1234"
+                    isDemo
             };
 
         PresentationValidationResult validation =
@@ -762,7 +838,7 @@ private void ApplySessionInformation(
                 string.Join("\n", validation.Errors)
             );
 
-            return;
+            return false;
         }
 
         Debug.Log(
@@ -773,6 +849,7 @@ private void ApplySessionInformation(
             "\n질문 개수: " +
             evcData.page_1.qa_count + "개"
         );
+        return true;
     }
 
 }

@@ -23,6 +23,24 @@ namespace Rehear.Evc.Tests
 {
     public sealed class EvcPipelineTests
     {
+        [Test]
+        public void AudienceProfile_ReadsIndividualInterestAndKnowledgeFromServer()
+        {
+            var response = JsonUtility.FromJson<SmartStartResponse>(
+                "{\"audiences\":[{\"agent_id\":\"audience_01\",\"profile\":{\"row\":\"rear\",\"seat\":\"left\",\"has_laptop\":true,\"topic_interest\":0.61,\"prior_knowledge\":0.38}}]}");
+            Assert.That(response.audiences[0].profile.topic_interest, Is.EqualTo(.61f).Within(.0001f));
+            Assert.That(response.audiences[0].profile.prior_knowledge, Is.EqualTo(.38f).Within(.0001f));
+            Assert.That(response.audiences[0].profile.has_laptop, Is.True);
+        }
+        [TestCase(0f, "during_speech")]
+        [TestCase(.3f, "utterance_boundary")]
+        [TestCase(.8f, "silence_or_pause")]
+        public void PeriodicAudio_UsesMeasuredPauseInsteadOfAlwaysBoundary(float trailingSilence, string expected)
+        {
+            var samples = new float[16000];
+            for (int i = 0; i < (int)(16000 * (1 - trailingSilence)); i++) samples[i] = .05f;
+            Assert.That(AudioSegmentCapture.ClassifyUtterancePosition(samples, 1, 16000, .002f), Is.EqualTo(expected));
+        }
         private PresentationSessionContext context;
 
         [SetUp]

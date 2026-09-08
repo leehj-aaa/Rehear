@@ -1,0 +1,6 @@
+*
+!Dockerfile
+!requirements.lock.txt
+!app.py
+!continuous_stt.py
+!check_connection.py

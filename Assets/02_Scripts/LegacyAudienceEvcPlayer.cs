@@ -11,6 +11,7 @@ public class LegacyAudienceEvcPlayer :
         animationPlayer;
 
     public string Layer => "Body";
+    public void Configure(AudienceAnimationPlayer player) => animationPlayer = player;
 
     private void Reset()
     {
@@ -89,7 +90,6 @@ public class LegacyAudienceEvcPlayer :
 
     public void StopCommand()
     {
-        // AudienceAnimationPlayer가 명령 시간 종료 후
-        // 자체적으로 기본 자세로 복귀합니다.
+        if (animationPlayer) animationPlayer.StopAction();
     }
 }

@@ -8,18 +8,26 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [InitializeOnLoad]
 internal static class RehearCurvedUISetup
 {
     private const string OpeningScenePath = "Assets/01_Scene/Scene_00.unity";
     private const string FeedbackScenePath = "Assets/01_Scene/Scene_03_Feedback.unity";
+    private const string TutorialScenePath = "Assets/01_Scene/Scene_00_5_Tutorial.unity";
     private const string CanvasName = "Canvas";
     private const int CurveAngle = 35;
 
     static RehearCurvedUISetup()
     {
         EditorApplication.delayCall += ConfigureOpenScene;
+        EditorApplication.playModeStateChanged += state =>
+        {
+            if (state == PlayModeStateChange.EnteredEditMode &&
+                EditorSceneManager.GetActiveScene().path == TutorialScenePath)
+                EditorApplication.delayCall += ConfigureOpenScene;
+        };
     }
 
     [MenuItem("Rehear/Apply Curved UI To Current Supported Scene")]
@@ -28,14 +36,17 @@ internal static class RehearCurvedUISetup
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 
-        EnsureRequiredDefines();
-
         var scene = EditorSceneManager.GetActiveScene();
-        if (!scene.IsValid() || (scene.path != OpeningScenePath && scene.path != FeedbackScenePath))
+        if (!scene.IsValid() || (scene.path != OpeningScenePath && scene.path != FeedbackScenePath &&
+                                scene.path != TutorialScenePath))
             return;
 
-        var canvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-            .FirstOrDefault(item => item.name == CanvasName);
+        EnsureRequiredDefines();
+
+        var canvas = scene.path == TutorialScenePath
+            ? PrepareTutorialCanvas()
+            : UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .FirstOrDefault(item => item.gameObject.scene == scene && item.name == CanvasName);
         if (canvas == null)
         {
             Debug.LogError($"Rehear CurvedUI setup: {scene.name}의 Canvas를 찾지 못했습니다.");
@@ -56,6 +67,16 @@ internal static class RehearCurvedUISetup
         settings.AddEffectToChildren();
 
         GetOrAdd<CurvedUIRaycaster>(canvas.gameObject);
+        if (scene.path == TutorialScenePath)
+        {
+            // Flat physics targets would intercept the curved canvas ray before
+            // CurvedUI can map it back to the original Button.OnClick target.
+            foreach (var collider in canvas.GetComponentsInChildren<Collider>(true))
+            {
+                Undo.RecordObject(collider, "Use curved tutorial button hit areas");
+                collider.enabled = false;
+            }
+        }
         if (scene.path == OpeningScenePath)
             ArrangeOpeningUi(canvas.transform);
         ConfigureEventSystem();
@@ -65,6 +86,72 @@ internal static class RehearCurvedUISetup
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Debug.Log($"Rehear: {scene.name} UI에 CurvedUI(원통형 35°, Unity XR 입력)를 적용했습니다.", canvas);
+
+        if (scene.path == TutorialScenePath)
+        {
+            var report = $"scene={scene.path}\nrootCanvas={canvas.isRootCanvas}\nangle={settings.Angle}\n" +
+                         $"graphics={canvas.GetComponentsInChildren<Graphic>(true).Length}\n" +
+                         $"curvedEffects={canvas.GetComponentsInChildren<CurvedUIVertexEffect>(true).Length}\n" +
+                         $"buttons={canvas.GetComponentsInChildren<Button>(true).Length}\n" +
+                         $"saved={System.DateTime.UtcNow:O}\n";
+            System.IO.File.WriteAllText("Temp/RehearTutorialCurvedUI-validation.txt", report);
+        }
+    }
+
+    private static Canvas PrepareTutorialCanvas()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+        var panel = UnityEngine.Object.FindObjectsByType<RectTransform>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None)
+            .FirstOrDefault(item => item.gameObject.scene == scene && item.name == "TutorialUI");
+        if (panel == null)
+            return null;
+
+        if (panel.TryGetComponent<Canvas>(out var existingCanvas) && existingCanvas.isRootCanvas)
+            return existingCanvas;
+
+        var sourceCanvas = panel.GetComponentInParent<Canvas>();
+        var stage = panel.Find("Image_Stage") as RectTransform;
+        if (sourceCanvas == null || stage == null)
+            return null;
+
+        Canvas.ForceUpdateCanvases();
+        var panelSize = panel.rect.size;
+        var children = panel.Cast<Transform>().OfType<RectTransform>()
+            .Select(child => new { Rect = child, Position = child.localPosition, Size = child.rect.size })
+            .ToArray();
+        var worldPosition = panel.position;
+        var worldRotation = panel.rotation;
+        var worldScale = panel.lossyScale;
+        var guideWidth = stage.rect.width * Mathf.Abs(stage.localScale.x);
+
+        Undo.RegisterFullObjectHierarchyUndo(panel.gameObject, "Make tutorial a curved canvas");
+        Undo.SetTransformParent(panel, null, "Make tutorial a root canvas");
+        panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
+        panel.sizeDelta = new Vector2(guideWidth, panelSize.y);
+        panel.SetPositionAndRotation(worldPosition, worldRotation);
+        panel.localScale = worldScale;
+
+        // Restore stretched children as well as centered images and buttons.
+        foreach (var child in children)
+        {
+            child.Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, child.Size.x);
+            child.Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, child.Size.y);
+            child.Rect.localPosition = child.Position;
+        }
+
+        var canvas = GetOrAdd<Canvas>(panel.gameObject);
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = sourceCanvas.worldCamera;
+        canvas.additionalShaderChannels = sourceCanvas.additionalShaderChannels;
+        canvas.sortingLayerID = sourceCanvas.sortingLayerID;
+        canvas.sortingOrder = sourceCanvas.sortingOrder;
+        var scaler = GetOrAdd<CanvasScaler>(panel.gameObject);
+        scaler.dynamicPixelsPerUnit = 1f;
+        scaler.referencePixelsPerUnit = 100f;
+        if (panel.TryGetComponent<Image>(out var background) && background.color.a == 0f)
+            background.raycastTarget = false;
+        return canvas;
     }
 
     private static void ConfigureEventSystem()

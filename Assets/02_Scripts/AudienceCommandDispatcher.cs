@@ -89,6 +89,19 @@ public class AudienceCommandDispatcher :
     private void BuildBindingMap()
     {
         bindingMap.Clear();
+        var seating=FindFirstObjectByType<AudienceSeating>();
+        if(seating && seating.gameObject.scene==gameObject.scene && seating.members != null)
+        {
+            audienceBindings=new AudienceBinding[seating.members.Length];
+            for(int i=0;i<seating.members.Length;i++)
+            {
+                var member=seating.members[i];
+                audienceBindings[i]=new AudienceBinding { agentId=member.AgentId,
+                    bodyAnimator=member.GetComponent<AudienceAnimationPlayer>(),
+                    gazeController=member.GetComponent<AudienceGazeController>(),
+                    startOffset=i*.12f, durationMultiplier=1f };
+            }
+        }
 
         if (audienceBindings == null)
             return;
@@ -97,6 +110,11 @@ public class AudienceCommandDispatcher :
             AudienceBinding binding
             in audienceBindings)
         {
+            if (binding?.bodyAnimator && binding.bodyAnimator.GetComponent<AudienceSeatAssignment>())
+            {
+                var agent=binding.bodyAnimator.GetComponent<Rehear.Evc.Audience.AudienceAgent>();
+                if(agent) binding.agentId=agent.AgentId;
+            }
             if (binding == null ||
                 string.IsNullOrWhiteSpace(
                     binding.agentId))
@@ -248,6 +266,10 @@ public class AudienceCommandDispatcher :
 
             return;
         }
+
+        var seatAssignment = binding.bodyAnimator ? binding.bodyAnimator.GetComponent<AudienceSeatAssignment>() : null;
+        if (seatAssignment && (!seatAssignment.Allows(command.action_id) || !seatAssignment.Allows(command.selected_variation_id)))
+            return;
 
         float adjustedDuration =
             command.duration *

@@ -95,7 +95,7 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 0
-    - _Cutoff: 0.1
+    - _Cutoff: 0.195
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -127,8 +127,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.16352195, g: 0.15393542, b: 0.14860956, a: 1}
-    - _Color: {r: 0.16352192, g: 0.15393537, b: 0.14860952, a: 1}
+    - _BaseColor: {r: 0.13207549, g: 0.12179602, b: 0.118369535, a: 1}
+    - _Color: {r: 0.13207546, g: 0.12179599, b: 0.1183695, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _UvOffset: {r: 0, g: 0, b: 0, a: 0}

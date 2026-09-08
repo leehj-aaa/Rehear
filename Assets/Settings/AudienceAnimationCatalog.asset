@@ -34,9 +34,12 @@ MonoBehaviour:
   - variationId: ACT_07.self_contact
     maleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}
-  - variationId: ACT_08.side_conversation
+  - variationId: ACT_08.side_conversation_l
     maleClip: {fileID: -623603649343465320, guid: a348f1d0b987bc34f99efa2c42bf3160, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: a348f1d0b987bc34f99efa2c42bf3160, type: 3}
+  - variationId: ACT_08.side_conversation_r
+    maleClip: {fileID: -623603649343465320, guid: b19028be41a9b9343816a05bf0474657, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: b19028be41a9b9343816a05bf0474657, type: 3}
   - variationId: AL_01.active_following
     maleClip: {fileID: -623603649343465320, guid: 6f986feb29326b54aa276c7e1154c189, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: 063839c3027ab9440ad405eee0fae678, type: 3}
@@ -169,3 +172,6 @@ MonoBehaviour:
   - variationId: EM_07.gaze_withdrawal_negative
     maleClip: {fileID: -623603649343465320, guid: 8520b38a526a1441d887951301b201aa, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: 00e81742865c2a7499f7439254829091, type: 3}
+  - variationId: QS_01.raise_hand_question
+    maleClip: {fileID: -623603649343465320, guid: c6efeb41e0164be2beb9081bbc984bd0, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: b9b5bce0b3a4476c85fc8d6208ff42a6, type: 3}

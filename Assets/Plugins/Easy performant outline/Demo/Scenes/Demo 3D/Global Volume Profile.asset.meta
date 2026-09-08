@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3254824babe52184b9c05a1077d0c766
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 157187
+  packageName: Easy Performant Outline 2D | 3D (URP / HDRP)
+  packageVersion: 3.7
+  assetPath: Assets/Plugins/Easy performant outline/Demo/Scenes/Demo 3D/Global Volume
+    Profile.asset
+  uploadId: 902386

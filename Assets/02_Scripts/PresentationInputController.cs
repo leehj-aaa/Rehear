@@ -76,7 +76,7 @@ public class PresentationInputController : MonoBehaviour
 
         stickLatched = true;
 
-        if (presentationController != null && presentationController.IsPaused)
+        if (presentationController != null && (presentationController.IsPaused || presentationController.IsConfirmingSession))
             return;
 
         // 대각선 입력은 절댓값이 더 큰 축 하나만 실행한다.

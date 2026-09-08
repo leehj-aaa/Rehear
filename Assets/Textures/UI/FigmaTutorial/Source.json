@@ -1,0 +1,22 @@
+{
+  "file": "https://www.figma.com/design/t15qxZbFhezXWMyay2REVH/Re-hear-XR",
+  "page": "UI design",
+  "pageNode": "2323:26775",
+  "tutorialSection": "2323:39215",
+  "views": {
+    "controllerGuide": "2323:39216",
+    "intro": "2323:39465",
+    "trigger": "2323:39340",
+    "slideAndRearSlide": "2323:39351",
+    "script": "2323:39381",
+    "pausePractice": "2323:39397",
+    "pauseResume": "2323:39413",
+    "complete": "2323:39443"
+  },
+  "individualExports": [
+    "controller.png", "select.png", "pause.png", "slide.png", "script.png",
+    "pause-large.png", "replay.png", "exit.png",
+    "line-trigger.png", "line-grip.png", "line-stick.png"
+  ],
+  "implementation": "Text remains editable Pretendard TMP. Glass panels, buttons and progress dots are native UI. The office background is the live Unity scene, not an exported Figma backdrop."
+}

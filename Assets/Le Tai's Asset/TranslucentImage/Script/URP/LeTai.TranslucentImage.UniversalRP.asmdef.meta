@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e646286fd75dc0f44bb2f84ffb34408d
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Script/URP/LeTai.TranslucentImage.UniversalRP.asmdef
+  uploadId: 966744
