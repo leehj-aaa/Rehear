@@ -100,7 +100,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private int requiredPracticeCount = 3;
 
     [Header("Scenes")]
-    [SerializeField] private string pinSceneName = "Scene_01_Intro";
+    [UnityEngine.Serialization.FormerlySerializedAs("pinSceneName")]
+    [SerializeField] private string presentationSceneName = "Scene_02_Presentation";
 
     private TutorialStep currentStep;
     private InputAction stickAction;
@@ -834,6 +835,6 @@ if (currentStep == TutorialStep.RearSlidePractice &&
         PlayerPrefs.DeleteKey("ShowSessionReadyOnLoad");
         PlayerPrefs.Save();
 
-        SceneManager.LoadScene(pinSceneName);
+        SceneManager.LoadScene(presentationSceneName);
     }
 }

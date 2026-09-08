@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class AudienceGazeController : MonoBehaviour
 {
+    public void ConfigureTargets(Transform presenter, Transform slide, Transform[] around)
+    {
+        presenterTarget=presenter; slideTarget=slide; aroundTargets=around;
+    }
     private enum GazeState
     {
         Presenter,

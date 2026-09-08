@@ -40,6 +40,12 @@ namespace Rehear.Evc.Audience
             clock = presentationClock;
         }
 
+        public void ConfigureAgents(AudienceAgent[] sceneAgents)
+        {
+            agents = sceneAgents ?? Array.Empty<AudienceAgent>();
+            RebuildAgentLookup();
+        }
+
         public void SetServerMode(bool enabled)
         {
             serverMode = enabled;

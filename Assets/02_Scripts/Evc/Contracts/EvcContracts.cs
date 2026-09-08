@@ -33,8 +33,17 @@ namespace Rehear.Evc.Contracts
     {
         public string agent_id;
         public string id;
+        public AudienceSeatingProfile profile;
 
         public string AgentId => !string.IsNullOrWhiteSpace(agent_id) ? agent_id : id;
+    }
+
+    [Serializable]
+    public sealed class AudienceSeatingProfile
+    {
+        public string row;
+        public string seat;
+        public bool has_laptop;
     }
 
     [Serializable]

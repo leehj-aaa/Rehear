@@ -69,6 +69,13 @@ namespace Rehear.Evc.Audience
                 return false;
             }
 
+            var seating = GetComponent<AudienceSeatAssignment>();
+            if (seating && (!seating.Allows(command.action_id) || !seating.Allows(command.selected_variation_id)))
+            {
+                reason = "seat_action_not_available";
+                return false;
+            }
+
             if (!EvcContractRules.IsBlendMode(command.blend_mode))
             {
                 reason = "unknown_blend_mode";

@@ -46,6 +46,7 @@ namespace Rehear.Evc.Presentation
         private bool presentationFinalizedForQuestions;
         private PresentationReportService reportService;
         private bool questionFlowStarted;
+        private bool pausedByApplication;
         
 
         public ReportFeedback CurrentReport { get; private set; }
@@ -122,12 +123,13 @@ namespace Rehear.Evc.Presentation
             NormalizeServerSlideIndex(
                 currentSlideIndex
             );
-            // 일시정지는 8초 주기 조각과 별개의 짧은 조각을 만들지 않는다.
-            // 아직 전송되지 않은 부분은 버리고 재개 시 새 구간으로 녹음한다.
+            // Capture the valid remainder before stopping the microphone. The capture
+            // policy still filters silence and segments below the minimum duration.
+            var pendingSegment = FlushSegmentAsync("utterance_boundary", currentSlideIndex, cancellationToken);
             audioCapture?.StopCapture();
             clock.Pause();
             SetState(PresentationFlowState.Paused, string.Empty);
-            return Task.CompletedTask;
+            return pendingSegment;
         }
 
         public async Task ResumeAsync(CancellationToken cancellationToken)
@@ -169,8 +171,18 @@ namespace Rehear.Evc.Presentation
             {
                 if (isActivePresentation)
                 {
-                    // 종료 버튼 직전의 미완성 조각은 질문 생성을 막을 수 있으므로
-                    // 전송하지 않고 폐기한다. 이미 처리된 조각만 질문에 사용한다.
+                    if (!presentationFinalizedForQuestions && audioCapture != null && updateService != null)
+                    {
+                        var finalAudio = audioCapture.FlushSegment();
+                        audioCapture.StopCapture();
+                        presentationFinalizedForQuestions = true;
+                        if (finalAudio != null)
+                            await updateService.EnqueueAsync(new AudioSegmentPayload {
+                                Audio = finalAudio, ClientTimeSeconds = clock.ElapsedSeconds,
+                                SlideIndex = NormalizeServerSlideIndex(currentSlideIndex),
+                                UtterancePosition = "utterance_boundary", Language = language
+                            }, cancellationToken);
+                    }
                     audioCapture?.StopCapture();
                     presentationFinalizedForQuestions = true;
                 }
@@ -267,7 +279,8 @@ CurrentReport = null;
                     throw new InvalidOperationException("마이크 권한이 거부되었습니다.");
 
                 // slide_file is intentionally omitted until its source contract is supplied.
-                await sessionService.StartAsync(null, null, cancellationToken);
+                var startResponse = await sessionService.StartAsync(null, null, cancellationToken);
+                FindFirstObjectByType<AudienceSeating>()?.ApplyServerProfiles(startResponse.audiences);
 
                 audienceCoordinator?.SetServerMode(true);
                 clock.Start();
@@ -327,9 +340,15 @@ CurrentReport = null;
             try
             {
                 if (paused && State == PresentationFlowState.Running)
+                {
+                    pausedByApplication = true;
                     await PauseAsync(lastSlideIndex, lifetimeCancellation.Token);
-                else if (!paused && State == PresentationFlowState.Paused)
+                }
+                else if (!paused && pausedByApplication && State == PresentationFlowState.Paused)
+                {
+                    pausedByApplication = false;
                     await ResumeAsync(lifetimeCancellation.Token);
+                }
             }
             catch (OperationCanceledException)
             {
