@@ -165,13 +165,36 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
 
     private void LateUpdate()
     {
+        ApplyGaze(Time.deltaTime, Time.unscaledTime);
+    }
+
+#if UNITY_EDITOR
+    public float ResetManualGaze()
+    {
+        hasServerOverride = false;
+        evaluatedPresenterProbability = evaluatedSlideProbability = evaluatedAroundProbability = -1f;
+        smoothedDirection = gazeForwardReference ? gazeForwardReference.forward : transform.forward;
+        SetState(GazeState.Presenter, presenterTarget);
+        return Random.Range(initialDelayRange.x, initialDelayRange.y);
+    }
+
+    public float AdvanceManualGaze()
+    {
+        SelectNextRuleState();
+        return GetCurrentStateDuration();
+    }
+#endif
+
+    // Shared by runtime LateUpdate and the editor's manual animation preview.
+    public void ApplyGaze(float deltaTime, float clock)
+    {
         if (headBone == null ||
             gazeForwardReference == null)
         {
             return;
         }
 
-        UpdateServerOverride();
+        UpdateServerOverride(clock);
 
         Transform target =
             hasServerOverride
@@ -179,6 +202,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
                 : currentTarget;
         var body=GetComponent<AudienceAnimationPlayer>();
         if(body && body.TypingLookTarget) target=body.TypingLookTarget;
+        if(body && body.DeviceLookTarget) target=body.DeviceLookTarget;
         if(body && body.IsQuestionTurn && presenterTarget) target=presenterTarget;
 
         if (target == null)
@@ -189,8 +213,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             Color.cyan
         );
         Vector3 targetPosition =
-            target.position +
-            personalTargetOffset;
+            target.position + (body && (body.DeviceLookTarget || body.TypingLookTarget) ? Vector3.zero : personalTargetOffset);
 
         Vector3 desiredDirection =
             targetPosition -
@@ -208,7 +231,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             1f -
             Mathf.Exp(
                 -directionSmoothSpeed *
-                Time.deltaTime
+                deltaTime
             );
 
         smoothedDirection =
@@ -466,7 +489,8 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
 
     public void ApplyServerGaze(
         string actionId,
-        float duration)
+        float duration,
+        float clock = -1f)
     {
         if (string.IsNullOrWhiteSpace(
                 actionId))
@@ -516,7 +540,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
         hasServerOverride = true;
 
         serverOverrideEndTime =
-            Time.unscaledTime +
+            (clock < 0 ? Time.unscaledTime : clock) +
             Mathf.Max(0.2f, duration);
 
         if (printStateLog)
@@ -532,12 +556,12 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
         }
     }
 
-    private void UpdateServerOverride()
+    private void UpdateServerOverride(float clock)
     {
         if (!hasServerOverride)
             return;
 
-        if (Time.unscaledTime >=
+        if (clock >=
             serverOverrideEndTime)
         {
             hasServerOverride = false;
