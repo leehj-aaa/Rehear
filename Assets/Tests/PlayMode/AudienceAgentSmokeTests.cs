@@ -183,6 +183,33 @@ namespace Rehear.Evc.Tests
             fixture.Dispose();
         }
 
+        [UnityTest]
+        public IEnumerator IndependentPair_KeepsServerTimingAndQaCancelsPendingCommands()
+        {
+            var fixture = CreateFixture();
+            var second = fixture.Agents[1];
+            var tracker = AddPlayer(second.gameObject, "Body");
+            SetPrivateField(second, "actionPlayerBehaviours", System.Array.Empty<MonoBehaviour>());
+            second.Configure(second.AgentId, fixture.Registry);
+            var firstCommand = Command("Body", "body.test", "paired", 100);
+            var secondCommand = Command("Body", "body.test", "paired", 100);
+            secondCommand.agent_id = second.AgentId;
+            fixture.Coordinator.HandleIndependentReaction(new AudienceReactionResponse {
+                request_id = "independent", sequence = 1, commands = new[] { firstCommand, secondCommand } });
+            yield return null;
+            Assert.That(tracker.PlayFrames, Has.Count.EqualTo(1));
+            Assert.That(tracker.PlayFrames[0], Is.EqualTo(fixture.Players["Body"].PlayFrames[0]));
+            var later = Command("Body", "body.high", "late", 100);
+            later.start_time = 10;
+            fixture.Coordinator.HandleIndependentReaction(new AudienceReactionResponse {
+                request_id = "late", sequence = 2, commands = new[] { later } });
+            fixture.Coordinator.CancelPendingCommands();
+            fixture.Clock.Elapsed = 20;
+            yield return null;
+            Assert.That(fixture.Players["Body"].PlayedActionIds, Is.EqualTo(new[] { "body.test" }));
+            fixture.Dispose();
+        }
+
         private static UnityCommandDto Command(string layer, string actionId, string syncGroup, int priority)
         {
             return new UnityCommandDto

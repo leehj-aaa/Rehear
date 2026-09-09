@@ -76,6 +76,18 @@ namespace Rehear.Evc.Audience
 
         public void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands)
         {
+            HandleCommands(requestId, commands, false);
+        }
+
+        public void HandleIndependentReaction(AudienceReactionResponse response)
+        {
+            if (response == null) return;
+            HandleAudienceStates(response.audiences);
+            HandleCommands(response.request_id, response.commands, true);
+        }
+
+        private void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands, bool independent)
+        {
             if (!serverMode || commands == null || commands.Count == 0)
                 return;
             if (clock == null || !clock.IsRunning)
@@ -128,7 +140,7 @@ namespace Rehear.Evc.Audience
             responseAgents.Sort((a, b) => StableHash((requestId ?? "") + a).CompareTo(StableHash((requestId ?? "") + b)));
             var delays = new Dictionary<string, float>(StringComparer.Ordinal);
             for (int i = 0; i < responseAgents.Count; i++)
-                delays[responseAgents[i]] = responseAgents.Count < 2 ? 0 : reactionSpreadSeconds * i / (responseAgents.Count - 1);
+                delays[responseAgents[i]] = independent || responseAgents.Count < 2 ? 0 : reactionSpreadSeconds * i / (responseAgents.Count - 1);
             float conversationDelay = float.MaxValue;
             foreach (var id in conversationAgents) conversationDelay = Mathf.Min(conversationDelay, delays[id]);
             foreach (var id in conversationAgents) delays[id] = conversationDelay;
@@ -146,11 +158,16 @@ namespace Rehear.Evc.Audience
             }
         }
 
-        public void CancelAll()
+        public void CancelPendingCommands()
         {
             StopAllCoroutines();
             activeLayers.Clear();
             latestAgentVersion.Clear();
+        }
+
+        public void CancelAll()
+        {
+            CancelPendingCommands();
             for (var index = 0; index < agents.Length; index++)
                 agents[index]?.StopAll();
         }
