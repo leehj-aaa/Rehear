@@ -11,8 +11,8 @@ public sealed partial class RehearAudienceMotionPreview
     static int reviewIndex;
     static float reviewDuration;
     static string reviewStatus;
-    static readonly string[] ReviewGroups={"BL_","AL_","EM_","CT_","ACT_","QS_"};
-    static readonly string[] ReviewGroupNames={"기본 듣기","주의·긍정 반응","감정 반응","이해·혼란 반응","개별 행동","질문 손들기"};
+    static readonly string[] ReviewGroups={"BL_","AL_","EM_","CT_","ACT_","QS_","AP_"};
+    static readonly string[] ReviewGroupNames={"기본 듣기","주의·긍정 반응","감정 반응","이해·혼란 반응","개별 행동","질문 손들기","박수"};
 
     static string ReviewTitle(AudienceAnimationCatalog.Entry entry)
     {

@@ -331,7 +331,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
             playable.SetSpeed(1);
             // Stable looping listening clips need not all begin at the same frame.
             // One-shot actions always start at their authored beginning (hands/props).
-            if (isCore && clip.isLooping && randomizeIdleStartTime)
+            if (isCore && clip.isLooping && randomizeIdleStartTime && !variationId.StartsWith("AP_", System.StringComparison.Ordinal))
                 playable.SetTime(Random.Range(0, clip.length));
             playableGraph.Connect(playable, 0, mixer, port);
             mixer.SetInputWeight(port, 0);

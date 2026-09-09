@@ -175,3 +175,12 @@ MonoBehaviour:
   - variationId: QS_01.raise_hand_question
     maleClip: {fileID: -623603649343465320, guid: c6efeb41e0164be2beb9081bbc984bd0, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: b9b5bce0b3a4476c85fc8d6208ff42a6, type: 3}
+  - variationId: AP_01.polite_applause
+    maleClip: {fileID: -623603649343465320, guid: 6019fafdab824f0b95e946d60fee2cf5, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: a37423fde9dd45e9a83bee9ae0deaef9, type: 3}
+  - variationId: AP_02.enthusiastic_applause
+    maleClip: {fileID: -623603649343465320, guid: 257a331c46534f4da97a7d0f7a650afc, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: ff944fb005bd48f8a645146590bc4e2c, type: 3}
+  - variationId: AP_03.light_applause
+    maleClip: {fileID: -623603649343465320, guid: bbdfeff1d32f43978197784eedaf3e52, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: f6a3b142dcd04f84a023546877bda442, type: 3}

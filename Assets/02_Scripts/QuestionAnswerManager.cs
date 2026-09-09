@@ -412,6 +412,7 @@ public class QuestionAnswerManager : MonoBehaviour
 
 private void LoadFeedbackScene()
 {
+    FeedbackAudienceApplause.Capture(FindFirstObjectByType<AudienceSeating>());
     SceneManager.LoadScene(
         "Scene_03_Feedback"
     );
