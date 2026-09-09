@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 
 namespace Rehear.Evc.Transport
 {
-    public sealed class UnityWebRequestEvcApiClient : IEvcApiClient
+    public sealed class UnityWebRequestEvcApiClient : IEvcApiClient, IAudienceReactionClient
     {
         private const string SessionTokenHeader = "X-EVC-Session-Token";
         private readonly EvcEnvironmentConfig config;
@@ -33,6 +33,7 @@ namespace Rehear.Evc.Transport
             };
 
             AddOptionalField(sections, "topic_interest", request.topic_interest);
+            sections.Add(Field("independent_reactions", "true"));
             AddOptionalField(sections, "prior_knowledge", request.prior_knowledge);
             AddOptionalField(sections, "pre_session_pin", request.pre_session_pin);
             if (request.seed.HasValue)
@@ -82,6 +83,19 @@ namespace Rehear.Evc.Transport
                 if (response.commands == null)
                     response.commands = Array.Empty<UnityCommandDto>();
                 return response;
+            }
+        }
+
+        public async Task<AudienceReactionResponse> PollReactionsAsync(string sessionId, string token,
+            AudienceReactionRequest request, CancellationToken cancellationToken)
+        {
+            ValidateProtectedRequest(sessionId, token);
+            using (var webRequest = CreateJsonPost(config.BuildApiUrl("/sessions/" + UnityWebRequest.EscapeURL(sessionId) +
+                       "/reactions"), JsonUtility.ToJson(request)))
+            {
+                Configure(webRequest, token);
+                webRequest.timeout = 8;
+                return await SendAndReadAsync<AudienceReactionResponse>(webRequest, cancellationToken);
             }
         }
 

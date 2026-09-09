@@ -51,6 +51,7 @@ namespace Rehear.Evc.Contracts
     [Serializable]
     public sealed class SmartStartResponse
     {
+        public bool independent_reactions;
         public string session_id;
         public string session_token;
         public int seed;
@@ -108,6 +109,8 @@ namespace Rehear.Evc.Contracts
     [Serializable]
     public sealed class EvcUpdateResponse
     {
+        public bool independent_reactions;
+        public string no_op_reason;
         public string session_id;
         public string request_id;
         public int step;
@@ -119,12 +122,36 @@ namespace Rehear.Evc.Contracts
     [Serializable]
     public sealed class SessionResponse
     {
+        public bool independent_reactions;
         public string session_id;
         public int seed;
         public int step;
         public int slide_count;
         public string status;
         public AudienceDto[] audiences;
+    }
+
+    [Serializable]
+    public sealed class AudienceReactionRequest
+    {
+        public string request_id;
+        public double client_time_s;
+    }
+
+    [Serializable]
+    public sealed class AudienceReactionResponse
+    {
+        public string session_id;
+        public string request_id;
+        public int sequence;
+        public AudienceUpdateDto[] audiences;
+        public UnityCommandDto[] commands;
+    }
+
+    public interface IAudienceReactionClient
+    {
+        Task<AudienceReactionResponse> PollReactionsAsync(string sessionId, string token,
+            AudienceReactionRequest request, CancellationToken cancellationToken);
     }
 
     [Serializable]

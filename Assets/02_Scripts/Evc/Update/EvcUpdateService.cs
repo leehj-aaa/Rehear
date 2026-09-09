@@ -236,9 +236,14 @@ namespace Rehear.Evc.Update
                         "\nStep: " + response.step +
                         "\n명령 개수: " + commandCount
                     );
-                    if (commandSink is IAudienceStateSink stateSink)
-                        stateSink.HandleAudienceStates(response.audiences ?? Array.Empty<AudienceUpdateDto>());
-                    commandSink?.HandleCommands(requestId, response.commands ?? Array.Empty<UnityCommandDto>());
+                    // Analysis snapshots feed reports. Only the independent listener
+                    // clock may change visible state/motion in the new protocol.
+                    if (!response.independent_reactions)
+                    {
+                        if (commandSink is IAudienceStateSink stateSink)
+                            stateSink.HandleAudienceStates(response.audiences ?? Array.Empty<AudienceUpdateDto>());
+                        commandSink?.HandleCommands(requestId, response.commands ?? Array.Empty<UnityCommandDto>());
+                    }
                     succeeded = true;
                     return response;
                 }
@@ -283,7 +288,8 @@ namespace Rehear.Evc.Update
             if (response == null ||
                 response.session_id != request.session_id ||
                 response.request_id != request.request_id ||
-                response.step != request.expected_step + 1)
+                (response.step != request.expected_step + 1 &&
+                 !(response.step == request.expected_step && response.no_op_reason == "empty_transcript")))
             {
                 throw new EvcApiException(
                     EvcErrorKind.InvalidResponse,
