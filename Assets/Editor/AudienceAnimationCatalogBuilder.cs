@@ -278,12 +278,17 @@ public static class AudienceAnimationCatalogBuilder
                     entries
                 );
 
-            // ACT 클립은 현재 공용 클립으로 등록한다.
-            if (entry.maleClip == null)
-                entry.maleClip = clip;
-
-            if (entry.femaleClip == null)
+            // Explicit root-folder gender variants override the shared fallback,
+            // regardless of AssetDatabase enumeration order.
+            if (fileName.EndsWith("_F", StringComparison.OrdinalIgnoreCase))
                 entry.femaleClip = clip;
+            else if (fileName.EndsWith("_M", StringComparison.OrdinalIgnoreCase))
+                entry.maleClip = clip;
+            else
+            {
+                if (entry.maleClip == null) entry.maleClip = clip;
+                if (entry.femaleClip == null) entry.femaleClip = clip;
+            }
         }
     }
 

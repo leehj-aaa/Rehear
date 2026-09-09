@@ -55,7 +55,8 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CropRegion: {r: 0, g: 0, b: 1, a: 1}
     - _FigmaDesignSize: {r: 804, g: 577, b: 0, a: 0}
-    - _PanelSize: {r: 735, g: 56, b: 0, a: 0}
+    - _FigmaGlowRect: {r: -111, g: -322, b: 1041, a: 519}
+    - _PanelSize: {r: 913, g: 56, b: 0, a: 0}
     - _TopGlowColor: {r: 0.25999996, g: 0.41999996, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -19,6 +19,8 @@ public class Page1
     public string presentation_purpose;
     public string presentation_title;
     public int qa_count;
+    // Optional web field in minutes. Zero means the web has not supplied it.
+    public int qa_duration_minutes;
     public string used_language;
 }
 

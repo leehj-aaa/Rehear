@@ -4493,7 +4493,7 @@ Transform:
   - {fileID: 6225586976091300327}
   - {fileID: 4495415115701466195}
   - {fileID: 5535789440369827973}
-  - {fileID: 487299023013606701}
+  - {fileID: 2013774225022727291}
   m_Father: {fileID: 8515823260326698938}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2878952447113577176
@@ -14107,8 +14107,11 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
-  photoPhone: {fileID: 7060239669293718971}
+  photoPhone: {fileID: 8992111272448253165}
   devicePhone: {fileID: 1292390886865017882}
+  photoShutter: {fileID: 8300000, guid: 9fa4c104697dd37439b1594bd3645c1b, type: 3}
+  photoShutterVolume: 0.1
+  photoShutterNormalizedTime: 0.3654321
 --- !u!114 &5678203662319351345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16281,7 +16284,7 @@ Transform:
   - {fileID: 7006408867964456284}
   m_Father: {fileID: 2591988453988857174}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &3231138621321619151
+--- !u!1001 &3595605784972781465
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -16303,31 +16306,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.098727316
+      value: -0.08283623
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.05847887
+      value: 0.015245736
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.048108857
+      value: -0.06819287
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.28612858
+      value: 0.22373317
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.46217552
+      value: 0.3665191
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.45927644
+      value: 0.4926945
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.7025592
+      value: 0.7568747
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -16352,18 +16355,123 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5560905291789515636, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8498537155437894750}
   m_SourcePrefab: {fileID: 100100000, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
---- !u!4 &487299023013606701 stripped
+--- !u!4 &2013774225022727291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
-  m_PrefabInstance: {fileID: 3231138621321619151}
+  m_PrefabInstance: {fileID: 3595605784972781465}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &7060239669293718971 stripped
+--- !u!1 &8992111272448253165 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5560905291789515636, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
-  m_PrefabInstance: {fileID: 3231138621321619151}
+  m_PrefabInstance: {fileID: 3595605784972781465}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8498537155437894750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8992111272448253165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba26251901677d547b15669497700c22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudiencePhotoGrip
+  restPose:
+  - bone: clavicle_r
+    rotation: {x: 0.82014406, y: 0.18363896, z: 0.5401889, w: -0.042854793}
+  - bone: upperarm_r
+    rotation: {x: 0.03120362, y: -0.37169245, z: 0.40054962, w: 0.8369176}
+  - bone: lowerarm_r
+    rotation: {x: -0.0000025006848, y: -0.0000046242812, z: 0.41183785, w: 0.91125715}
+  - bone: hand_r
+    rotation: {x: -0.6780924, y: 0.041047893, z: 0.01867714, w: 0.7335918}
+  - bone: index_metacarpal_r
+    rotation: {x: 0.06936901, y: -0.026332213, z: 0.052042868, w: 0.9958846}
+  - bone: index_01_r
+    rotation: {x: -0.024326451, y: -0.03737764, z: -0.018712448, w: 0.99882984}
+  - bone: index_02_r
+    rotation: {x: -0.00069731975, y: 0.026511682, z: -0.11269396, w: 0.99327576}
+  - bone: index_03_r
+    rotation: {x: -0.0002783683, y: 0.007271032, z: -0.07989934, w: 0.9967764}
+  - bone: middle_metacarpal_r
+    rotation: {x: 0.003946654, y: 0.020706974, z: 0.077813424, w: 0.99674505}
+  - bone: middle_01_r
+    rotation: {x: -0.07388932, y: -0.013196236, z: -0.016918847, w: 0.9970356}
+  - bone: middle_02_r
+    rotation: {x: 0.058068696, y: 0.06372803, z: -0.03878167, w: 0.99552137}
+  - bone: middle_03_r
+    rotation: {x: -0.033695504, y: 0.008246469, z: -0.04598341, w: 0.9983397}
+  - bone: pinky_metacarpal_r
+    rotation: {x: -0.170379, y: 0.12483527, z: 0.018957779, w: 0.9772552}
+  - bone: pinky_01_r
+    rotation: {x: 0.03121162, y: -0.05312623, z: 0.05727509, w: 0.99645525}
+  - bone: pinky_02_r
+    rotation: {x: -0.02824844, y: 0.030698204, z: -0.047808886, w: 0.99798495}
+  - bone: pinky_03_r
+    rotation: {x: 0.0003858128, y: 0.024113394, z: -0.049812544, w: 0.99846745}
+  - bone: ring_metacarpal_r
+    rotation: {x: -0.08039918, y: 0.0681343, z: 0.039947506, w: 0.9936287}
+  - bone: ring_01_r
+    rotation: {x: -0.02006061, y: -0.054453075, z: 0.064230174, w: 0.99624646}
+  - bone: ring_02_r
+    rotation: {x: 0.016359113, y: 0.039665483, z: -0.042905718, w: 0.9981574}
+  - bone: ring_03_r
+    rotation: {x: -0.038083635, y: 0.027824592, z: -0.08345474, w: 0.99539477}
+  - bone: thumb_01_r
+    rotation: {x: 0.58621377, y: -0.19478959, z: 0.05779638, w: 0.78426397}
+  - bone: thumb_02_r
+    rotation: {x: -0.01992563, y: -0.01950569, z: -0.008572321, w: 0.9995744}
+  - bone: thumb_03_r
+    rotation: {x: 0.00764144, y: 0.014182502, z: -0.16594379, w: 0.98600364}
+  - bone: lowerarm_twist_01_r
+    rotation: {x: 0.039729413, y: -0.0000019713257, z: 0.000000016641872, w: 0.99921054}
+  - bone: lowerarm_twist_02_r
+    rotation: {x: 0.019998614, y: 0.0000061628407, z: 0.00000031671289, w: 0.9998}
+  - bone: upperarm_twist_01_r
+    rotation: {x: -0.23629051, y: 0.0000113285605, z: 0.000013394848, w: 0.9716824}
+  - bone: upperarm_twist_02_r
+    rotation: {x: -0.118361555, y: 0.000014328022, z: 0.000006510428, w: 0.9929706}
+  leftPose:
+  - bone: index_metacarpal_l
+    rotation: {x: 0.028965784, y: -0.06370505, z: 0.007109282, w: 0.997523}
+  - bone: index_01_l
+    rotation: {x: -0.056848254, y: 0.09506539, z: -0.5526105, w: 0.8260462}
+  - bone: index_02_l
+    rotation: {x: -0.66840166, y: -0.6288035, z: -0.39648074, w: 0.025463792}
+  - bone: index_03_l
+    rotation: {x: -0.07381107, y: 0.43335506, z: -0.5448203, w: 0.71409106}
+  - bone: middle_metacarpal_l
+    rotation: {x: -0.03729108, y: 0.00038534778, z: 0.020258792, w: 0.999099}
+  - bone: middle_01_l
+    rotation: {x: -0.075818114, y: 0.065150335, z: -0.56914854, w: 0.81613547}
+  - bone: middle_02_l
+    rotation: {x: -0.64545214, y: -0.60727453, z: -0.45365083, w: 0.09386227}
+  - bone: middle_03_l
+    rotation: {x: -0.14105448, y: 0.5329597, z: -0.5520868, w: 0.625506}
+  - bone: pinky_metacarpal_l
+    rotation: {x: -0.21823074, y: 0.18816647, z: -0.058286726, w: 0.9558093}
+  - bone: pinky_01_l
+    rotation: {x: -0.18559535, y: -0.2652847, z: -0.21600594, w: 0.9211514}
+  - bone: pinky_02_l
+    rotation: {x: -0.27876917, y: -0.34408608, z: 0.0928571, w: 0.89177924}
+  - bone: pinky_03_l
+    rotation: {x: 0.17660743, y: -0.27567557, z: -0.506426, w: 0.7977126}
+  - bone: ring_metacarpal_l
+    rotation: {x: -0.11659883, y: 0.10056823, z: 0.025659716, w: 0.98774105}
+  - bone: ring_01_l
+    rotation: {x: -0.07338577, y: -0.05080585, z: -0.49568832, w: 0.86390185}
+  - bone: ring_02_l
+    rotation: {x: -0.64544386, y: -0.6571516, z: -0.20698056, w: 0.3297168}
+  - bone: ring_03_l
+    rotation: {x: -0.03442899, y: 0.26811874, z: -0.77935207, w: 0.5652764}
+  wristInThigh: {x: -0.29811367, y: 0.096135214, z: 0.04505548}
+  wristRotationInThigh: {x: 0.28752434, y: -0.8347832, z: -0.46268186, w: 0.07995544}
 --- !u!1001 &6684242675207415662
 PrefabInstance:
   m_ObjectHideFlags: 0

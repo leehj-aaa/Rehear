@@ -12,6 +12,8 @@ public sealed class PresentationSessionReady : MonoBehaviour
     public PresentationController controller;
     public TMP_Text presentationTitle;
     public TMP_Text sessionType, duration, questionCount, audienceCount, environment, expertise, interest;
+    public TMP_Text questionDuration;
+    public GameObject readyPanel, webReportGuide;
     public Button continueButton, returnButton;
     public Vector3 cameraLocalPosition = new Vector3(0f, 0f, 1.7f);
     public Vector3 cameraLocalEuler;
@@ -34,7 +36,7 @@ public sealed class PresentationSessionReady : MonoBehaviour
         AlignToViewer();
     }
 
-    void AlignToViewer()
+    public void AlignToViewer()
     {
         var camera = Camera.main;
         if (!camera) return;
@@ -50,6 +52,10 @@ public sealed class PresentationSessionReady : MonoBehaviour
         SetText(sessionType, Value(RuntimeSessionData.PresentationPurpose, "발표 모드"));
         SetText(duration, RuntimeSessionData.DurationMinutes + "분");
         SetText(questionCount, RuntimeSessionData.QaCount + "개");
+        // The current server contract supplies qa_count, not a duration. Never
+        // relabel a question count as minutes or ship the design's sample value.
+        int qaMinutes = RuntimeSessionData.Session?.page_1?.qa_duration_minutes ?? 0;
+        SetText(questionDuration, qaMinutes > 0 ? qaMinutes + "분" : "미설정");
         SetText(audienceCount, RuntimeSessionData.AudienceScale + "명");
         SetText(environment, Value(RuntimeSessionData.EnvironmentType, "미설정"));
         SetText(expertise, Value(RuntimeSessionData.AudienceExpertise, "미설정"));
@@ -68,6 +74,13 @@ public sealed class PresentationSessionReady : MonoBehaviour
         if (leaving || !RuntimeSessionData.IsLoaded || RuntimeSessionData.Session == null) return;
         gameObject.SetActive(false);
         if (controller) controller.SetSessionConfirmationVisible(false);
+    }
+
+    public void ShowWebReportGuide()
+    {
+        if (!webReportGuide) return;
+        if (readyPanel) readyPanel.SetActive(false);
+        webReportGuide.SetActive(true);
     }
 
     public void ReturnToPin()

@@ -89,9 +89,11 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
         foreach(var gaze in gazes) if(gaze && bindings)
             gaze.ConfigureTargets(bindings.presenterTarget,bindings.slideTarget,bindings.aroundTargets);
         Restart();
-        window = GetWindow<RehearAudienceMotionPreview>(true,"청중 움직임 미리보기",false);
-        window.minSize = new Vector2(360,270);
-        window.Show();
+        if(!focusedReview) {
+            window = GetWindow<RehearAudienceMotionPreview>(true,"청중 움직임 미리보기",false);
+            window.minSize = new Vector2(360,270);
+            window.Show();
+        }
         // Reopening after a script reload must preserve the user's Scene view
         // framing, focus and panel layout.
         File.WriteAllText("Temp/RehearAudienceMotion.txt",$"RUNNING: {actors.Length} actors; {trace.frames.Length} evaluations; {trace.duration}s loop. Synthetic evidence, production scheduler and body mixer. No recording/network.\n");
@@ -138,6 +140,8 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
             Object.DestroyImmediate(root);
         }
         root=null; actors=null; bodies=null;reviewMode=false;
+        foreach(var item in focusedSuspended)if(item)item.SetActive(true);
+        focusedSuspended.Clear();
         foreach(var item in hidden) if(item) SceneVisibilityManager.instance.Show(item,true);
         hidden.Clear(); latest.Clear();
         SceneView.RepaintAll();
@@ -154,6 +158,8 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
                 else if(command=="typing") StartTypingPreview();
                 else if(command=="conversation") StartConversationPreview();
                 else if(command=="review") StartReview();
+                else if(command=="review-props") StartFocusedPropsReview();
+                else if(command=="photo-capture") CaptureFocusedPhoto();
                 else if(command=="review-check") CheckReview();
                 else if(command=="review-seatadjust") {
                     StartReview();

@@ -8572,7 +8572,7 @@ Transform:
   - {fileID: 7489059721407346640}
   - {fileID: 1509491773027043646}
   - {fileID: 6951299871015459833}
-  - {fileID: 467736146899799688}
+  - {fileID: 7046126962963771565}
   m_Father: {fileID: 5199115837924017609}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5448498012675017578
@@ -9506,8 +9506,11 @@ MonoBehaviour:
   randomizeIdleStartTime: 1
   blendDuration: 0.7
   printAnimationLog: 1
-  photoPhone: {fileID: 7009152429079127582}
+  photoPhone: {fileID: 500152822902331451}
   devicePhone: {fileID: 6728106019354645794}
+  photoShutter: {fileID: 8300000, guid: 9fa4c104697dd37439b1594bd3645c1b, type: 3}
+  photoShutterVolume: 0.1
+  photoShutterNormalizedTime: 0.3654321
 --- !u!95 &1811838002962129841
 Animator:
   serializedVersion: 7
@@ -15589,7 +15592,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5560905291789515636, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
   m_PrefabInstance: {fileID: 1185367136784690774}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &3200316720353369450
+--- !u!1001 &5466432827844502351
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -15611,31 +15614,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.098727226
+      value: -0.082836114
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.05847887
+      value: 0.015245743
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.04810885
+      value: -0.06819288
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.28612858
+      value: 0.22373317
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.46217552
+      value: 0.3665191
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.45927644
+      value: 0.4926945
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.7025592
+      value: 0.7568747
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -15660,15 +15663,120 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5560905291789515636, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9215968502026937977}
   m_SourcePrefab: {fileID: 100100000, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
---- !u!4 &467736146899799688 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
-  m_PrefabInstance: {fileID: 3200316720353369450}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &7009152429079127582 stripped
+--- !u!1 &500152822902331451 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5560905291789515636, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
-  m_PrefabInstance: {fileID: 3200316720353369450}
+  m_PrefabInstance: {fileID: 5466432827844502351}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9215968502026937977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500152822902331451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba26251901677d547b15669497700c22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudiencePhotoGrip
+  restPose:
+  - bone: clavicle_r
+    rotation: {x: 0.82014406, y: 0.18363896, z: 0.5401889, w: -0.042854793}
+  - bone: upperarm_r
+    rotation: {x: 0.03120362, y: -0.37169245, z: 0.40054962, w: 0.8369176}
+  - bone: lowerarm_r
+    rotation: {x: -0.0000025006848, y: -0.0000046242812, z: 0.41183785, w: 0.91125715}
+  - bone: hand_r
+    rotation: {x: -0.6780924, y: 0.041047893, z: 0.01867714, w: 0.7335918}
+  - bone: index_metacarpal_r
+    rotation: {x: 0.06936901, y: -0.026332213, z: 0.052042868, w: 0.9958846}
+  - bone: index_01_r
+    rotation: {x: -0.024326451, y: -0.03737764, z: -0.018712448, w: 0.99882984}
+  - bone: index_02_r
+    rotation: {x: -0.00069731975, y: 0.026511682, z: -0.11269396, w: 0.99327576}
+  - bone: index_03_r
+    rotation: {x: -0.0002783683, y: 0.007271032, z: -0.07989934, w: 0.9967764}
+  - bone: middle_metacarpal_r
+    rotation: {x: 0.003946654, y: 0.020706974, z: 0.077813424, w: 0.99674505}
+  - bone: middle_01_r
+    rotation: {x: -0.07388932, y: -0.013196236, z: -0.016918847, w: 0.9970356}
+  - bone: middle_02_r
+    rotation: {x: 0.058068696, y: 0.06372803, z: -0.03878167, w: 0.99552137}
+  - bone: middle_03_r
+    rotation: {x: -0.033695504, y: 0.008246469, z: -0.04598341, w: 0.9983397}
+  - bone: pinky_metacarpal_r
+    rotation: {x: -0.170379, y: 0.12483527, z: 0.018957779, w: 0.9772552}
+  - bone: pinky_01_r
+    rotation: {x: 0.03121162, y: -0.05312623, z: 0.05727509, w: 0.99645525}
+  - bone: pinky_02_r
+    rotation: {x: -0.02824844, y: 0.030698204, z: -0.047808886, w: 0.99798495}
+  - bone: pinky_03_r
+    rotation: {x: 0.0003858128, y: 0.024113394, z: -0.049812544, w: 0.99846745}
+  - bone: ring_metacarpal_r
+    rotation: {x: -0.08039918, y: 0.0681343, z: 0.039947506, w: 0.9936287}
+  - bone: ring_01_r
+    rotation: {x: -0.02006061, y: -0.054453075, z: 0.064230174, w: 0.99624646}
+  - bone: ring_02_r
+    rotation: {x: 0.016359113, y: 0.039665483, z: -0.042905718, w: 0.9981574}
+  - bone: ring_03_r
+    rotation: {x: -0.038083635, y: 0.027824592, z: -0.08345474, w: 0.99539477}
+  - bone: thumb_01_r
+    rotation: {x: 0.58621377, y: -0.19478959, z: 0.05779638, w: 0.78426397}
+  - bone: thumb_02_r
+    rotation: {x: -0.01992563, y: -0.01950569, z: -0.008572321, w: 0.9995744}
+  - bone: thumb_03_r
+    rotation: {x: 0.00764144, y: 0.014182502, z: -0.16594379, w: 0.98600364}
+  - bone: lowerarm_twist_01_r
+    rotation: {x: 0.039729413, y: -0.0000019713257, z: 0.000000016641872, w: 0.99921054}
+  - bone: lowerarm_twist_02_r
+    rotation: {x: 0.019998614, y: 0.0000061628407, z: 0.00000031671289, w: 0.9998}
+  - bone: upperarm_twist_01_r
+    rotation: {x: -0.23629051, y: 0.0000113285605, z: 0.000013394848, w: 0.9716824}
+  - bone: upperarm_twist_02_r
+    rotation: {x: -0.118361555, y: 0.000014328022, z: 0.000006510428, w: 0.9929706}
+  leftPose:
+  - bone: index_metacarpal_l
+    rotation: {x: 0.028965784, y: -0.06370505, z: 0.007109282, w: 0.997523}
+  - bone: index_01_l
+    rotation: {x: -0.056848448, y: 0.095064886, z: -0.5526115, w: 0.82604563}
+  - bone: index_02_l
+    rotation: {x: -0.66840094, y: -0.6288001, z: -0.39648813, w: 0.025453053}
+  - bone: index_03_l
+    rotation: {x: -0.07381529, y: 0.43337047, z: -0.5448042, w: 0.7140937}
+  - bone: middle_metacarpal_l
+    rotation: {x: -0.03729108, y: 0.00038534778, z: 0.020258792, w: 0.999099}
+  - bone: middle_01_l
+    rotation: {x: -0.07581803, y: 0.06515054, z: -0.5691497, w: 0.81613463}
+  - bone: middle_02_l
+    rotation: {x: -0.6454522, y: -0.6072714, z: -0.45365673, w: 0.09385373}
+  - bone: middle_03_l
+    rotation: {x: -0.14105746, y: 0.532968, z: -0.552073, w: 0.62551033}
+  - bone: pinky_metacarpal_l
+    rotation: {x: -0.21823074, y: 0.18816647, z: -0.058286726, w: 0.9558093}
+  - bone: pinky_01_l
+    rotation: {x: -0.18559903, y: -0.26528335, z: -0.21600802, w: 0.9211506}
+  - bone: pinky_02_l
+    rotation: {x: -0.27877566, y: -0.34408802, z: 0.09284588, w: 0.8917776}
+  - bone: pinky_03_l
+    rotation: {x: 0.17660736, y: -0.27567354, z: -0.5064364, w: 0.79770684}
+  - bone: ring_metacarpal_l
+    rotation: {x: -0.11659883, y: 0.10056823, z: 0.025659716, w: 0.98774105}
+  - bone: ring_01_l
+    rotation: {x: -0.073387064, y: -0.050806418, z: -0.4956898, w: 0.8639008}
+  - bone: ring_02_l
+    rotation: {x: -0.6454459, y: -0.6571511, z: -0.20698424, w: 0.3297115}
+  - bone: ring_03_l
+    rotation: {x: -0.03443234, y: 0.2681302, z: -0.7793497, w: 0.565274}
+  wristInThigh: {x: -0.29811367, y: 0.096135214, z: 0.04505548}
+  wristRotationInThigh: {x: 0.28752434, y: -0.8347832, z: -0.46268186, w: 0.07995544}
+--- !u!4 &7046126962963771565 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
+  m_PrefabInstance: {fileID: 5466432827844502351}
   m_PrefabAsset: {fileID: 0}

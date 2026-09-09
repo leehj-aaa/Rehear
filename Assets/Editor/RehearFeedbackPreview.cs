@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Rendering.Universal;
 using LeTai.Asset.TranslucentImage;
 using Object = UnityEngine.Object;
+using Rehear.Evc.Contracts;
 
 [InitializeOnLoad]
 internal static class RehearFeedbackPreview
@@ -45,7 +46,7 @@ internal static class RehearFeedbackPreview
         SceneView.duringSceneGui += view => {
             if(!audienceRoot) return;
             Handles.BeginGUI();
-            GUI.Box(new Rect(15,45,390,55), "피드백 미리보기 · 예시 결과 82점\n청중 6명 · 서로 다른 박수 애니메이션");
+            GUI.Box(new Rect(15,45,390,55), audienceRoot.activeSelf ? "피드백 미리보기 · 예시 결과 82점\n청중 6명 · 서로 다른 박수 애니메이션" : "다시 연습하기 확인 화면\n청중 숨김 · 박수 소리 중지");
             if(GUI.Button(new Rect(15,105,130,28), "미리보기 종료")) Stop();
             Handles.EndGUI();
         };
@@ -60,6 +61,27 @@ internal static class RehearFeedbackPreview
             if(File.Exists(request)) {
                 var command=File.ReadAllText(request).Trim(); File.Delete(request);
                 if(command=="refresh") { AssetDatabase.Refresh(); return; }
+                if(command=="retry" || command=="end") {
+                    if(!canvasRoot)Show();
+                    canvasRoot.GetComponent<Scene03Manager>().ShowRetryConfirmation();
+                    if(command=="end")canvasRoot.GetComponent<Scene03Manager>().GoToScene1();
+                    typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil")?.GetMethod("StopAllPreviewClips",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic)?.Invoke(null,null);
+                    captured=false;elapsed=0;
+                    File.AppendAllText("Temp/RehearFeedbackPreview.txt","\n"+command.ToUpperInvariant()+" shown; audience active="+audienceRoot.activeSelf+"; editor applause stopped.");
+                    return;
+                }
+                if(command=="only-feedback") {
+                    Stop();
+                    var target=SceneManager.GetSceneByPath("Assets/01_Scene/Scene_03_Feedback.unity");
+                    if(!target.isLoaded)target=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_03_Feedback.unity",OpenSceneMode.Additive);
+                    SceneManager.SetActiveScene(target);
+                    for(int i=SceneManager.sceneCount-1;i>=0;i--) {
+                        var other=SceneManager.GetSceneAt(i);if(other==target)continue;
+                        if(other.isDirty)EditorSceneManager.SaveScene(other);
+                        EditorSceneManager.CloseScene(other,true);
+                    }
+                    Show();return;
+                }
                 if(command=="audio-check") { CheckAudio(); return; }
                 if(command=="audio-reset") {
                     bool reset=AudioSettings.Reset(AudioSettings.GetConfiguration());
@@ -69,8 +91,12 @@ internal static class RehearFeedbackPreview
                 if(command=="stop")Stop(); else Show();
             }
             if(!audienceRoot || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if(!audienceRoot.activeSelf && previewAudio) {
+                typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil")?.GetMethod("StopAllPreviewClips",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic)?.Invoke(null,null);
+                previewAudio=null;
+            }
             float dt=Mathf.Clamp((float)(EditorApplication.timeSinceStartup-lastTime),0,.1f); lastTime=EditorApplication.timeSinceStartup; elapsed+=dt;
-            for(int i=0;i<bodies.Length;i++) {
+            for(int i=0;audienceRoot.activeSelf && i<bodies.Length;i++) {
                 typeof(AudienceAnimationPlayer).GetMethod("Advance",Private).Invoke(bodies[i],new object[]{dt});
                 graphs[i].Evaluate(dt); bodies[i].ApplyPropPoses();
             }
@@ -124,11 +150,49 @@ internal static class RehearFeedbackPreview
             if(go && go.transform.IsChildOf(originalCanvas.transform)) Map(go.transform).gameObject.SetActive(true);
         var ended=(GameObject)typeof(Scene03Manager).GetField("sessionEndedPanel",Private).GetValue(manager);
         if(ended) Map(ended.transform).gameObject.SetActive(false);
-        foreach(var field in new[]{"scoreText","engagementText","clarityText","credibilityText"}) {
-            var source=(TMP_Text)typeof(Scene03Manager).GetField(field,Private).GetValue(manager);
-            Map(source.transform).GetComponent<TMP_Text>().text=field=="scoreText"?"82":field=="clarityText"?"보통":"우수";
+        var presenter = canvasRoot.AddComponent<Scene03Manager>();
+        presenter.enabled = false;
+        typeof(Scene03Manager).GetField("feedbackAudience",Private).SetValue(presenter,owner);
+        foreach(var field in new[]{"sessionEndedPanel","retryConfirmationPanel"}) {
+            var info=typeof(Scene03Manager).GetField(field,Private);
+            var source=(GameObject)info.GetValue(manager);
+            if(source)info.SetValue(presenter,Map(source.transform).gameObject);
         }
+        var results=((GameObject[])typeof(Scene03Manager).GetField("resultObjects",Private).GetValue(manager)).Select(g=>Map(g.transform).gameObject).ToArray();
+        typeof(Scene03Manager).GetField("resultObjects",Private).SetValue(presenter,results);
+        foreach(var button in canvasRoot.GetComponentsInChildren<UnityEngine.UI.Button>(true)) {
+            var action=button.name=="Retry"?(UnityEngine.Events.UnityAction)presenter.ShowRetryConfirmation:
+                button.name=="End"?presenter.GoToScene1:button.name=="Back"?presenter.BackToResults:null;
+            if(action!=null){button.onClick=new UnityEngine.UI.Button.ButtonClickedEvent();UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,action);}
+        }
+        foreach(var field in new[]{"scoreText","engagementText","clarityText","credibilityText","engagementBadge","clarityBadge","credibilityBadge","engagementDescription","credibilityDescription","clarityDescription","practiceTitle","practiceDescription","engagementRing","credibilityRing","clarityRing"}) {
+            var info=typeof(Scene03Manager).GetField(field,Private);
+            var source=info.GetValue(manager) as Component;
+            if(source) info.SetValue(presenter, Map(source.transform).GetComponent(source.GetType()));
+        }
+        var sample = new ReportFeedback { score = new ReportScore { overall_score = 82 },
+            score_card = new ReportScoreCard { scores = new ReportScoreCardValues { engagement = 80, clarity = 55, credibility = 75 } } };
+        presenter.DisplayReport(sample);
+        var rings=canvasRoot.GetComponentsInChildren<FeedbackScoreRing>();
+        foreach(var ring in rings) {
+            float saved=ring.Value;
+            ring.Value=-1;if(ring.Value!=0)throw new Exception("Ring lower clamp failed");
+            ring.Value=2;if(ring.Value!=1)throw new Exception("Ring upper clamp failed");
+            ring.Value=saved;
+        }
+        string Read(string name) => ((TMP_Text)typeof(Scene03Manager).GetField(name,Private).GetValue(presenter)).text;
+        if(Read("scoreText") != "82" || Read("engagementText") != "우수" || Read("clarityText") != "보통" || Read("credibilityText") != "우수")
+            throw new Exception("Feedback report binding failed.");
+        presenter.DisplayReport(null);
+        if(Read("scoreText") != "--") throw new Exception("Missing report retained a sample score.");
+        presenter.DisplayReport(sample);
         Canvas.ForceUpdateCanvases();
+        presenter.ShowRetryConfirmation();
+        var retryPanel=(GameObject)typeof(Scene03Manager).GetField("retryConfirmationPanel",Private).GetValue(presenter);
+        if(!retryPanel.activeSelf || results.Any(g=>g.activeSelf) || audienceRoot.activeSelf)throw new Exception("Retry confirmation flow failed");
+        presenter.BackToResults();presenter.GoToScene1();
+        if(!((GameObject)typeof(Scene03Manager).GetField("sessionEndedPanel",Private).GetValue(presenter)).activeSelf)throw new Exception("End confirmation flow failed");
+        presenter.BackToResults();
         sourceCamera=roots.SelectMany(g=>g.GetComponentsInChildren<Camera>(true)).First(c=>c.CompareTag("MainCamera"));
         SetupPreviewBlur();
         var view=SceneView.lastActiveSceneView;
@@ -138,6 +202,8 @@ internal static class RehearFeedbackPreview
         var otherLights=Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Count(l=>l.enabled && l.gameObject.scene!=feedback);
         if(otherLights!=0 || originalCanvas.gameObject.activeInHierarchy) throw new Exception("Preview is not isolated from other scenes/original UI.");
         File.AppendAllText("Temp/RehearFeedbackPreview.txt", "\nPASS isolation: other-scene lights=0; original result canvas inactive; preview canvas active="+canvasRoot.activeInHierarchy);
+        File.AppendAllText("Temp/RehearFeedbackPreview.txt", "\nPASS runtime presenter: report score/ratings and missing-report fallback verified. Preview uses sample data, not a server result.");
+        File.AppendAllText("Temp/RehearFeedbackPreview.txt", "\nPASS retry/back/end panels; loaded scenes="+SceneManager.sceneCount);
         StartPreviewAudio(owner);
     }
 
@@ -150,14 +216,15 @@ internal static class RehearFeedbackPreview
         var play=audioUtil?.GetMethod("PlayPreviewClip",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic,null,new[]{typeof(AudioClip),typeof(int),typeof(bool)},null);
         var stop=audioUtil?.GetMethod("StopAllPreviewClips",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic);
         if(play==null || stop==null)return;
+        stop.Invoke(null,null);
         var samples=new float[clip.samples*clip.channels];
         clip.LoadAudioData();
         if(!clip.GetData(samples,0))return;
         float volume=settings.FindProperty("applauseVolume").floatValue;
         for(int i=0;i<samples.Length;i++)samples[i]*=volume;
         // Editor AudioUtil expects an imported asset for reliable native playback.
-        const string path="Assets/Editor/FeedbackApplausePreview.wav";
-        using(var writer=new BinaryWriter(File.Create(path))) {
+        string path="Assets/Editor/FeedbackApplausePreview-"+Hash128.Compute(AssetDatabase.GetAssetDependencyHash(AssetDatabase.GetAssetPath(clip)).ToString()+volume.ToString(System.Globalization.CultureInfo.InvariantCulture))+".wav";
+        if(!File.Exists(path))using(var writer=new BinaryWriter(File.Create(path))) {
             writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));writer.Write(36+samples.Length*2);
             writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));writer.Write(16);writer.Write((short)1);writer.Write((short)clip.channels);
             writer.Write(clip.frequency);writer.Write(clip.frequency*clip.channels*2);writer.Write((short)(clip.channels*2));writer.Write((short)16);
@@ -245,25 +312,25 @@ internal static class RehearFeedbackPreview
 
     static void Capture()
     {
-        var camera=sourceCamera;var previousTarget=camera.targetTexture;var stereo=camera.stereoTargetEye;
-        var sources=glassPanels?.Select(p=>p.source).ToArray();
-        if(glassPanels!=null)foreach(var panel in glassPanels)panel.source=camera.GetComponent<TranslucentImageSource>();
+        foreach(var ring in canvasRoot.GetComponentsInChildren<FeedbackScoreRing>()) {
+            ring.SetAllDirty();ring.Rebuild(UnityEngine.UI.CanvasUpdate.PreRender);
+            var mesh=ring.canvasRenderer.GetMesh();
+            File.AppendAllText("Temp/RehearFeedbackPreview.txt",$"\nRING {ring.name}: value={ring.Value}, verts={mesh.vertexCount}, rect={ring.rectTransform.rect}, texture={ring.mainTexture}, material={ring.material}, cull={ring.canvasRenderer.cull}, alpha={ring.canvasRenderer.GetAlpha()}");
+        }
+        var captureObject=new GameObject("Feedback diagnostic camera");
+        var camera=captureObject.AddComponent<Camera>();camera.CopyFrom(sourceCamera);
+        camera.transform.SetPositionAndRotation(sourceCamera.transform.position,sourceCamera.transform.rotation);
+        camera.cullingMask=-1;camera.scene=feedback;
+        var previousTarget=camera.targetTexture;var stereo=camera.stereoTargetEye;
+        if(blurCamera){blurCamera.transform.SetPositionAndRotation(camera.transform.position,camera.transform.rotation);blurCamera.projectionMatrix=camera.projectionMatrix;blurCamera.Render();}
         camera.stereoTargetEye=StereoTargetEyeMask.None;
         var rt=new RenderTexture(1600,900,24);var old=RenderTexture.active; bool enabled=originalCanvas.enabled;
         try {
             originalCanvas.enabled=false;camera.targetTexture=rt;camera.Render();
-            // Camera.Render renders one camera, not the URP stack. Composite the
-            // UI pass explicitly for this diagnostic capture only.
-            var ui=blurSync?blurSync.uiCamera:null;
-            if(ui) {
-                var data=ui.GetUniversalAdditionalCameraData();var renderType=data.renderType;var flags=ui.clearFlags;var target=ui.targetTexture;
-                try{data.renderType=CameraRenderType.Base;ui.clearFlags=CameraClearFlags.Nothing;ui.targetTexture=rt;ui.Render();}
-                finally{data.renderType=renderType;ui.clearFlags=flags;ui.targetTexture=target;}
-            }
             RenderTexture.active=rt;
             var tex=new Texture2D(1600,900,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,1600,900),0,0);tex.Apply();
             File.WriteAllBytes("Temp/RehearFeedbackPreview.png",tex.EncodeToPNG());Object.DestroyImmediate(tex);
         }finally {originalCanvas.enabled=enabled;RenderTexture.active=old;camera.targetTexture=previousTarget;camera.stereoTargetEye=stereo;rt.Release();Object.DestroyImmediate(rt);
-            if(sources!=null)for(int i=0;i<sources.Length;i++)glassPanels[i].source=sources[i];}
+            Object.DestroyImmediate(captureObject);}
     }
 }

@@ -56,6 +56,16 @@ internal static class RehearSessionReadySetup
         if (!EditorApplication.isPlaying && EditorSceneManager.GetActiveScene().isDirty && command != "replace" && command != "restore-original" && command != "update-layout" && command != "inspect-placement" && command != "show-prestart" && command != "show-running" && command != "show-qa" && command != "preview-audience") return;
         try { File.Delete(Request); }
         catch (IOException) { return; }
+        if(command == "place-ready")
+        {
+            try { RestoreReadyPlacement(); } catch(Exception e) {File.WriteAllText(Report,e.ToString());}
+            return;
+        }
+        if(command == "capture-ready")
+        {
+            try { CaptureReady(); } catch(Exception e) {File.WriteAllText(Report,e.ToString());}
+            return;
+        }
         if(command == "show-qa")
         {
             try { ShowQA(); }
@@ -462,6 +472,190 @@ internal static class RehearSessionReadySetup
     static void UpdateCurrentLayout()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode first");
+        var scene=EditorSceneManager.GetActiveScene();
+        if(scene.path!="Assets/01_Scene/Scene_02_Presentation.unity") throw new Exception("Open Presentation first.");
+        var view=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<PresentationSessionReady>(true)).Single();
+        var root=(RectTransform)view.transform;
+        var panel=root.Find("Session Ready Panel") as RectTransform;
+        if(!panel) throw new Exception("Expected existing Session Ready Panel; no UI replaced.");
+        root.sizeDelta=new Vector2(1000,988);
+        SetRect(panel,0,0,1000,988);
+        void R(string name,float x,float y,float w,float h) => SetRect((RectTransform)panel.Find(name),x,y,w,h);
+        void Style(string name,string weight,float size,Color color) => SetTextStyle(panel.Find(name).GetComponent<TMP_Text>(),weight,size,color);
+        void Surface(string name,float w,float h,float radius=40,float border=0)
+        {
+            var img=panel.Find(name).GetComponent<Image>(); img.material=Material(name,w,h,radius,border,false); EditorUtility.SetDirty(img);
+        }
+        R("Logo",34,31,136.709f,38); R("Check",470,91,60,60);
+        R("Heading",140,173,720,48); Style("Heading","Bold",40,Ink);
+        R("Description",44,229,913,34); Style("Description","Medium",24,Body);
+        var pill=panel.Find("Title Pill") as RectTransform;
+        if(!pill) pill=Solid(panel,"Title Pill",252,294,496,74,new Color32(110,139,255,128),500);
+        SetRect(pill,252,294,496,74);
+        pill.GetComponent<Image>().material=Material("Title Pill",496,74,500,0,false);
+        view.presentationTitle.transform.SetParent(pill,false);
+        SetRect((RectTransform)view.presentationTitle.transform,36,12,424,50);
+        SetTextStyle(view.presentationTitle,"Bold",36,Brand);
+        view.presentationTitle.text="시대의 커뮤니케이션 전략 발표";
+        // Tile positions and type sizes are measured from Figma 2883:18237.
+        for(int i=0;i<4;i++)
+        {
+            string name="Tile "+i; R(name,44+i*231,402,219,220); Surface(name,219,220);
+            var tile=panel.Find(name);
+            var icon=tile.GetComponentsInChildren<Image>(true).Single(a=>a.transform!=tile);
+            SetRect((RectTransform)icon.transform,79.5f,40,60,60);
+            SetRect((RectTransform)tile.Find("Caption"),5,112,209,34);
+            SetRect((RectTransform)tile.Find("Value"),5,150,209,34);
+            SetTextStyle(tile.Find("Caption").GetComponent<TMP_Text>(),"Regular",24,Body);
+            SetTextStyle(tile.Find("Value").GetComponent<TMP_Text>(),"Bold",28,Ink);
+        }
+        panel.Find("Tile 2/Caption").GetComponent<TMP_Text>().text="Q&A 시간";
+        if(!view.questionDuration) {view.questionDuration=view.questionCount; view.questionCount=null;}
+        view.sessionType.text="발표 모드"; view.duration.text="30분"; view.questionDuration.text="5분";
+        view.audienceCount.text="6명"; view.environment.text="세미나실"; view.expertise.text="보통"; view.interest.text="높음";
+        foreach(var name in new[]{"Environment","Expertise","Interest"})
+        {
+            float w=name=="Environment"?913:450.5f;
+            R(name,name=="Interest"?506.5f:44,name=="Environment"?634:710,w,64); Surface(name,w,64);
+            var row=panel.Find(name);
+            SetRect((RectTransform)row.Find("Caption"),60,0,w-170,64);
+            SetRect((RectTransform)row.Find("Value"),w-170,0,110,64);
+            SetTextStyle(row.Find("Caption").GetComponent<TMP_Text>(),"Regular",24,Body);
+            SetTextStyle(row.Find("Value").GetComponent<TMP_Text>(),"Bold",24,Ink);
+        }
+        foreach(var name in new[]{"Continue","Return to PIN"})
+        {
+            R(name,44,name=="Continue"?814:882,913,56); Surface(name,913,56,40,name=="Continue"?0:2);
+            SetRect((RectTransform)panel.Find(name+"/Label"),12,0,889,56);
+            Style(name+"/Label","Medium",26,Color.white);
+        }
+        panel.Find("Return to PIN/Label").GetComponent<TMP_Text>().text="웹으로 돌아가기";
+        view.readyPanel=panel.gameObject;
+        var guide=root.Find("Web Report Guide") as RectTransform;
+        if(!guide)
+        {
+            guide=Rect(root,"Web Report Guide",98,249,804,490);
+            var guideGlass=guide.gameObject.AddComponent<TranslucentImage>();
+            guideGlass.material=Material("Web Report Guide",804,490,48,2,true);
+            guideGlass.foregroundOpacity=.45f; guideGlass.color=Color.white;
+            guideGlass.source=panel.GetComponent<TranslucentImage>().source;
+            guideGlass.material.SetFloat("_GlassTint",.45f);
+            Icon(guide,"Logo","Assets/Textures/UI/FigmaOpening/logo.png",34,28,136.709f,38);
+            Text(guide,"Heading","웹에서 리포트를 확인하세요",36,122,732,66,40,true);
+            Text(guide,"Description","VR 기기를 내려놓고\n모니터에서 웹 리포트를 확인하세요.",36,208,732,94,32);
+            var back=Button(guide,"Back to Start","시작 화면으로 돌아가기",372,false,view.ReturnToPin);
+            SetRect((RectTransform)back.transform,178,372,448,76);
+            back.targetGraphic.material=Material("Back to Start",448,76,40,0,false);
+            SetRect((RectTransform)back.transform.Find("Label"),12,0,424,76);
+            var sync=Object.FindFirstObjectByType<TutorialBlurCameraSync>();
+            if(sync) {sync.panels=sync.panels.Concat(new[]{guideGlass}).ToArray(); EditorUtility.SetDirty(sync);}
+        }
+        view.webReportGuide=guide.gameObject; guide.gameObject.SetActive(false); panel.gameObject.SetActive(true);
+        view.returnButton.onClick=new Button.ButtonClickedEvent();
+        UnityEventTools.AddPersistentListener(view.returnButton.onClick,view.ShowWebReportGuide);
+        EditorUtility.SetDirty(view.returnButton);
+        var glass=panel.GetComponent<TranslucentImage>();
+        glass.material=Material("Panel",1000,988,48,2,true); glass.foregroundOpacity=.45f;
+        glass.material.SetFloat("_GlassTint",.45f); glass.material.SetFloat("_UseFigmaGlow",1);
+        glass.material.SetVector("_FigmaDesignSize",new Vector4(1000,988,0,0));
+        glass.material.SetVector("_FigmaGlowRect",new Vector4(-20,-324,1041,519));
+        var main=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Camera>(true)).First(c=>c.CompareTag("MainCamera"));
+        var cameraSync=main.GetComponent<TutorialBlurCameraSync>();
+        if(cameraSync && cameraSync.uiCamera)
+        {
+            var overlay=cameraSync.uiCamera;
+            // A movable world-space modal cannot use the room's baked occlusion.
+            overlay.useOcclusionCulling=false;
+            var overlayData=new SerializedObject(overlay.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>());
+            overlayData.FindProperty("m_ClearDepth").boolValue=true;
+            overlayData.ApplyModifiedPropertiesWithoutUndo();
+            view.GetComponent<Canvas>().worldCamera=overlay;
+            EditorUtility.SetDirty(overlay); EditorUtility.SetDirty(view.GetComponent<Canvas>());
+        }
+        // Layout updates preserve the separately authored viewer placement.
+        view.AlignToViewer();
+        view.GetComponent<CurvedUISettings>()?.AddEffectToChildren();
+        view.gameObject.SetActive(true);
+        if(view.controller.startPresentationButton) view.controller.startPresentationButton.gameObject.SetActive(false);
+        if(view.controller.qaButton) view.controller.qaButton.gameObject.SetActive(false);
+        foreach(var t in root.GetComponentsInChildren<TMP_Text>(true)) {t.ForceMeshUpdate(); EditorUtility.SetDirty(t);}
+        EditorUtility.SetDirty(view); EditorUtility.SetDirty(glass);
+        EditorSceneManager.MarkSceneDirty(scene); AssetDatabase.SaveAssets(); EditorSceneManager.SaveScene(scene);
+        Selection.activeGameObject=view.gameObject;
+        if(SceneView.lastActiveSceneView) SceneView.lastActiveSceneView.LookAt(root.position,root.rotation, .44f,false,true);
+        SceneView.RepaintAll();
+        File.WriteAllText(Report,"PASS Figma 2883:18237 1000x988; existing UI updated. Samples are editor-only; runtime duration is unset pending server mapping.\n");
+    }
+
+    static void RestoreReadyPlacement()
+    {
+        if(EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Use Edit mode.");
+        var view=Object.FindFirstObjectByType<PresentationSessionReady>(FindObjectsInactive.Include);
+        var main=Camera.main;
+        if(!view || !main) throw new Exception("Session panel or viewer missing.");
+        var heading=Quaternion.Euler(0,main.transform.eulerAngles.y,0);
+        var eyePosition=main.transform.position; var eyeRotation=main.transform.rotation;
+        view.cameraLocalPosition=new Vector3(-.45f,0,1.35f);
+        view.cameraLocalEuler=new Vector3(0,Mathf.Atan2(-.45f,1.35f)*Mathf.Rad2Deg,0);
+        view.transform.localScale=Vector3.one*.00085f;
+        view.AlignToViewer();
+        view.gameObject.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        foreach(var effect in view.GetComponentsInChildren<CurvedUIVertexEffect>()) effect.SetDirty();
+        if(Vector3.Distance(view.transform.position,eyePosition+heading*view.cameraLocalPosition)>.001f ||
+            Vector3.Distance(main.transform.position,eyePosition)>.00001f || Quaternion.Angle(main.transform.rotation,eyeRotation)>.001f)
+            throw new Exception("Editor/runtime placement mismatch.");
+        EditorUtility.SetDirty(view); EditorUtility.SetDirty(view.transform);
+        EditorSceneManager.MarkSceneDirty(view.gameObject.scene); EditorSceneManager.SaveScene(view.gameObject.scene);
+        SceneView.RepaintAll();
+        File.WriteAllText(Report,$"PASS left-of-viewer placement; world={view.transform.position:F4}; rotation={view.transform.eulerAngles:F3}; viewer-relative={view.cameraLocalPosition:F4}; width=.85m; viewer unchanged; editor and runtime use same placement.\n");
+    }
+
+    static void CaptureReady()
+    {
+        var view=Object.FindFirstObjectByType<PresentationSessionReady>(FindObjectsInactive.Include);
+        var camera=Camera.main;
+        var sync=camera.GetComponent<TutorialBlurCameraSync>();
+        if(sync) sync.SendMessage("Update");
+        var rt=new RenderTexture(1200,1200,24); rt.Create();
+        var previous=RenderTexture.active;
+        var data=camera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        bool xr=data.allowXRRendering; var projection=camera.projectionMatrix;
+        var overlay=sync.uiCamera;
+        File.AppendAllText(Report,$"Overlay reference id={overlay.GetInstanceID()}, stack id={data.cameraStack[0].GetInstanceID()}\n");
+        var overlayProjection=overlay.projectionMatrix; var overlayView=overlay.worldToCameraMatrix;
+        File.AppendAllText(Report,$"UI active={view.gameObject.activeInHierarchy}, canvas={view.GetComponent<Canvas>().enabled}, layer={view.gameObject.layer}, viewport={camera.WorldToViewportPoint(view.transform.position)}, stack={string.Join(",",data.cameraStack.Select(c=>c?c.name:"null"))}\n");
+        foreach(var c in Object.FindObjectsByType<Camera>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+            File.AppendAllText(Report,$"{c.name} active={c.isActiveAndEnabled} mask={c.cullingMask} id={c.GetInstanceID()}\n");
+        var previewCamera=SceneView.lastActiveSceneView.camera;
+        try
+        {
+            UnityEngine.Rendering.RenderPipelineManager.beginCameraRendering += TraceCamera;
+            data.allowXRRendering=false; camera.ResetProjectionMatrix();
+            Canvas.ForceUpdateCanvases();
+            foreach(var t in view.GetComponentsInChildren<TMP_Text>()) t.ForceMeshUpdate();
+            foreach(var effect in view.GetComponentsInChildren<CurvedUIVertexEffect>()) effect.SetDirty();
+            var request=new UnityEngine.Rendering.RenderPipeline.StandardRequest {destination=rt};
+            UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(camera,request);
+            UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(camera,request);
+            RenderTexture.active=rt;
+            var texture=new Texture2D(1200,1200,TextureFormat.RGB24,false);
+            texture.ReadPixels(new UnityEngine.Rect(0,0,1200,1200),0,0); texture.Apply();
+            File.WriteAllBytes("Temp/SessionReady-Figma0909.png",texture.EncodeToPNG()); Object.DestroyImmediate(texture);
+            File.AppendAllText(Report,"PASS captured actual scene panel.\n");
+            var oldTarget=previewCamera.targetTexture;
+            previewCamera.targetTexture=rt; previewCamera.Render(); previewCamera.targetTexture=oldTarget;
+            RenderTexture.active=rt;
+            var sceneTexture=new Texture2D(1200,1200,TextureFormat.RGB24,false);
+            sceneTexture.ReadPixels(new UnityEngine.Rect(0,0,1200,1200),0,0); sceneTexture.Apply();
+            File.WriteAllBytes("Temp/SessionReady-SceneView.png",sceneTexture.EncodeToPNG()); Object.DestroyImmediate(sceneTexture);
+        }
+        finally {UnityEngine.Rendering.RenderPipelineManager.beginCameraRendering -= TraceCamera; overlay.projectionMatrix=overlayProjection; overlay.worldToCameraMatrix=overlayView; overlay.ResetCullingMatrix(); data.allowXRRendering=xr; camera.projectionMatrix=projection; RenderTexture.active=previous; rt.Release(); Object.DestroyImmediate(rt);}
+    }
+
+    static void UpdateLegacyLayout()
+    {
+        if(EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Stop Play mode first");
         ConfigureSourceTextures();
         const string scenePath="Assets/01_Scene/Scene_02_Presentation.unity";
         var scene=EditorSceneManager.GetActiveScene();
@@ -744,7 +938,7 @@ internal static class RehearSessionReadySetup
         if(original.continueButton.onClick.GetPersistentTarget(0)!=original ||
            original.continueButton.onClick.GetPersistentMethodName(0)!="Confirm" ||
            original.returnButton.onClick.GetPersistentTarget(0)!=original ||
-           original.returnButton.onClick.GetPersistentMethodName(0)!="ReturnToPin")
+           original.returnButton.onClick.GetPersistentMethodName(0)!="ShowWebReportGuide")
             throw new Exception("Scene button wiring is incorrect.");
         var savedSession=RuntimeSessionData.Session;
         var savedPin=RuntimeSessionData.Pin;
@@ -770,14 +964,19 @@ internal static class RehearSessionReadySetup
             void Require(bool value,string message) { if(!value) throw new Exception(message); }
 
             RuntimeSessionData.Load("isolated-ui-check",new SessionData {
-                page_1=new Page1 {presentation_title="웹 데이터 연결 검증",presentation_purpose="발표 모드",duration_minutes=17,qa_count=2,environment_type="세미나실"},
+                page_1=new Page1 {presentation_title="웹 데이터 연결 검증",presentation_purpose="발표 모드",duration_minutes=17,qa_count=2,qa_duration_minutes=7,environment_type="세미나실"},
                 page_3=new Page3 {audience_scale=4,audience_expertise="높음",audience_interest="보통"}
             });
             view.Populate();
             Require(view.presentationTitle.text=="웹 데이터 연결 검증" && view.sessionType.text=="발표 모드" &&
-                view.duration.text=="17분" && view.questionCount.text=="2개" && view.audienceCount.text=="4명" &&
+                view.duration.text=="17분" && view.questionDuration.text=="7분" && view.audienceCount.text=="4명" &&
                 view.environment.text=="세미나실" && view.expertise.text=="높음" && view.interest.text=="보통","Web fields did not replace preview examples.");
             Require(view.presentationTitle.transform.IsChildOf(view.transform.Find("Session Ready Panel")),"Title outside card.");
+            RuntimeSessionData.Session.page_1.qa_duration_minutes=0; view.Populate();
+            Require(view.questionDuration.text=="미설정","Missing minutes must not display question count or preview 5 minutes.");
+            view.ShowWebReportGuide();
+            Require(view.webReportGuide.activeSelf && !view.readyPanel.activeSelf,"Web report guide did not replace card.");
+            view.webReportGuide.SetActive(false); view.readyPanel.SetActive(true);
             controller.SetSessionConfirmationVisible(true);
             controller.BeginPresentation();
             controller.PauseGame();

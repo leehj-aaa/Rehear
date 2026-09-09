@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
 {
+    public Transform SlideTarget => slideTarget;
     public void ConfigureTargets(Transform presenter, Transform slide, Transform[] around)
     {
         presenterTarget=presenter; slideTarget=slide; aroundTargets=around;
@@ -203,6 +204,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
         var body=GetComponent<AudienceAnimationPlayer>();
         if(body && body.TypingLookTarget) target=body.TypingLookTarget;
         if(body && body.DeviceLookTarget) target=body.DeviceLookTarget;
+        if(body && body.IsTakingPhoto && slideTarget) target=slideTarget;
         if(body && body.IsQuestionTurn && presenterTarget) target=presenterTarget;
 
         if (target == null)

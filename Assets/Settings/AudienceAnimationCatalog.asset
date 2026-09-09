@@ -30,7 +30,7 @@ MonoBehaviour:
     femaleClip: {fileID: -623603649343465320, guid: 33bcb0ff9c4e948a2844db75adebdb0c, type: 3}
   - variationId: ACT_06.smallstretch
     maleClip: {fileID: -623603649343465320, guid: f45345644c1d844ed9ebca4e7321d75f, type: 3}
-    femaleClip: {fileID: -623603649343465320, guid: f45345644c1d844ed9ebca4e7321d75f, type: 3}
+    femaleClip: {fileID: -623603649343465320, guid: 6d5e51e1224347ffb08c22f8549b1ae7, type: 3}
   - variationId: ACT_07.self_contact
     maleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}
     femaleClip: {fileID: -623603649343465320, guid: 7c4203d6fe5c183449f5b55eb977af16, type: 3}

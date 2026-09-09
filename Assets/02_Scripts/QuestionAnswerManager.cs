@@ -272,8 +272,8 @@ public class QuestionAnswerManager : MonoBehaviour
                 var token = SpeechToken;
                 await WaitForQuestionBaseline(token);
                 if (!questionBody.PlayQuestionGesture()) throw new InvalidOperationException("QS 애니메이션을 재생하지 못했습니다.");
-                await WaitForQuestionBaseline(token);
-                // The hand has lowered and the blend to the baseline has finished.
+                await WaitForQuestionSpeechCue(token);
+                // Start voice and lip sync while the raised hand is coming down.
                 SetButtonState("청중 질문 중…", false);
             }
             catch (OperationCanceledException) { if (questionBody) questionBody.ReleaseQuestionTurn(); return; }
@@ -337,6 +337,17 @@ public class QuestionAnswerManager : MonoBehaviour
                 throw new InvalidOperationException("질문 청중이 비활성화되었습니다.");
             await System.Threading.Tasks.Task.Yield();
         } while (isPaused || !questionBody.IsAtBaseline);
+    }
+
+    private async System.Threading.Tasks.Task WaitForQuestionSpeechCue(CancellationToken token)
+    {
+        do
+        {
+            token.ThrowIfCancellationRequested();
+            if (!questionBody || !questionBody.isActiveAndEnabled)
+                throw new InvalidOperationException("질문 청중이 비활성화되었습니다.");
+            await System.Threading.Tasks.Task.Yield();
+        } while (isPaused || !questionBody.IsReadyForQuestionSpeech);
     }
 
     private async void FinishPresentation()

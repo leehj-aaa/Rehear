@@ -7,12 +7,38 @@ using UnityEngine;
 public sealed partial class RehearAudienceMotionPreview
 {
     static bool reviewMode, reviewStarted, reviewReturned, reviewAuto=true;
+    static bool focusedReview;
+    static readonly System.Collections.Generic.Dictionary<AudienceAnimationPlayer,float> focusedNext=new System.Collections.Generic.Dictionary<AudienceAnimationPlayer,float>();
+    static readonly System.Collections.Generic.List<GameObject> focusedSuspended=new System.Collections.Generic.List<GameObject>();
     static AudienceAnimationCatalog.Entry[] reviewEntries;
     static int reviewIndex;
     static float reviewDuration;
     static string reviewStatus;
     static readonly string[] ReviewGroups={"BL_","AL_","EM_","CT_","ACT_","QS_","AP_"};
     static readonly string[] ReviewGroupNames={"기본 듣기","주의·긍정 반응","감정 반응","이해·혼란 반응","개별 행동","질문 손들기","박수"};
+
+    static void StartFocusedPropsReview()
+    {
+        typeof(RehearQuestionFlowPreview).GetMethod("Stop",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static).Invoke(null,null);
+        typeof(RehearFeedbackPreview).GetMethod("Stop",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static).Invoke(null,null);
+        StopPreview();focusedReview=true;
+        try {
+            RehearPhotoAudioPreview.Prepare();
+            var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath("Assets/01_Scene/Scene_02_Presentation.unity");
+            if(!scene.isLoaded)scene=UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/01_Scene/Scene_02_Presentation.unity",UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            UnityEngine.SceneManagement.SceneManager.SetActiveScene(scene);
+            StartReview();
+            for(int i=0;i<UnityEngine.SceneManagement.SceneManager.sceneCount;i++){
+                var other=UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+                if(other!=scene)foreach(var item in other.GetRootGameObjects())if(item.activeSelf){focusedSuspended.Add(item);item.SetActive(false);}
+            }
+            reviewEntries=new[]{"ACT_06.smallstretch","ACT_02.photoslide"}.Select(id=>reviewEntries.Single(e=>e.variationId==id)).ToArray();
+            SelectReview(0);
+            var camera=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Camera>(true)).FirstOrDefault(c=>c.CompareTag("MainCamera"));
+            var view=SceneView.lastActiveSceneView;
+            if(view&&camera){view.orthographic=false;view.LookAtDirect(camera.transform.position+camera.transform.forward*3,camera.transform.rotation,1.5f);}
+        }catch{StopPreview();focusedReview=false;throw;}
+    }
 
     static string ReviewTitle(AudienceAnimationCatalog.Entry entry)
     {
@@ -43,6 +69,7 @@ public sealed partial class RehearAudienceMotionPreview
         reviewIndex=Mathf.Clamp(index,0,reviewEntries.Length-1);
         elapsed=0;lastTime=EditorApplication.timeSinceStartup;paused=false;
         reviewStarted=false;reviewReturned=false;latest.Clear();
+        focusedNext.Clear();
         var entry=reviewEntries[reviewIndex];
         if(entry.variationId==AudienceAnimationPlayer.QuestionGesture)
             foreach(var body in bodies)body.ReserveQuestionTurn();
@@ -59,6 +86,7 @@ public sealed partial class RehearAudienceMotionPreview
 
     static void AdvanceReview()
     {
+        if(focusedReview){AdvanceFocusedProps();return;}
         if(!reviewStarted && elapsed>=1f) {
             reviewStarted=true;
             var entry=reviewEntries[reviewIndex];
@@ -90,9 +118,88 @@ public sealed partial class RehearAudienceMotionPreview
             reviewStatus="다음 동작으로 이동하거나 다시 재생할 수 있습니다.";
             if(reviewAuto) {
                 if(reviewIndex+1<reviewEntries.Length)SelectReview(reviewIndex+1);
+                else if(focusedReview)SelectReview(0);
                 else {reviewAuto=false;reviewStatus="전체 순서 재생 완료";}
             }
         }
+    }
+
+    static void AdvanceFocusedProps()
+    {
+        var ordered=bodies.OrderBy(b=>b.Gender).ThenBy(b=>b.name,StringComparer.Ordinal).ToArray();
+        if(focusedNext.Count==0){
+            for(int i=0;i<ordered.Length;i++)focusedNext[ordered[i]]=1f+i*.15f;
+            File.AppendAllText("Temp/RehearAnimationReview.txt","SPLIT PREVIEW: 3 SmallStretch + 3 PhotoSlide, both genders in each group.\n");
+        }
+        for(int i=0;i<ordered.Length;i++){
+            var body=ordered[i];if(elapsed<focusedNext[body])continue;
+            var entry=reviewEntries[i%2];
+            var clip=body.Gender==AudienceGender.Female?entry.femaleClip:entry.maleClip;
+            if(!clip||!body.PlayServerVariation(entry.variationId,clip.length,1f))throw new InvalidOperationException("Split review rejected: "+body.name);
+            latest[body.GetComponent<Rehear.Evc.Audience.AudienceAgent>().AgentId]=ReviewTitle(entry);
+            focusedNext[body]=elapsed+clip.length+2f;
+            File.AppendAllText("Temp/RehearAnimationReview.txt",$"SPLIT {body.name} {body.Gender} {entry.variationId} clip={AssetDatabase.GetAssetPath(clip)}\n");
+        }
+        reviewStarted=true;reviewStatus="SmallStretch 3명 · Photo Slide 3명 동시 재생";
+    }
+
+    static void CaptureFocusedPhoto()
+    {
+        if(!root||!focusedReview)StartFocusedPropsReview();
+        RehearPhotoAudioPreview.Suppress=true;
+        try {
+        SelectReview(0);
+        while(elapsed<3f){elapsed+=1f/60;EvaluatePreview(1f/60);}
+        CapturePhotoCamera(bodies[0],null,false);
+        File.Copy("Temp/PhotoAim-scene.png","Temp/PhotoAim-operating.png",true);
+        while(elapsed<5.5f){elapsed+=1f/60;EvaluatePreview(1f/60);}
+        CapturePhotoCamera(bodies[0],null,false);
+        File.Copy("Temp/PhotoAim-scene.png","Temp/PhotoAim-raised.png",true);
+        while(elapsed<8f){elapsed+=1f/60;EvaluatePreview(1f/60);}
+        var report=new System.Text.StringBuilder();
+        foreach(var body in bodies.Where(b=>b.IsTakingPhoto)){
+            var phone=(GameObject)typeof(AudienceAnimationPlayer).GetField("photoPhone",Flags).GetValue(body);
+            var screen=body.GetComponent<AudienceGazeController>().SlideTarget;
+            float angle=Vector3.Angle(-phone.transform.forward,screen.position-phone.transform.position);
+            report.AppendLine($"{body.name}: rear lens -> {screen.name}, error={angle:F2}deg, parent={phone.transform.parent.name}");
+            var hand=body.GetComponentsInChildren<Transform>().Single(t=>t.name=="hand_r");
+            var thigh=body.GetComponentsInChildren<Transform>().Single(t=>t.name=="thigh_r");
+            var grip=phone.GetComponent<AudiencePhotoGrip>();
+            report.AppendLine($"  free wrist distance from lap={(hand.position-thigh.TransformPoint(grip.wristInThigh)).magnitude:F4}m (authored manipulation restored below shooting height), rest bones={grip.restPose.Length}");
+            CapturePhotoCamera(body,phone.transform,true);
+        }
+        CapturePhotoCamera(bodies[0],null,false);
+        File.WriteAllText("Temp/RehearPhotoAim.txt",report.ToString());
+        lastTime=EditorApplication.timeSinceStartup;
+        } finally { RehearPhotoAudioPreview.Suppress=false; }
+    }
+    static void CapturePhotoCamera(AudienceAnimationPlayer body,Transform phone,bool close)
+    {
+        var go=new GameObject("Photo inspection camera"){hideFlags=HideFlags.HideAndDontSave};
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(go,body.gameObject.scene);
+        var camera=go.AddComponent<Camera>();
+        var view=SceneView.lastActiveSceneView;
+        if(view)camera.CopyFrom(view.camera);
+        camera.scene=body.gameObject.scene;
+        camera.enabled=false;camera.stereoTargetEye=StereoTargetEyeMask.None;camera.cullingMask&=~(1<<LayerMask.NameToLayer("UI"));
+        if(close){
+            camera.transform.position=phone.position-phone.forward*.48f+phone.right*.15f;
+            camera.transform.LookAt(phone.position,Vector3.up);camera.orthographic=false;camera.fieldOfView=42;camera.nearClipPlane=.01f;
+        }else {
+            var center=Vector3.zero;var forward=Vector3.zero;
+            foreach(var actor in bodies){center+=actor.transform.position;forward+=actor.transform.forward;}
+            center/=bodies.Length;forward=Vector3.ProjectOnPlane(forward,Vector3.up).normalized;
+            camera.transform.position=center+forward*3.3f+Vector3.up*1.55f;
+            camera.transform.LookAt(center+Vector3.up*1f);camera.orthographic=false;camera.fieldOfView=65;camera.nearClipPlane=.03f;
+        }
+        int w=close?900:1600,h=close?900:900;
+        var rt=new RenderTexture(w,h,24);var old=RenderTexture.active;camera.targetTexture=rt;
+        try{
+            camera.Render();RenderTexture.active=rt;
+            var tex=new Texture2D(w,h,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,w,h),0,0);tex.Apply();
+            File.WriteAllBytes(close?$"Temp/PhotoAim-{body.name}.png":"Temp/PhotoAim-scene.png",tex.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(tex);
+        }finally{RenderTexture.active=old;camera.targetTexture=null;rt.Release();UnityEngine.Object.DestroyImmediate(rt);UnityEngine.Object.DestroyImmediate(go);}
     }
 
     static void DrawReviewOverlay(SceneView view)
@@ -102,7 +209,11 @@ public sealed partial class RehearAudienceMotionPreview
         var width=Mathf.Min(600f,view.position.width-32f);
         GUI.Box(new Rect(16,48,width,66),GUIContent.none);
         var style=new GUIStyle(EditorStyles.boldLabel){fontSize=18,wordWrap=true};
-        GUI.Label(new Rect(26,54,width-20,48),$"동작 점검 {reviewIndex+1}/{reviewEntries.Length}\n{ReviewTitle(reviewEntries[reviewIndex])}",style);
+        GUI.Label(new Rect(26,54,width-20,48),focusedReview?"동시 비교 · 남녀 각각 다른 파일 적용\nSmallStretch 3명 / Photo Slide 3명":$"동작 점검 {reviewIndex+1}/{reviewEntries.Length}\n{ReviewTitle(reviewEntries[reviewIndex])}",style);
+        if(focusedReview){
+            if(GUI.Button(new Rect(16,120,170,28),"두 동작 함께 다시 보기"))SelectReview(0);
+            if(GUI.Button(new Rect(194,120,100,28),"점검 종료")){StopPreview();focusedReview=false;}
+        }
         Handles.EndGUI();
     }
 

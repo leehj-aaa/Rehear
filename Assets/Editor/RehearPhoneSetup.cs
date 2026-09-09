@@ -72,6 +72,15 @@ using UnityEngine.Animations;
  if(save){
 root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  if(phone)UnityEngine.Object.DestroyImmediate(phone);
+ cat.TryGetClip("BL_01.neutral_listening",player.Gender,out var restClip);
+ if(!restClip)throw new Exception("Missing seated rest pose");
+ restClip.SampleAnimation(a.gameObject,restClip.length*.5f);
+ var rightHand=bones.Single(t=>t && t.name=="hand_r");
+ var thigh=bones.Single(t=>t && t.name=="thigh_r");
+ var restWrist=thigh.InverseTransformPoint(rightHand.position);
+ var restRotation=Quaternion.Inverse(thigh.rotation)*rightHand.rotation;
+ var restPose=bones.Where(t=>t && t.name.EndsWith("_r") && new[]{"clavicle_","upperarm_","lowerarm_","hand_","thumb_","index_","middle_","ring_","pinky_"}.Any(p=>t.name.StartsWith(p)))
+     .Select(t=>new AudiencePhotoGrip.FingerPose{bone=t.name,rotation=t.localRotation}).ToArray();
  clip.SampleAnimation(a.gameObject,clip.length*.5f);
  var hand=bones.Single(t=>t && t.name=="hand_l");
  var left=bones.Single(t=>t && t.name=="middle_02_l");var right=bones.Single(t=>t && t.name=="middle_02_r");
@@ -79,9 +88,26 @@ root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  phone.name="Photo Phone";
  phone.transform.position=(left.position+right.position)*.5f+root.transform.forward*.005f;
  phone.transform.rotation=Quaternion.LookRotation(root.transform.forward,root.transform.up)*Quaternion.Euler(180,0,0);
+ // Seat the handset between the curled fingers and thumb, instead of through
+ // the middle finger joints. The model's back is local -Z.
+ phone.transform.position+=phone.transform.rotation*new Vector3(-.050f,0,-.005f);
+ phone.transform.rotation*=Quaternion.Euler(0,15,0);
  // Native phone is already metre-scaled. Match a 7 cm wide handset.
  var width=source.GetComponent<MeshFilter>().sharedMesh.bounds.size.x;
  phone.transform.localScale=Vector3.one*(.07f/width)/hand.lossyScale.x;
+ var grip=phone.AddComponent<AudiencePhotoGrip>();
+ grip.restPose=restPose;grip.wristInThigh=restWrist;grip.wristRotationInThigh=restRotation;
+ typeof(AudienceAnimationPlayer).GetField("photoShutter",Flags).SetValue(player,AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/08_Audio/ioscameraflash.mp3"));
+ float peakTime=0,peakHeight=float.NegativeInfinity;
+ // Measure the actual handset's highest point in this actor's authored clip.
+ // The midpoint already lowers the phone, so it is not a shutter cue.
+ for(int sample=0;sample<=810;sample++){
+     float time=clip.length*sample/810f;clip.SampleAnimation(a.gameObject,time);
+     float height=Vector3.Dot(phone.transform.position-root.transform.position,root.transform.up);
+     if(height>peakHeight){peakHeight=height;peakTime=time;}
+ }
+ typeof(AudienceAnimationPlayer).GetField("photoShutterNormalizedTime",Flags).SetValue(player,peakTime/clip.length);
+ s.AppendLine($"SHUTTER {root.name}: phone peak at {peakTime:F3}s / {clip.length:F3}s, height={peakHeight:F3}m");
  phone.SetActive(false);PrefabUtility.RecordPrefabInstancePropertyModifications(phone.transform);PrefabUtility.RecordPrefabInstancePropertyModifications(phone);
  for(int i=0;i<bones.Length;i++){if(!bones[i])continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];var serialized=new SerializedObject(bones[i]);serialized.FindProperty("m_LocalEulerAnglesHint").vector3Value=hints[i];serialized.ApplyModifiedPropertiesWithoutUndo();}
  field.SetValue(player,phone);EditorUtility.SetDirty(player);

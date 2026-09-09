@@ -15,6 +15,13 @@ public class AudienceAnimationPlayer : MonoBehaviour
     [SerializeField] private bool printAnimationLog = true;
     [SerializeField] private GameObject photoPhone;
     [SerializeField] private GameObject devicePhone;
+    [SerializeField] private AudioClip photoShutter;
+    [SerializeField, Range(0,1)] private float photoShutterVolume=.10f;
+    [SerializeField, Range(0,1)] private float photoShutterNormalizedTime=.30f;
+    private AudioSource photoAudio;
+#if UNITY_EDITOR
+    public static System.Action<AudienceAnimationPlayer,AudioClip,float> PreviewPhotoShutter;
+#endif
 
     private sealed class Voice
     {
@@ -23,6 +30,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
         public string variation;
         public int port;
         public float from;
+        public bool shutterPlayed;
     }
     private readonly List<Voice> voices = new List<Voice>();
     private PlayableGraph playableGraph;
@@ -38,9 +46,14 @@ public class AudienceAnimationPlayer : MonoBehaviour
     private float pendingTypingDuration, pendingTypingIntensity;
     private bool ownsSeatFacing;
     private bool questionTurn, questionPaused;
+    private bool questionGestureStarted, questionSpeechReady;
+    private Transform[] questionHands;
+    private readonly float[] questionHandStart = new float[2], questionHandPeak = new float[2];
     private AudienceAnimationPlayer conversationPartner;
     public bool IsQuestionTurn => questionTurn;
     public bool IsAtBaseline => !IsBusy && !ownsSeatFacing;
+    public bool IsReadyForQuestionSpeech => questionTurn && questionGestureStarted &&
+        (questionSpeechReady || IsAtBaseline);
     public const string QuestionGesture = "QS_01.raise_hand_question";
     public Transform TypingLookTarget
     {
@@ -53,6 +66,8 @@ public class AudienceAnimationPlayer : MonoBehaviour
     }
     private static bool IsTyping(string variation) => variation == "ACT_01.laptoptyping";
     public Transform DeviceLookTarget => devicePhone && devicePhone.activeInHierarchy ? devicePhone.transform : null;
+    public bool IsTakingPhoto => photoPhone && photoPhone.activeInHierarchy;
+    private AudiencePhotoPose photoPose;
     public float ConversationWeight
     {
         get
@@ -147,8 +162,19 @@ public class AudienceAnimationPlayer : MonoBehaviour
 
     public void ApplyPropPoses()
     {
+        UpdateQuestionSpeechCue();
         ApplySeatAdjustPose();
         ApplyDeviceGrip();
+        if(IsTakingPhoto && mixer.IsValid()) {
+            float photoWeight=0;
+            foreach(var voice in voices)if(voice.variation=="ACT_02.photoslide")photoWeight+=mixer.GetInputWeight(voice.port);
+            var gaze=GetComponent<AudienceGazeController>();
+            if(gaze && gaze.SlideTarget){
+                if(photoPose==null)photoPose=new AudiencePhotoPose(transform);
+                photoPose.Apply(photoPhone.transform,gaze.SlideTarget,photoWeight);
+            }
+        }
+        UpdatePhotoShutter();
         var assignment=GetComponent<AudienceSeatAssignment>();
         if(!mixer.IsValid() || !assignment || !assignment.Seat || !assignment.Seat.HasLaptop || !assignment.Seat.laptopAnchor) return;
         float weight=0;
@@ -159,6 +185,24 @@ public class AudienceAnimationPlayer : MonoBehaviour
     }
 
     private Transform[] gripJoints;
+    private void UpdatePhotoShutter()
+    {
+        if(!IsTakingPhoto || !mixer.IsValid() || target==null || target.variation!="ACT_02.photoslide")return;
+        // One shutter at the held shooting pose, never during entry/exit or per frame.
+        if(target.shutterPlayed || target.playable.GetTime()<target.clip.length*photoShutterNormalizedTime || mixer.GetInputWeight(target.port)<.5f)return;
+        target.shutterPlayed=true;
+        if(!photoShutter)return;
+#if UNITY_EDITOR
+        if(!Application.isPlaying){PreviewPhotoShutter?.Invoke(this,photoShutter,photoShutterVolume);return;}
+#endif
+        if(!photoAudio){
+            photoAudio=gameObject.AddComponent<AudioSource>();
+            photoAudio.playOnAwake=false;photoAudio.loop=false;photoAudio.spatialBlend=1;
+            photoAudio.minDistance=1;photoAudio.maxDistance=12;
+            photoAudio.rolloffMode=AudioRolloffMode.Linear;
+        }
+        photoAudio.PlayOneShot(photoShutter,photoShutterVolume);
+    }
     // Apply after animation evaluation, including in the manual editor preview.
     // The source clip leaves the distal fingers straight; curl them round the
     // handset while preserving its animated wrist and palm pose.
@@ -199,6 +243,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
     public void ReserveQuestionTurn()
     {
         questionTurn = true;
+        questionGestureStarted = questionSpeechReady = false;
         StopAction();
     }
 
@@ -206,8 +251,35 @@ public class AudienceAnimationPlayer : MonoBehaviour
     {
         if (!questionTurn || !IsAtBaseline || !playableGraph.IsValid() || !catalog ||
             !catalog.TryGetClip(QuestionGesture, gender, out var clip)) return false;
+        questionHands = new Transform[2];
+        foreach (var bone in GetComponentsInChildren<Transform>())
+        {
+            if (bone.name == "hand_l") questionHands[0] = bone;
+            if (bone.name == "hand_r") questionHands[1] = bone;
+        }
+        for (int i = 0; i < 2; i++)
+            questionHandStart[i] = questionHandPeak[i] = questionHands[i] ?
+                Vector3.Dot(questionHands[i].position - transform.position, transform.up) : 0;
+        questionSpeechReady = false;
+        questionGestureStarted = true;
         PlayClip(QuestionGesture, clip, clip.length, 1);
         return true;
+    }
+
+    // Read the evaluated pose: begin speaking as the raised hand starts descending,
+    // independently of the male/female clip length and its final baseline blend.
+    private void UpdateQuestionSpeechCue()
+    {
+        if (!questionTurn || !questionGestureStarted || questionSpeechReady || questionPaused) return;
+        for (int i = 0; i < 2; i++)
+        {
+            if (!questionHands[i]) continue;
+            float height = Vector3.Dot(questionHands[i].position - transform.position, transform.up);
+            questionHandPeak[i] = Mathf.Max(questionHandPeak[i], height);
+            if (questionHandPeak[i] - questionHandStart[i] >= .15f &&
+                questionHandPeak[i] - height >= .025f)
+                questionSpeechReady = true;
+        }
     }
 
     public void SetQuestionPaused(bool paused)
@@ -220,6 +292,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
     {
         SetQuestionPaused(false);
         questionTurn = false;
+        questionGestureStarted = questionSpeechReady = false;
     }
 
     private bool CreateAnimationGraph()
