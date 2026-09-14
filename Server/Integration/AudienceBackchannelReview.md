@@ -1,35 +1,40 @@
-# Audience backchannel review — 2026-09-08
+# 청중별 평가 주기와 백채널 전환 — 2026-09-09
 
-Reference: [Figma audience state specification](https://www.figma.com/design/t15qxZbFhezXWMyay2REVH/Re-hear-XR?node-id=223-75).
+서버: `4githu/sushisite`, 브랜치 `dev/bora`. Unity: `leehj-aaa/Rehear`, 브랜치 `dev/bora`.
 
-Implemented and locally verified:
+## 적용 흐름
 
-- Keep the evaluated Body core underneath temporary actions; return to that core after an action rather than always BL_03. New evaluations can interrupt current actions.
-- Preserve all currently contributing pose weights on interruption. A repeated target refresh does not restart the blend clock. Completed non-looping clips restart through a new crossfade input; imported looping clips keep playing.
-- Randomize initial phase only for looping core clips, not authored one-shot hand/prop actions.
-- Distribute actors over a 0.85-second response window, with one common offset per actor's Face/Body/Gaze and matching offsets for the rear conversation pair. This is presentation staggering, NOT independent evaluation.
-- Preserve relative command timing when a fresh STT/LLM response arrives after its original timestamp. New responses supersede older scheduled reactions for the same actor. Priority resolves collisions within a response, not against newer evaluations.
-- Periodic audio is no longer unconditionally labeled utterance_boundary. Estimate during_speech/boundary/pause from trailing 20-ms RMS windows (180/600 ms starting thresholds). Explicit pause/end context is retained. This is an acoustic heuristic, not linguistic sentence detection.
-- Read only the audio segment from Unity's microphone ring rather than allocating/copying the full two-minute ring at every flush.
-- Server selection prefers unused eligible core candidates, caps identical core selections at two per response, and avoids repeated temporary actions (except the conversation pair). Rotate first-choice order to avoid starving the same actors. Hard state, timing, cooldown and seating gates remain authoritative.
+1. Unity가 `/smart-start`에 `independent_reactions=true`를 보냅니다. 서버가 같은 값을 반환한 세션에서만 새 방식을 사용합니다. 이전 서버는 기존 방식으로 동작하며 Unity 콘솔에 배포 필요 안내를 남깁니다.
+2. `/update`는 음성 구간의 STT·내용/전달 평가를 한 번만 수행합니다. 이 결과를 모든 청중이 공유합니다. 질문·리포트용 분석 상태에는 마지막 음성 구간까지 즉시 반영합니다.
+3. 화면에 보이는 청중의 상태·동작은 별도 평가 스케줄러가 결정합니다. 각 청중은 독립된 초기 시점, 약 3–5초의 개인별 평가 간격, 매 주기 ±0.55초의 변동을 갖습니다. 관심도·전문성은 웹 설정 평균을 유지하는 기존 개인별 값을 사용합니다.
+4. 자기 차례가 되면 아직 반영하지 않은 분석 결과만 순서대로 적용하고 최종 상태에서 반응을 선택합니다. 새 정보가 없으면 EVC를 재적용하거나 동작을 재선택하지 않습니다. 따라서 평가 주기가 빠른 청중에게 같은 점수가 중복 누적되지 않습니다.
+5. 직전 표시 상태와의 최대 E/V/C 차이가 0.12 미만이면 현재 core를 유지합니다. 작은 변화도 마지막으로 표시한 상태를 기준으로 누적됩니다. 새 정보가 계속 들어오면 개인별 9–15초 후 변화를 다시 선택할 수 있으며, 큰 변화와 유효한 행동 명령은 재생 중인 동작을 즉시 블렌딩하여 교체합니다.
+6. 다른 청중이 현재 쓰는 core와 아직 재생 중인 ACT를 참조해 중복을 줄입니다. 사용 가능한 후보가 있으면 아직 쓰지 않은 core를 우선하고 동일 core는 최대 두 명, 같은 ACT는 한 명을 목표로 제한합니다. 적합한 대안이 없으면 무관한 동작을 강제로 넣지 않습니다.
+7. 뒤쪽 두 좌석의 side conversation만 같은 시각·그룹으로 함께 보냅니다. 양쪽 모두 상태·좌석·쿨다운 조건을 통과해야 합니다. Unity는 실제 좌석 파트너 방향으로 R/L을 결정합니다. 타이핑/휴대폰/Q&A 예약 조건을 유지합니다.
 
-Validation:
+## API와 Unity 수명 주기
 
-- Six real presentation prefabs: interrupted A→B→C arrival pose/weight continuity; normalization; repeated-target progress; persistent core; overlay return; incoming core interruption; imported looping playback; stop/phone cleanup. Reports: Temp/RehearBlendTests.txt and Temp/RehearCoreBlendTests.txt.
-- Unity PlayMode: 7 passed, including delayed response handling, stale scheduled response cancellation, core+action ordering and six distinct actor start frames.
-- Unity EditMode: 51 passed, including speech/boundary/pause classification.
-- Server odi/EVC/tests: 100 passed.
-- No new live microphone session or APK/device run in this review. Automated pose continuity does not establish subjective naturalness; the revised motion still needs an in-scene visual run.
-- Server changes are in the local dev/bora checkout and captured in audience-backchannel.patch; they have NOT been pushed or deployed in this review. The patch base is the existing local server HEAD. Do not apply twice.
+`POST /odi/xreal_rehear/evc/sessions/{session_id}/reactions`
 
-Next design — independent judgment clocks (not implemented yet):
+- 기존 `X-EVC-Session-Token` 인증 사용.
+- 요청: `request_id`(UUID), `client_time_s`(일시정지 시간을 뺀 발표 시계).
+- 응답: `request_id`, `session_id`, `sequence`, `audiences`, `commands`.
+- Unity는 250ms 간격으로 요청하며 동시에 하나만 보냅니다. STT·LLM 업로드 큐와 별개입니다. 폴링 자체에는 모델 호출이나 추가 Azure 사용이 없습니다.
+- 요청이 실패하면 같은 UUID와 시각으로 재시도합니다. 서버는 최근 32개 응답을 보존하고 중복 평가를 막습니다. 명령 생성 실패 시 상태·미처리 증거·난수 상태를 되돌립니다.
+- 서버는 음성 분석의 긴 잠금을 기다리지 않습니다. 통신이 늦어도 한 번에 한 명씩 판단하며 최소 0.35초의 간격을 둡니다. 명시적인 대화 짝만 예외입니다.
+- 일시정지 중에는 새 폴링·명령 실행을 멈추고 도착한 응답은 재개까지 보관합니다. 발표 종료/Q&A/실패/씬 종료 시 폴링을 취소하고 예약된 백채널 명령도 제거합니다.
+- 분석 업로드의 `step`과 반응의 `sequence`는 별개입니다. 빈 STT 결과는 `step`이 증가하지 않는 정상 no-op으로 처리해 다음 음성 구간이 막히지 않게 했습니다.
 
-1. Timestamp shared speech/content/delivery evidence once. Keep a bounded event buffer; do not run six copies of STT/LLM.
-2. Each actor owns next_evaluation_at, last_consumed_evidence_id, state, responsiveness, recent behavior and an independent seeded random stream. Initial phase and interval differ per actor.
-3. At an actor's evaluation deadline, consume only unseen evidence since its last judgment. Integrate duration-weighted evidence; never add the same common delta repeatedly because an actor ticks faster. If no new evidence exists, keep the state and listening motion.
-4. Select that actor's eligible core/action using its updated state and history. Same judgment may retain the current core; changed judgment can interrupt any presentation action through the existing mixer. Keep explicit Q&A turn reservation.
-5. Poll/push due actor decisions separately from the slow STT/LLM request. A single reaction endpoint returning all currently due actors is sufficient; it needs a separate reaction sequence/cursor so polling does not increment the existing audio expected_step.
-6. Pair coordination is explicit for rear-seat side conversation. Shared slide events may wake relevant actors with different response probabilities and latencies, without forcing every actor to change pose.
-7. Tune intervals against measured fresh-evidence latency. Proposed fast/medium/slow ranges (4–6 / 6–9 / 9–12 seconds) are experimental, not specification requirements. Current periodic audio capture is 8 seconds, so the faster ranges cannot provide fresh content judgments without first improving capture/evaluation latency.
+## 블렌딩
 
-Do not misrepresent client delay as independent evaluation; do not enforce motion dwell times that prevent new evaluations from interrupting current actions.
+기존 Playable 믹서는 전환 도중인 모든 입력 가중치에서 새 전환을 시작합니다. 중간에 idle로 리셋하지 않으며 같은 동작은 되감지 않습니다. ACT 종료 후에는 현재 core로 돌아갑니다. 루프형 core의 초기 재생 위치는 청중별로 다릅니다. 새 반응 API에는 기존 0.85초 배치 지연을 중복 적용하지 않습니다.
+
+## 검증 및 배포
+
+- 서버 테스트 124개 통과: 독립 평가 주기, 미반영 증거의 순서/중복 방지, 지연 시 동시 전환 방지, 상태 유지/즉시 교체, 뒤쪽 대화 짝, 인증, 재시도, 분석 잠금과의 분리, 기존 Q&A·리포트 회귀 검사.
+- Unity EditMode 57개 통과: 폴링 재시도·일시정지·종료 처리, 분석 응답의 표시 상태 덮어쓰기 방지, 빈 STT 후 다음 구간 처리 포함.
+- 실제 청중 프리팹 6종의 전환 도중 자세/가중치 연속성, 동일 동작 재시작 방지, core 유지, ACT 복귀 및 phone 정리 검사 통과.
+- Unity PlayMode 8개 통과: 개별 반응 명령에 추가 배치 지연이 없고, 함께 움직여야 하는 두 청중은 같은 프레임에 시작하며, Q&A 진입 시 예약 명령이 취소되는 것까지 확인했습니다.
+- 서버 코드의 머지·배포 및 새 Unity 코드가 함께 필요합니다. 운영 서버 배포, 실제 발표 음성으로의 전체 흐름, Quest APK에서의 주관적인 자연스러움은 이번 자동 검사와 별도로 확인해야 합니다. 음성 수집은 기존 8초 구간을 유지하므로 내용 반응 지연에는 STT/LLM 처리 시간도 포함됩니다.
+
+`audience-backchannel.patch`는 이전 검토의 보관본입니다. 최신 변경은 서버 `dev/bora`를 사용하며 이미 반영된 브랜치에 옛 패치를 다시 적용하지 마세요.

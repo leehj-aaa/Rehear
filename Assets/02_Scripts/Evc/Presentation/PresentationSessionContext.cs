@@ -131,7 +131,8 @@ namespace Rehear.Evc.Presentation
                     throw new InvalidOperationException("Update response belongs to a different EVC session.");
                 if (step != expectedStep)
                     throw new InvalidOperationException("Local EVC step changed while an update was in flight.");
-                if (response.step <= expectedStep)
+                if (response.step != expectedStep + 1 &&
+                    !(response.step == expectedStep && response.no_op_reason == "empty_transcript"))
                     throw new InvalidOperationException("Update response did not advance the EVC step.");
 
                 step = response.step;

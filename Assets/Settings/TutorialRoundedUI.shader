@@ -14,6 +14,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
         _FigmaGlowTex("Figma radial artwork", 2D) = "black" {}
         _UseFigmaGlow("Use Figma additive radial", Float) = 0
         _FigmaDesignSize("Figma design dimensions", Vector) = (804,577,0,0)
+        _FigmaGlowRect("Figma radial bounds", Vector) = (-111,-322,1041,519)
         [HideInInspector] _BlurTex("Background blur", 2D) = "black" {}
         [HideInInspector] _CropRegion("Blur crop", Vector) = (0,0,1,1)
         _StencilComp("Stencil Comparison", Float) = 8
@@ -49,6 +50,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
             sampler2D _FigmaGlowTex;
             float _UseFigmaGlow;
             float4 _FigmaDesignSize;
+            float4 _FigmaGlowRect;
             UNITY_DECLARE_SCREENSPACE_TEXTURE(_BlurTex);
             float4 _CropRegion, _ClipRect;
             fixed4 _TextureSampleAdd;
@@ -116,7 +118,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
                 result.rgb = lerp(result.rgb, _TopGlowColor.rgb, glow);
                 // Original 1041x519 ellipse at (-111,-322) inside the 804x577 Figma panel.
                 float2 designPosition = float2(input.uv.x, 1-input.uv.y) * _FigmaDesignSize.xy;
-                float2 radialUV = (designPosition + float2(111,322)) / float2(1041,519);
+                float2 radialUV = (designPosition - _FigmaGlowRect.xy) / max(_FigmaGlowRect.zw, .001);
                 half4 radial = tex2D(_FigmaGlowTex, float2(radialUV.x,1-radialUV.y));
                 half radialBounds = step(0,radialUV.x)*step(radialUV.x,1)*step(0,radialUV.y)*step(radialUV.y,1);
                 #ifndef UNITY_COLORSPACE_GAMMA

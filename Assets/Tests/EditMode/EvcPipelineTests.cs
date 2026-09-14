@@ -488,6 +488,41 @@ namespace Rehear.Evc.Tests
         }
 
         [Test]
+        public async Task IndependentAnalysis_DoesNotOverwriteListenersBetweenTheirEvaluations()
+        {
+            context.ApplySmartStart(CreateStartResponse());
+            var fake = new FakeEvcApiClient { SegmentHandler = request => {
+                var response = SuccessfulUpdate(request);
+                response.independent_reactions = true;
+                return Task.FromResult(response);
+            }};
+            var sink = new RecordingCommandSink();
+            using (var updates = new EvcUpdateService(fake, context, new EvcSessionService(fake, context), sink, 0))
+                await updates.EnqueueAsync(CreateSegment(1d), CancellationToken.None);
+            Assert.That(context.Step, Is.EqualTo(1));
+            Assert.That(sink.CallCount, Is.Zero);
+        }
+
+        [Test]
+        public async Task EmptyTranscript_DoesNotBreakFollowingAudioStep()
+        {
+            context.ApplySmartStart(CreateStartResponse());
+            int count = 0;
+            var fake = new FakeEvcApiClient { SegmentHandler = request => {
+                var response = SuccessfulUpdate(request);
+                if (count++ == 0) { response.step = request.expected_step; response.no_op_reason = "empty_transcript"; }
+                return Task.FromResult(response);
+            }};
+            using (var updates = new EvcUpdateService(fake, context, new EvcSessionService(fake, context), null, 0))
+            {
+                await updates.EnqueueAsync(CreateSegment(1d), CancellationToken.None);
+                Assert.That(context.Step, Is.Zero);
+                await updates.EnqueueAsync(CreateSegment(2d), CancellationToken.None);
+                Assert.That(context.Step, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
         public void Update_StepConflictRestoresServerStateWithoutAutomaticReplay()
         {
             context.ApplySmartStart(CreateStartResponse());

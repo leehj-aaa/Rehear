@@ -117,11 +117,11 @@ internal static class RehearTutorialRenderingSetup
         var data = camera.GetUniversalAdditionalCameraData();
         Undo.RecordObjects(new Object[] { camera, data, volume }, "Configure Tutorial Quest 3 Rendering");
         camera.allowMSAA = true;
-        camera.allowHDR = false;
+        camera.allowHDR = true;
         camera.useOcclusionCulling = true;
         data.renderPostProcessing = true;
         data.allowXRRendering = true;
-        data.allowHDROutput = false;
+        data.allowHDROutput = true;
         // This dropdown is POST-process AA, not URP's 4x hardware MSAA.
         // FXAA softens small VR text; TAA adds history/ghosting and disables MSAA.
         data.antialiasing = AntialiasingMode.None;
@@ -153,7 +153,7 @@ internal static class RehearTutorialRenderingSetup
             $"postAA={data.antialiasing}\ncameraHDR={camera.allowHDR}\n" +
             $"volumeMask={data.volumeLayerMask.value}\nvolumeWeight={volume.weight}\n" +
             $"saved={System.DateTime.UtcNow:O}\n");
-        Debug.Log($"Rehear: {scene.name} camera and Quest 3 volume saved (4x MSAA, lightweight color grading, HDR/blur off).", camera);
+        Debug.Log($"Rehear: {scene.name} camera and Quest 3 volume saved (4x MSAA, lightweight color grading, HDR enabled).", camera);
     }
 
     private static T Add<T>(VolumeProfile profile) where T : VolumeComponent

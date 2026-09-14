@@ -43,7 +43,14 @@ public class AudienceAnimationCatalog :
         AudienceGender gender,
         out AnimationClip clip)
     {
+        return TryResolveClip(variationId, gender, out clip, out _);
+    }
+
+    public bool TryResolveClip(string variationId, AudienceGender gender,
+        out AnimationClip clip, out string canonicalId)
+    {
         clip = null;
+        canonicalId = null;
 
         if (string.IsNullOrWhiteSpace(
                 variationId))
@@ -69,6 +76,7 @@ public class AudienceAnimationCatalog :
                 ? entry.maleClip
                 : entry.femaleClip;
 
+        canonicalId = entry.variationId;
         return clip != null;
     }
 

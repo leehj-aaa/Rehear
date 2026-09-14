@@ -15,6 +15,10 @@ public class PresentationController : MonoBehaviour
 
     [Header("기존 발표 UI")]
     public TextMeshProUGUI timerText;
+    [Header("뒤쪽 상단 문구 크기")]
+    [Tooltip("발표 시작 전 문구의 최대 글자 크기입니다. 공간이 부족하면 자동으로 줄어듭니다.")]
+    [SerializeField, Min(1f)] private float startPromptFontSize = 220f;
+    [SerializeField, Min(1f)] private float timerFontSize = 400f;
     public Button qaButton;
     public GameObject pausePanel;
     public GameObject scriptPanel;
@@ -177,6 +181,7 @@ public class PresentationController : MonoBehaviour
 
     private void RefreshSessionButtons()
     {
+        if (!hasStarted) UpdateTimerDisplay();
         if (startPresentationButton)
         {
             startPresentationButton.gameObject.SetActive(!hasStarted);
@@ -531,8 +536,13 @@ public class PresentationController : MonoBehaviour
     private void UpdateTimerDisplay()
     {
         if (timerText != null)
+        {
+            timerText.enableAutoSizing = true;
+            timerText.fontSizeMax = !hasStarted ? startPromptFontSize : timerFontSize;
             timerText.text =
+                !hasStarted ? "발표 시작하기" :
                 qaManager != null && qaManager.IsQAPhaseActive ? "Q&A" : FormatTime(timeRemaining);
+        }
     }
 
     private string FormatTime(float time)

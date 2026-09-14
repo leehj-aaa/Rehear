@@ -18,7 +18,7 @@ using UnityEngine.Animations;
  camera.transform.position=phone.transform.position+new Vector3(.18f,.10f,.5f);camera.transform.LookAt(phone.transform.position);camera.orthographic=true;camera.orthographicSize=.19f;camera.nearClipPlane=.01f;
  var light=go.AddComponent<Light>();light.type=LightType.Directional;light.intensity=2;
  var rt=new RenderTexture(800,800,24);camera.targetTexture=rt;var old=RenderTexture.active;
- try{camera.Render();RenderTexture.active=rt;var tex=new Texture2D(800,800,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,800,800),0,0);tex.Apply();File.WriteAllBytes("Temp/RehearPhonePreview.png",tex.EncodeToPNG());UnityEngine.Object.DestroyImmediate(tex);}finally{RenderTexture.active=old;camera.targetTexture=null;rt.Release();UnityEngine.Object.DestroyImmediate(rt);UnityEngine.Object.DestroyImmediate(go);}
+ try{camera.Render();RenderTexture.active=rt;var tex=new Texture2D(800,800,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,800,800),0,0);tex.Apply();File.WriteAllBytes("Temp/RehearPhonePreview-"+root.name+".png",tex.EncodeToPNG());UnityEngine.Object.DestroyImmediate(tex);}finally{RenderTexture.active=old;camera.targetTexture=null;rt.Release();UnityEngine.Object.DestroyImmediate(rt);UnityEngine.Object.DestroyImmediate(go);}
  }
  [MenuItem("Rehear/Setup Device Checking Phone")]
  static void SetupDevicePhones(){
@@ -28,16 +28,28 @@ using UnityEngine.Animations;
  var root=PrefabUtility.LoadPrefabContents(path);try{
  var player=root.GetComponentInChildren<AudienceAnimationPlayer>(true);var a=root.GetComponentInChildren<Animator>();
  var field=typeof(AudienceAnimationPlayer).GetField("devicePhone",Flags);
- if((GameObject)field.GetValue(player))continue;
- var bones=root.GetComponentsInChildren<Transform>(true);var positions=bones.Select(t=>t.localPosition).ToArray();var rotations=bones.Select(t=>t.localRotation).ToArray();var scales=bones.Select(t=>t.localScale).ToArray();
+ var bones=root.GetComponentsInChildren<Transform>(true);var positions=bones.Select(t=>t.localPosition).ToArray();var rotations=bones.Select(t=>t.localRotation).ToArray();var scales=bones.Select(t=>t.localScale).ToArray();var hints=bones.Select(t=>new SerializedObject(t).FindProperty("m_LocalEulerAnglesHint").vector3Value).ToArray();
  cat.TryGetClip("ACT_03.devicechecking",player.Gender,out var clip);clip.SampleAnimation(a.gameObject,clip.length*.5f);
  var hand=bones.Single(t=>t.name=="hand_r");var middle=bones.Single(t=>t.name=="middle_01_r");
- var phone=(GameObject)PrefabUtility.InstantiatePrefab(source,hand);phone.name="Device Phone";
- phone.transform.position=middle.position+root.transform.up*.035f;
- phone.transform.rotation=Quaternion.LookRotation(root.transform.forward,root.transform.up)*Quaternion.Euler(180,0,0);
- phone.transform.localScale=Vector3.one*(.07f/source.GetComponent<MeshFilter>().sharedMesh.bounds.size.x)/hand.lossyScale.x;
+ var phone=(GameObject)field.GetValue(player);
+ if(!phone) phone=(GameObject)PrefabUtility.InstantiatePrefab(source,hand);
+ phone.name="Device Phone";
+ var index=bones.Single(t=>t.name=="index_01_r");
+ var pinky=bones.Single(t=>t.name=="pinky_01_r");
+ var tip=bones.Single(t=>t.name=="middle_03_r");
+ var normal=Vector3.Cross(index.position-hand.position,pinky.position-hand.position).normalized;
+ if(Vector3.Dot(normal,root.transform.forward)<0)normal=-normal;
+ var across=Vector3.ProjectOnPlane(tip.position-middle.position,normal).normalized;
+ var up=Vector3.Cross(normal,across).normalized;
+ if(Vector3.Dot(up,root.transform.up)<0) {up=-up;across=-across;}
+ // Match the palm plane and finger direction, not the room's vertical axes.
+ // This model's top/back point along local -Y/-Z respectively.
+ var fingerDirection=Vector3.ProjectOnPlane(tip.position-middle.position,normal).normalized;
+ phone.transform.position=middle.position+fingerDirection*.006f+up*.026f-normal*.009f;
+ phone.transform.rotation=Quaternion.LookRotation(-normal,-up);
+ phone.transform.localScale=Vector3.one*(.066f/source.GetComponent<MeshFilter>().sharedMesh.bounds.size.x)/hand.lossyScale.x;
  phone.SetActive(false);PrefabUtility.RecordPrefabInstancePropertyModifications(phone.transform);PrefabUtility.RecordPrefabInstancePropertyModifications(phone);
- for(int i=0;i<bones.Length;i++){bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];}
+ for(int i=0;i<bones.Length;i++){if(bones[i]==phone.transform || bones[i].IsChildOf(phone.transform))continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];var serialized=new SerializedObject(bones[i]);serialized.FindProperty("m_LocalEulerAnglesHint").vector3Value=hints[i];serialized.ApplyModifiedPropertiesWithoutUndo();}
  field.SetValue(player,phone);EditorUtility.SetDirty(player);PrefabUtility.SaveAsPrefabAsset(root,path);
  }finally{PrefabUtility.UnloadPrefabContents(root);}}
  }
@@ -46,13 +58,13 @@ using UnityEngine.Animations;
  foreach(var path in Directory.GetFiles("Assets/03_Prefabs/Audience/Presentation","Aud_*.prefab").Select(p=>p.Replace('\\','/'))){
  var root=PrefabUtility.LoadPrefabContents(path);try{
  var player=root.GetComponentInChildren<AudienceAnimationPlayer>(true);var a=root.GetComponentInChildren<Animator>();
- var bones=root.GetComponentsInChildren<Transform>(true);var positions=bones.Select(t=>t.localPosition).ToArray();var rotations=bones.Select(t=>t.localRotation).ToArray();var scales=bones.Select(t=>t.localScale).ToArray();
+ var bones=root.GetComponentsInChildren<Transform>(true);var positions=bones.Select(t=>t.localPosition).ToArray();var rotations=bones.Select(t=>t.localRotation).ToArray();var scales=bones.Select(t=>t.localScale).ToArray();var hints=bones.Select(t=>new SerializedObject(t).FindProperty("m_LocalEulerAnglesHint").vector3Value).ToArray();
  cat.TryGetClip("ACT_02.photoslide",player.Gender,out var clip);
  if(path.EndsWith("Aud_M_01.prefab") || path.EndsWith("Aud_W_01.prefab")) {
  cat.TryGetClip("ACT_03.devicechecking",player.Gender,out var inspectionClip);
  var lh=bones.Single(t=>t.name=="hand_l");var rh=bones.Single(t=>t.name=="hand_r");
  for(float time=0;time<inspectionClip.length;time+=1f){inspectionClip.SampleAnimation(a.gameObject,time);s.AppendLine($"DEVICE {root.name} t={time:F1}/{inspectionClip.length:F1} left={root.transform.InverseTransformPoint(lh.position):F3} right={root.transform.InverseTransformPoint(rh.position):F3}");}
- for(int i=0;i<bones.Length;i++){if(!bones[i])continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];}
+ for(int i=0;i<bones.Length;i++){if(!bones[i])continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];var serialized=new SerializedObject(bones[i]);serialized.FindProperty("m_LocalEulerAnglesHint").vector3Value=hints[i];serialized.ApplyModifiedPropertiesWithoutUndo();}
  }
  var field=typeof(AudienceAnimationPlayer).GetField("photoPhone",Flags);
  GameObject phone=(GameObject)field.GetValue(player);
@@ -60,6 +72,15 @@ using UnityEngine.Animations;
  if(save){
 root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  if(phone)UnityEngine.Object.DestroyImmediate(phone);
+ cat.TryGetClip("BL_01.neutral_listening",player.Gender,out var restClip);
+ if(!restClip)throw new Exception("Missing seated rest pose");
+ restClip.SampleAnimation(a.gameObject,restClip.length*.5f);
+ var rightHand=bones.Single(t=>t && t.name=="hand_r");
+ var thigh=bones.Single(t=>t && t.name=="thigh_r");
+ var restWrist=thigh.InverseTransformPoint(rightHand.position);
+ var restRotation=Quaternion.Inverse(thigh.rotation)*rightHand.rotation;
+ var restPose=bones.Where(t=>t && t.name.EndsWith("_r") && new[]{"clavicle_","upperarm_","lowerarm_","hand_","thumb_","index_","middle_","ring_","pinky_"}.Any(p=>t.name.StartsWith(p)))
+     .Select(t=>new AudiencePhotoGrip.FingerPose{bone=t.name,rotation=t.localRotation}).ToArray();
  clip.SampleAnimation(a.gameObject,clip.length*.5f);
  var hand=bones.Single(t=>t && t.name=="hand_l");
  var left=bones.Single(t=>t && t.name=="middle_02_l");var right=bones.Single(t=>t && t.name=="middle_02_r");
@@ -67,11 +88,28 @@ root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  phone.name="Photo Phone";
  phone.transform.position=(left.position+right.position)*.5f+root.transform.forward*.005f;
  phone.transform.rotation=Quaternion.LookRotation(root.transform.forward,root.transform.up)*Quaternion.Euler(180,0,0);
+ // Seat the handset between the curled fingers and thumb, instead of through
+ // the middle finger joints. The model's back is local -Z.
+ phone.transform.position+=phone.transform.rotation*new Vector3(-.050f,0,-.005f);
+ phone.transform.rotation*=Quaternion.Euler(0,15,0);
  // Native phone is already metre-scaled. Match a 7 cm wide handset.
  var width=source.GetComponent<MeshFilter>().sharedMesh.bounds.size.x;
  phone.transform.localScale=Vector3.one*(.07f/width)/hand.lossyScale.x;
+ var grip=phone.AddComponent<AudiencePhotoGrip>();
+ grip.restPose=restPose;grip.wristInThigh=restWrist;grip.wristRotationInThigh=restRotation;
+ typeof(AudienceAnimationPlayer).GetField("photoShutter",Flags).SetValue(player,AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/08_Audio/ioscameraflash.mp3"));
+ float peakTime=0,peakHeight=float.NegativeInfinity;
+ // Measure the actual handset's highest point in this actor's authored clip.
+ // The midpoint already lowers the phone, so it is not a shutter cue.
+ for(int sample=0;sample<=810;sample++){
+     float time=clip.length*sample/810f;clip.SampleAnimation(a.gameObject,time);
+     float height=Vector3.Dot(phone.transform.position-root.transform.position,root.transform.up);
+     if(height>peakHeight){peakHeight=height;peakTime=time;}
+ }
+ typeof(AudienceAnimationPlayer).GetField("photoShutterNormalizedTime",Flags).SetValue(player,peakTime/clip.length);
+ s.AppendLine($"SHUTTER {root.name}: phone peak at {peakTime:F3}s / {clip.length:F3}s, height={peakHeight:F3}m");
  phone.SetActive(false);PrefabUtility.RecordPrefabInstancePropertyModifications(phone.transform);PrefabUtility.RecordPrefabInstancePropertyModifications(phone);
- for(int i=0;i<bones.Length;i++){if(!bones[i])continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];}
+ for(int i=0;i<bones.Length;i++){if(!bones[i])continue;bones[i].localPosition=positions[i];bones[i].localRotation=rotations[i];bones[i].localScale=scales[i];var serialized=new SerializedObject(bones[i]);serialized.FindProperty("m_LocalEulerAnglesHint").vector3Value=hints[i];serialized.ApplyModifiedPropertiesWithoutUndo();}
  field.SetValue(player,phone);EditorUtility.SetDirty(player);
  PrefabUtility.SaveAsPrefabAsset(root,path);
  }
@@ -81,9 +119,9 @@ root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  if(!player.PlayServerVariation("ACT_02.photoslide",3,1))throw new Exception("Photo rejected");
  advance.Invoke(player,new object[]{.7f});if(!phone.activeSelf)throw new Exception("Photo missing");
  player.StopAction();advance.Invoke(player,new object[]{1f});if(phone.activeSelf)throw new Exception("Stop left phone visible");
- if(!player.PlayServerVariation("ACT_03.devicechecking",3,1))throw new Exception("Device check rejected");
+ if(!player.PlayServerVariation("ACT_03.device_checking",3,1))throw new Exception("Server device check alias rejected");
  advance.Invoke(player,new object[]{.7f});if(!device || !device.activeSelf || phone.activeSelf)throw new Exception("Device check right-hand phone missing");
- if(!player.PlayServerVariation("ACT_02.photoslide",3,1))throw new Exception("Phone action transition rejected");
+ if(!player.PlayServerVariation("ACT_02.photo_slide",3,1))throw new Exception("Server photo alias transition rejected");
  advance.Invoke(player,new object[]{.35f});if(!phone.activeSelf && !device.activeSelf)throw new Exception("Phone flickered between device and photo");
  if(!player.PlayServerVariation("BL_03.quiet_stable_posture",3,1))throw new Exception("Interrupt rejected");
  advance.Invoke(player,new object[]{1f});if(phone.activeSelf || device.activeSelf)throw new Exception("Other action left phone visible");
@@ -93,11 +131,12 @@ root.name=System.IO.Path.GetFileNameWithoutExtension(path);
  typeof(AudienceAnimationPlayer).GetMethod("OnDisable",Flags).Invoke(player,null);
  if(phone.activeSelf || device.activeSelf)throw new Exception("Disable left phone visible");
 
- typeof(AudienceAnimationPlayer).GetMethod("OnDisable",Flags).Invoke(player,null); if(path.EndsWith("Aud_M_01.prefab")){cat.TryGetClip("ACT_03.devicechecking",player.Gender,out var deviceClip);deviceClip.SampleAnimation(a.gameObject,deviceClip.length*.5f);device.SetActive(true);Capture(root,device);device.SetActive(false);}
+ typeof(AudienceAnimationPlayer).GetMethod("OnDisable",Flags).Invoke(player,null); if(path.EndsWith("Aud_M_01.prefab") || path.EndsWith("Aud_W_03.prefab")){cat.TryGetClip("ACT_03.devicechecking",player.Gender,out var deviceClip);deviceClip.SampleAnimation(a.gameObject,deviceClip.length*.5f);typeof(AudienceAnimationPlayer).GetMethod("CreateAnimationGraph",Flags).Invoke(player,null);player.PlayServerVariation("ACT_03.devicechecking",20,1);advance.Invoke(player,new object[]{1f});var graph=(PlayableGraph)typeof(AudienceAnimationPlayer).GetField("playableGraph",Flags).GetValue(player);graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);graph.Evaluate(deviceClip.length*.5f);player.ApplyDeviceGrip();foreach(var renderer in root.GetComponentsInChildren<SkinnedMeshRenderer>()){renderer.updateWhenOffscreen=true;renderer.forceMatrixRecalculationPerRender=true;}Capture(root,device);}
  s.AppendLine("PASS "+root.name+": nested source phone, left hand, hidden idle; photo and device checking, crossfade, completion/stop/disable/other action. local="+phone.transform.localPosition.ToString("F4"));
  }finally{PrefabUtility.UnloadPrefabContents(root);}}
  File.WriteAllText("Temp/RehearPhoneReport.txt",s.ToString());}
 }
+
 
 
 

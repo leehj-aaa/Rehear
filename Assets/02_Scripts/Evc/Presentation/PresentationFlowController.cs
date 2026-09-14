@@ -47,6 +47,7 @@ namespace Rehear.Evc.Presentation
         private PresentationReportService reportService;
         private bool questionFlowStarted;
         private bool pausedByApplication;
+        private CancellationTokenSource reactionCancellation;
         
 
         public ReportFeedback CurrentReport { get; private set; }
@@ -288,6 +289,18 @@ CurrentReport = null;
                 audienceCoordinator?.SetServerMode(true);
                 clock.Start();
                 SetState(PresentationFlowState.Running, string.Empty);
+                if (startResponse.independent_reactions && audienceCoordinator != null)
+                {
+                    reactionCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    var session = PresentationSessionContext.Current;
+                    _ = new AudienceReactionPoller((IAudienceReactionClient)apiClient).RunAsync(
+                        session.SessionId, session.SessionToken, clock,
+                        () => State == PresentationFlowState.Running || State == PresentationFlowState.Paused,
+                        audienceCoordinator.HandleIndependentReaction,
+                        message => Debug.LogWarning("[EVC] " + message), reactionCancellation.Token);
+                }
+                else if (!startResponse.independent_reactions)
+                    Debug.LogWarning("[EVC] 서버가 청중별 평가 주기를 아직 지원하지 않습니다. 서버 변경 사항을 배포해야 적용됩니다.");
             }
             catch (Exception exception) when (!(exception is OperationCanceledException))
             {
@@ -325,6 +338,13 @@ CurrentReport = null;
 
         private void SetState(PresentationFlowState state, string message)
         {
+            if (state != PresentationFlowState.Running && state != PresentationFlowState.Paused)
+            {
+                reactionCancellation?.Cancel();
+                reactionCancellation?.Dispose();
+                reactionCancellation = null;
+                audienceCoordinator?.CancelPendingCommands();
+            }
             State = state;
             StateChanged?.Invoke(state, message ?? string.Empty);
         }
