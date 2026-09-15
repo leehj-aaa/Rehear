@@ -58,6 +58,7 @@ public class CurvedUIInputModule : StandaloneInputModule {
     //support variables - new Event System 
     private Vector2 _lastEventDataPosition;
     private PointerInputModule.MouseButtonEventData _storedData;
+    public RaycastResult CurrentRaycast => _storedData?.buttonData.pointerCurrentRaycast ?? default;
     #pragma warning restore 414, 0649
 #endregion // end of VARIABLES ----------------------------------------------------//
 

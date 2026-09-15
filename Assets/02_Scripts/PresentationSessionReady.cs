@@ -40,6 +40,13 @@ public sealed class PresentationSessionReady : MonoBehaviour
     {
         var camera = Camera.main;
         if (!camera) return;
+        // World-space raycast coordinates must use the tracked camera. The URP
+        // overlay camera draws this UI, but does not own its XR input projection.
+        var canvas = GetComponent<Canvas>();
+        if (canvas) canvas.worldCamera = camera;
+        foreach (var button in GetComponentsInChildren<Button>(true))
+            if (button.targetGraphic)
+                button.targetGraphic.canvasRenderer.cullTransparentMesh = false;
         var heading = Quaternion.Euler(0f, camera.transform.eulerAngles.y, 0f);
         transform.SetPositionAndRotation(
             camera.transform.position + heading * cameraLocalPosition,

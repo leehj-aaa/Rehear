@@ -51,12 +51,12 @@ MonoBehaviour:
   m_OverrideLineOrigin: 1
   m_LineOriginTransform: {fileID: 5745700813747042508}
   m_VisualPointCount: 20
-  m_MaxVisualCurveDistance: 10
+  m_MaxVisualCurveDistance: 20
   m_RestingVisualLineLength: 0.25
-  m_LineDynamicsMode: 1
+  m_LineDynamicsMode: 0
   m_RetractDelay: 1
   m_RetractDuration: 1
-  m_ExtendLineToEmptyHit: 0
+  m_ExtendLineToEmptyHit: 1
   m_ExtensionRate: 10
   m_EndPointExpansionRate: 10
   m_ComputeMidPointWithComplexCurves: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_EmptyHitMaterial: {fileID: 0}
 --- !u!120 &3053154067257784704
 LineRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -291,6 +291,8 @@ LineRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -312,9 +314,11 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Positions: []
   m_Parameters:
     serializedVersion: 3
@@ -371,7 +375,6 @@ LineRenderer:
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
-  m_MaskInteraction: 0
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 0
@@ -387,6 +390,7 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 30005
   m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &4804964734930210078
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,6 +405,7 @@ GameObject:
   - component: {fileID: 7104419533170684624}
   - component: {fileID: 1255647619390271626}
   - component: {fileID: 3179295312718945089}
+  - component: {fileID: 3437249808978236713}
   m_Layer: 0
   m_Name: Left_NearFarInteractor
   m_TagString: Untagged
@@ -714,7 +719,7 @@ MonoBehaviour:
   m_RaycastUIDocumentTriggerInteraction: 1
   m_TargetNumCurveSegments: 1
   m_HitDetectionType: 2
-  m_CastDistance: 10
+  m_CastDistance: 20
   m_SphereCastRadius: 0.1
   m_ConeCastAngle: 6
   m_LiveConeCastDebugVisuals: 0
@@ -763,3 +768,16 @@ MonoBehaviour:
     m_Duration: 0.1
     m_Frequency: 0
   m_AllowHoverHapticsWhileSelecting: 0
+--- !u!114 &3437249808978236713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4804964734930210078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f6bbdb9de9683c41b729fc86d786d7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RehearUIReticle
+  reticlePrefab: {fileID: 5844911515715071397, guid: 018cd6298fd6fdc4e9858d41411a0226, type: 3}

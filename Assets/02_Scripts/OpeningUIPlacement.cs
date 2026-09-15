@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR;
 
 public class OpeningUIPlacement : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class OpeningUIPlacement : MonoBehaviour
     [SerializeField] private float verticalOffset = 0f;
 
     private bool placed;
+    private float trackingReadySince = -1f;
     private Transform xrRig;
     private Vector3 lockedRigLocalPosition;
     private Quaternion lockedRigLocalRotation;
@@ -21,6 +23,16 @@ public class OpeningUIPlacement : MonoBehaviour
 
     private void OnEnable()
     {
+        Application.onBeforeRender -= PlaceBeforeFirstRender;
+        Application.onBeforeRender += PlaceBeforeFirstRender;
+    }
+
+    private void OnApplicationFocus(bool focused)
+    {
+        if (!focused || !openingUiRoot || !openingUiRoot.gameObject.activeInHierarchy) return;
+        placed = false;
+        trackingReadySince = -1f;
+        Application.onBeforeRender -= PlaceBeforeFirstRender;
         Application.onBeforeRender += PlaceBeforeFirstRender;
     }
 
@@ -89,6 +101,7 @@ public class OpeningUIPlacement : MonoBehaviour
         }
     }
 
+    [BeforeRenderOrder(10000)]
     private void PlaceBeforeFirstRender()
     {
         if (placed)
@@ -97,9 +110,23 @@ public class OpeningUIPlacement : MonoBehaviour
         if (xrCamera == null || openingUiRoot == null)
             return;
 
+        if (XRSettings.enabled)
+        {
+            var head = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+            bool ready = Application.isFocused && head.isValid &&
+                head.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked) && tracked;
+            if (head.TryGetFeatureValue(CommonUsages.userPresence, out bool present)) ready &= present;
+            if (!ready) { trackingReadySince = -1f; return; }
+            if (trackingReadySince < 0f) trackingReadySince = Time.realtimeSinceStartup;
+            if (Time.realtimeSinceStartup - trackingReadySince < 0.3f) return;
+        }
+
         PlaceInFrontOfUser();
 
         placed = true;
+#if REHEAR_QUEST_DIAGNOSTICS
+        Debug.Log("[OpeningPlacement] Positioned in front of the tracked, focused headset.");
+#endif
 
         // 최초 배치가 끝나면 더 이상 실행하지 않음
         Application.onBeforeRender -= PlaceBeforeFirstRender;

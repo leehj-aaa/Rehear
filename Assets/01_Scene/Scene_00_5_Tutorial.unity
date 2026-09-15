@@ -2158,9 +2158,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.6075471, g: 0.6075471, b: 0.6075471, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.25, g: 0.85, b: 1, a: 1}
+    m_PressedColor: {r: 0.1, g: 0.5, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -2176,7 +2176,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 217176314}
+  m_TargetGraphic: {fileID: 1505272098}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -18742,6 +18742,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestionAnswerManager
   flowController: {fileID: 0}
+  azureSpeechConfig: {fileID: 0}
   qaPanel: {fileID: 1435535654}
   questionText: {fileID: 410824756}
   answerGuideText: {fileID: 2050827497}
@@ -20278,6 +20279,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PresentationController
   timerText: {fileID: 955658749}
+  startPromptFontSize: 220
+  timerFontSize: 400
   qaButton: {fileID: 1041958922}
   pausePanel: {fileID: 1424436591}
   scriptPanel: {fileID: 324270377}
