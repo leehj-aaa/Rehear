@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class Scene00_to_Scene01 : MonoBehaviour
 {
     [SerializeField] private GameObject openingPinRoot;
+    [SerializeField] private GameObject openingUiRoot;
     [SerializeField] private GameObject openingLogo;
     [SerializeField] private Button startButton;
     private bool opened;
@@ -31,5 +32,9 @@ public class Scene00_to_Scene01 : MonoBehaviour
         if (openingLogo) openingLogo.SetActive(false);
         if (startButton) startButton.gameObject.SetActive(false);
         openingPinRoot.SetActive(true);
+
+        // The opening canvas sits in front of the PIN canvas and otherwise
+        // consumes UI raycasts even after its visible children are hidden.
+        if (openingUiRoot) openingUiRoot.SetActive(false);
     }
 }

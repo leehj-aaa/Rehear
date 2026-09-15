@@ -51,8 +51,8 @@ MonoBehaviour:
   m_OverrideLineOrigin: 1
   m_LineOriginTransform: {fileID: 5745700813747042508}
   m_VisualPointCount: 20
-  m_MaxVisualCurveDistance: 10
-  m_RestingVisualLineLength: 0.25
+  m_MaxVisualCurveDistance: 5
+  m_RestingVisualLineLength: 1.5
   m_LineDynamicsMode: 1
   m_RetractDelay: 1
   m_RetractDuration: 1

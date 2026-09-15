@@ -23,7 +23,10 @@ namespace CurvedUI
         // Flat canvases on the same scene will work fine, but scroll rects on curved canvases will move faster / slower than the pointer.
         // May break dragging and scrolling as there will be no past eventdata to calculate delta position from.
         // default true.
-        private readonly bool _overrideEventData = true;
+        // Re:hear uses several curved canvases in the same scene. Keep each
+        // canvas' corrected pointer coordinates local so raycasters do not
+        // overwrite one another and cause intermittent hover/click gaps.
+        private readonly bool _overrideEventData = false;
         
         [SerializeField] private bool showDebug;
 
