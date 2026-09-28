@@ -34,6 +34,8 @@ namespace Rehear.Evc.Audience
 
         private void OnDisable()
         {
+            SetQuestionPhaseActive(false);
+            SetQuestionGenerationWaiting(false);
             CancelAll();
         }
 
@@ -50,9 +52,10 @@ namespace Rehear.Evc.Audience
 
         public void SetServerMode(bool enabled)
         {
+            SetQuestionPhaseActive(false);
             serverMode = enabled;
             for (var index = 0; index < agents.Length; index++)
-                agents[index]?.SetServerMode(enabled);
+                if (agents[index]) agents[index].SetServerMode(enabled);
         }
 
         public void HandleAudienceStates(IReadOnlyList<AudienceUpdateDto> audiences)
@@ -77,6 +80,34 @@ namespace Rehear.Evc.Audience
         public void HandleCommands(string requestId, IReadOnlyList<UnityCommandDto> commands)
         {
             HandleCommands(requestId, commands, false);
+        }
+
+        public void EnterQuestionPhase()
+        {
+            // Reject late presentation responses without enabling random reactions.
+            serverMode = false;
+            CancelAll();
+            foreach (var agent in agents)
+                if (agent) agent.SetServerMode(true);
+            SetQuestionPhaseActive(true);
+        }
+
+        private void SetQuestionPhaseActive(bool active)
+        {
+            foreach (var agent in agents)
+                if (agent)
+                    foreach (var behaviour in agent.GetComponents<MonoBehaviour>())
+                        if (behaviour is IAudienceQuestionPhaseReceiver receiver)
+                            receiver.SetQuestionPhaseActive(active);
+        }
+
+        public void SetQuestionGenerationWaiting(bool waiting)
+        {
+            foreach (var agent in agents)
+                if (agent)
+                    foreach (var behaviour in agent.GetComponents<MonoBehaviour>())
+                        if (behaviour is IAudienceQuestionWaitReceiver receiver)
+                            receiver.SetQuestionGenerationWaiting(waiting);
         }
 
         public void HandleIndependentReaction(AudienceReactionResponse response)

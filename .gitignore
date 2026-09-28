@@ -126,3 +126,5 @@ InitTestScene*.unity*
 /Server/AzureSpeech/.venv/
 /Server/AzureSpeech/data/
 /Server/AzureSpeech/__pycache__/
+/Server/LocalRecording/.env
+/Server/LocalRecording/__pycache__/

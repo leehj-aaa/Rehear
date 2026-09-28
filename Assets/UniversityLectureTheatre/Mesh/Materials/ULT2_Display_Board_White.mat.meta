@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 787bfbd229097904cbef146396458d96
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 212854
+  packageName: University Lecture Theatre 02
+  packageVersion: 2019.4.24f1
+  assetPath: Assets/University Lecture Theatre 02/Mesh/Materials/ULT2_Display_Board_White.mat
+  uploadId: 478917

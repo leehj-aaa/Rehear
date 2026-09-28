@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 7a45445dfd5b7b44cb9545da4e5ed41c
+timeCreated: 1496213851
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 212854
+  packageName: University Lecture Theatre 02
+  packageVersion: 2019.4.24f1
+  assetPath: Assets/University Lecture Theatre 02/Bakery/ftLightmaps.cs
+  uploadId: 478917

@@ -1,0 +1,299 @@
+ 디자인학 박사 학위논문(1차)
+
+XR 발표 훈련 환경에서 사회적 평가 경험 형성을 위한 AI 청중 에이전트 백채널 디자인 프레임워크
+
+
+
+
+
+ 2026년  6월
+
+
+서울대학교 대학원
+디자인학부 디자인전공
+윤 보 라
+
+XR 발표 훈련 환경에서 사회적 평가 경험 형성을 위한 AI 청중 에이전트 백채널 디자인 프레임워크
+
+
+지도 교수  정 의 철
+
+이 논문을 디자인학 박사 학위논문(1차)으로 제출함
+2026년   6월
+
+서울대학교 대학원
+디자인학부 디자인전공
+윤보라
+
+윤보라의 디자인학 박사 학위논문을 인준함
+ 2026년   6월
+
+위 원 장       O  O  O          (인)
+부위원장       O  O  O          (인)
+위    원       O  O  O          (인)
+위    원       O O O             (인)
+위    원       O O O             (인)
+초    록
+본 연구는 발표 불안 완화를 목적으로 활용되는 VR 발표 훈련 환경에서, 청중 에이전트가 제공하는 중립적 반응이 실제 발표 상황의 사회적 평가 맥락을 충분히 재현하지 못한다는 문제의식에서 출발한다. 기존 VRET 연구에서 사용된 중립 청중은 감정 표현을 배제하고 최소한의 움직임만 허용하는 비평가적 중립성에 머물러, 발화 내용과 발표 구조 변화에 연동된 평가적 백채널을 제공하지 못한다. 이에 본 연구는 체감 반응성(perceived responsiveness), 백채널, 평가 이론, CPM(Component Process Model)을 통합하여 발표자가 청중의 반응을 어떻게 인지하고 해석하는지를 이론적으로 정리하고, 정서적 방향성(affective direction)과 주의(attentiveness)라는 두 축을 기반으로 한 청중 중립성 모델인 ‘반응적 중립성(responsive neutrality)’을 제안하였다. 반응적 중립성은 정서적 방향성은 중립적으로 유지하되, 발화의 흐름을 따라가기 위한 지속적이고 안정된 주의를 보여줌으로써 “이해하며 평가하고 있다”는 최소한의 평가적 신호를 제공하는 청중 상태를 의미한다. 나아가 반응적 중립성을 VR 청중 디자인에 구현하기 위한 개념적 설계 프레임워크를 제시하고, 지속적 주의 유지, 인지적 추적의 외현화, 발화 단서 기반 반응 조율, 정서적 방향성 억제의 네 가지 설계 기준을 도출하였다. 본 0차 논문은 개념적 토대를 구축하는 데 초점을 두며, 향후 연구에서는 반응적 중립 퍼소나 파라미터의 정량화, 발표 단계별 백채널 패턴 구조화, AI 청중 에이전트 구현 및 사용자 연구를 통해 제안된 모델의 효과를 실증적으로 검증하고자 한다.
+
+주요어 : VR 발표 환경, AI 청중 에이전트, 백채널, 반응적 중립성, 체감 반응성
+학   번 : 2025-35945
+
+
+
+목   차
+
+제 1 장 서    론	1
+제 1 절	연구 배경	1
+제 2 절	연구 목적	2
+제 3 절	연구 질문	3
+제 4 절	연구 방법 및 범위	3
+제 5 절	논문의 구성	3
+제 2 장 이론적 배경	4
+제 1 절	발표 담화의 단계 구조와 청중 기대	16
+제 2 절	발표 수행 평가의 내용 차원과 전달 차원	16
+제 3 절	청중의 평가적 해석: Appraisal 기반 상태 변화	16
+제 4 절	의사소통 피드백과 청중 상태 모델	16
+제 5 절	백채널의 비언어적 표현과 가상 에이전트 반응 생성	16
+제 3 장 AI 청중 에이전트 백채널 디자인 프레임워크	14
+제 1 절	프레임워크 개요	14
+제 2 절	E·V·C청중 상태 모델	16
+제 3 절	발표 단계별 내용·전달 평가 요소 구성	16
+제 4 절	청중 상태 산출 및 갱신 규칙	16
+제 5 절	청중상태-백채널 전환 규칙	16
+제 4 장 XR 발표 훈련 시스템 구현 계획	14
+제 1 절	시스템 구성	14
+제 2 절	입력 데이터 처리	16
+제 3 절	AI 청중 에이전트 구현 구조	16
+제 4 절	백채널 애니메이션 리소스 제작	16
+제 5 절	실시간 백채널 생성 흐름	16
+제 5 장 실험 설계	14
+제 1 절	E·V·C 청중상태 모델 및 백채널 타당성 검증	14
+제 2 절	XR 발표 훈련 환경 적용 검증	16
+제 6 장 연구 추진 계획	14
+제 1 절	연구 진행 일정	14
+제 2 절	향후 과업	16
+제 3 절	예상 결과	16
+
+
+참고문헌	17
+
+Abstract	20
+
+표 목차
+
+[표 1] 3MT 발표 구조와 CPM 평가 기준의 대응 관계 및 청중의 정서적 반응	9
+
+
+그림 목차
+
+[그림 1] 발표자–청중 상호작용에서 백채널-체감 반응성-노출 효과의 관계 모형	6
+[그림 2] 정서적 방향성과 주의 수준에 따른 중립성 개념 구조	12
+
+
+제 1 장 서론
+제 1 절 연구 배경
+발표 불안(public speaking anxiety, PSA)은 사회 불안(social anxiety)의 하위 유형으로, 타인 앞에서 발표를 준비하거나 발표를 수행할 때 경험하는 불안을 말한다 (Gallego et al., 2022). 한국 대학생을 포함한 소규모 비교 연구에서는 과반 이상(56%)이 높은 수준의 발표 불안을 보고했으며 (Kim, 2017), 미국 대학생을 대상으로 한 조사에서도 61.7%가 발표 불안을 경험하는 것으로 보고되었다 (Dwyer & Davidson, 2012). 이처럼 많은 대학생들은 발표 상황에서 높은 불안을 경험하며, 이로 인해 구두 발표나 토론에서 자신의 생각을 자연스럽게 표현하는 데 어려움을 겪는다 (Huda et al., 2024). 이는 발표라는 대표적인 사회적 평가 상황(social-evaluative situation)에서 학생들이 부정적 평가에 대한 두려움(Fear of Negative Evaluation)을 강하게 느끼기 때문이다 (Downing et al., 2020).
+이러한 사회적 평가 상황에 대한 불안은 해당 상황에 반복적으로 노출되는 과정에서 점차 완화될 수 있는데 (Finn et al., 2009), 이는 노출 치료(exposure therapy)의 기본 원리이다 (Foa & Kozak, 1986). 여기서 사회적 평가 상황이란 타인의 존재(audience)가 있고, 그들에 의해 부정적 평가(negative evaluation)를 받을 가능성이 있는 상황을 의미한다 (Rapee & Heimberg, 1997). 그러나 실제 청중과 발표 환경과 같은 현실(in vivo) 노출 상황은 시간적·물리적 제약으로 인해 반복적으로 구성하기 어렵다 (Pittig et al., 2019). 가상현실 기반 노출치료(Virtual Reality Exposure Therapy, VRET)는 이러한 한계를 효과적으로 보완하는데, VR은 현실에서는 제공하기 어렵거나 불가능한 노출 경험을 통제된 조건에서 반복적으로 구현할 수 있기 때문이다 (Lindner et al., 2021). 
+그럼에도 불구하고, VRET는 발표 상황에서 핵심적인 평가적 단서로 작용하는 청중의 반응성을 충분히 구현하지 못한다. 실제 발표에서는 청중의 비언어적 백채널(backchannel)이 발화 내용과 전개에 따라 달라지며, 이는 발표자가 자신의 수행이 어떻게 받아들여지고 있는지를 판단하는 중요한 근거가 된다 (Ye et al., 2024). 그러나 현재 VRET 환경의 청중 에이전트는 주로 미리 정의된 정적 동작(preset behaviors)에 기반하여 반응하기 때문에, 발화 내용이나 논리적 구조 변화와 같은 내용 기반(content-contingent) 반응을 제공하지 못한다. 이러한 비적응적(non-contingent) 반응성은 실제 발표 상황에서 나타나는 내용 기반 평가적 반응성(content-contingent evaluative responsiveness)과 괴리를 보이며 (Kang, 2016), 그 결과 발표자가 체감하는 청중의 사회적 존재감과 발표 상황에 대한 몰입이 저하된다 (Bachmann et al., 2023).
+따라서 향후 VRET에서는 발표자의 발화 내용과 전개 변화에 따라 적절히 반응하는 내용 기반 백채널 설계 전략이 필요하다. 이를 위해서는 먼저 어떤 청중 반응(백채널)이 ‘중립적 반응(baseline neutral response)’에 해당하는지에 대한 기준을 정의하고 검증하는 과정이 선행되어야 한다. 이러한 중립성 기준이 마련되어야만 이를 기준점으로 삼아, 발표 맥락과 훈련 목표에 따라 차별화된 반응 방향성(evaluative direction)을 갖는 AI 청중 퍼소나(persona)를 설계할 수 있다. 나아가 이러한 기반 위에서 발화 내용 변화에 적절히 반응하는 정교한 백채널 모델을 확장할 수 있으며, 이는 발표자가 체감하는 반응성(perceived responsiveness)을 향상시켜 발표 불안 훈련 효과를 극대화할 수 있을 것이다.
+제 2 절 연구 목적	
+본 연구의 목적은 VR 발표 맥락에서 발표자가 청중으로부터 ‘평가받고 있다’는 상황을 자연스럽게 체감할 수 있도록, 반응적 중립성(responsive neutrality)에 기반한 AI 청중 에이전트의 백채널 디자인 프레임워크를 제안하는 것이다. 이를 위해 다음의 세부 목표를 설정한다. 
+반응적 중립성 기준 정의 — 발표자의 수행을 과도하게 지지하거나 평가절하하지 않으면서도 청중의 주의(attentiveness)를 드러내는  ‘중립적 반응’의 범주와 원칙을 규정하고, 이를 내용 기반 평가적 반응성의 기준점으로 설정한다.
+반응적 중립성 기반 AI 청중 퍼소나와 백채널 레퍼토리 구조화 — 도출된 중립성 기준을 바탕으로, 발표 내용 변화에 실시간으로 반응하는 AI 청중 퍼소나와 백채널 레퍼토리를 설계한다. 또한 이러한 반응적 중립 백채널이 발표자가 체감하는 반응성에 미치는 영향을 탐색한다.
+발표 단계별 백채널 설계 프레임워크 제안 — 발표 전개 단계별로 변화하는 정보 구조와 평가 기준을 고려하여, 각 단계에 적합한 반응적 중립 백채널을 구성하는 설계 프레임워크를 제안한다. 이를 통해 향후 VRET 시스템 구현 및 사용자 연구에서 활용 가능한 개념적 설계 기반을 마련한다.
+제 3 절 연구 질문
+본 연구는 위의 목표를 달성하기 위해 다음과 같은 연구 질문을 제기한다.
+발표자의 수행을 과도하게 지지하거나 평가절하하지 않으면서도 청중의 주의를 드러내는 ‘중립적 반응’은 어떤 기준에 따라 정의될 수 있는가?
+이러한 중립적 반응을 구성하는 비언어적 및 반언어적 백채널 신호는 무엇이며, 이들 신호는 어떻게 체계적인 레퍼토리로 구조화될 수 있는가?
+발표의 전개 단계별로 변화하는 정보 구조와 평가 관점을 고려할 때, 각 단계에 적합한 반응적 중립 백채널은 어떤 방식으로 배치하고 조합하는 것이 적절한가?
+이러한 연구 질문에 답하기 위해, 다음 장에서는 발표자가 청중의 반응을 어떻게 지각하는지를 설명하는 체감 반응성 이론과, 청중의 경청 및 백채널이 지각 과정에서 수행하는 역할을 검토한다. 이어 발표 전개 구조와 맥락적 평가가 어떻게 내용 이해와 정보 처리에 영향을 미치는지를 살펴보고, 이를 기반으로 VR 발표 환경에서 요구되는 중립성 모델과 반응적 중립성 개념을 논의한다. 
+
+제 4 절 연구 방법
+본 연구의 전문가 패널은 E·V·C 청중 상태 정의 및 전환 규칙의 내용타당성을 다각도로 검토하기 위해 HCI·UX, XR·Virtual Agent, 발표교육·커뮤니케이션, 심리·사회적 평가 분야의 전문가로 구성하였다. 이는 본 연구의 프레임워크가 (1) 사용자가 가상 청중 반응을 지각하고 해석하는 경험, (2) 가상 에이전트의 백채널 구현, (3) 발표 훈련 및 피드백 맥락, (4) 발표 상황에서의 사회적 평가 경험을 통합적으로 다루기 때문이다. 모든 전문가는 동일한 평가 대상과 기준을 검토하되, 각자의 전문 배경에 기반하여 상태 정의와 전환 규칙의 적절성, 명확성, 맥락 적합성, 설계 적용 가능성에 대한 판단 근거와 자유응답을 제공한다.  	
+제 2 장 이론적 배경
+제 1 절 체감 반응성과 백채널
+체감 반응성(perceived responsiveness)은 화자가 상대방으로부터 이해 받고(understanding), 인정받으며(validation), 돌봄(caring)을 받고 있다고 주관적으로 느끼는 경험을 의미한다. 이 개념은 원래 Reis와 Shaver(1988)의 친밀감 대인 과정 모형(Interpersonal Process Model of Intimacy)에서 제안되었으며, 친밀한 관계에서 한 사람의 자기노출에 대해 상대가 얼마나 민감하고 적절하게 반응하는지가 친밀감 형성의 핵심이라고 보았다. 이후 연구들에서는 이러한 체감 반응성이 친밀한 관계에만 국한되지 않고, 직장, 상담, 교육, 온라인 상호작용 등 다양한 사회적 맥락에서 상호작용의 질을 설명하는 핵심 개념으로 일반화될 수 있음을 보여주었다.
+Laurenceau 등(1998)은 Reis와 Shaver의 개념적 정의를 실증적으로 확장하여, 체감 반응성을 ‘이해・수용・돌봄(understanding・acceptance・caring)’이라는 세 문항으로 조작화하고, 이러한 지각된 반응성이 상호작용에서 경험되는 친밀감을 유의하게 예측한다는 것을 경험 표집 자료를 통해 입증하였다. 더 나아가 Reis 등(2004)은 체감 반응성이 친밀한 관계에 국한된 것이 아니라, 다양한 사회적 상호작용에서 상대의 평가적 태도를 추론하게 하는 보편적 대인 메커니즘임을 강조했다. 또한 Carmichael과 Mizrahi(2023)는 체감 반응성이 언어적 발화 뿐만 아니라 표정, 목소리, 제스처와 같은 비언어적 단서에 의해 강하게 좌우된다고 보고하며, 이러한 단서들이 청자의 관심·배려·이해·존중을 즉각적으로 체감하게 하는 핵심 신호 역할을 한다고 주장하였다. 이처럼 체감 반응성은 특정 관계 유형에 종속된 개념이 아니라, 화자가 상대의 반응을 어떻게 경험하는지를 설명하는 보다 일반적인 상호작용 개념으로 확장되어 왔다.
+체감 반응성은 특히 청자가 보여주는 경청(listening)에 의해 크게 영향을 받는다 (Itzchakov et al., 2022). Bodie와 Jones (2012)는 경청을 단순히 소리를 듣는 행위가 아니라, 인지적·정서적·행동적 차원이 결합된 다차원적 과정으로 정의한다. 인지적 차원에서는 주의(attending), 이해(understanding), 해석(interpreting)과 같은 정보 처리 과정이 포함되며, 정서적 차원에서는 상대의 메시지에 몰입하고자 하는 동기와 공감적 태도가, 행동적 차원에서는 언어적·비언어적 피드백이 드러난다. 화자는 청자의 내적 상태를 직접 관찰할 수 없기 때문에, 이러한 경청의 대부분을 행동적 차원에서 드러나는 신호를 통해 추론하게 된다. 다시 말해, 체감 반응성은 청자의 심리 상태를 기반으로 외현적으로 드러난 행동을 보고 화자가 구성해낸 인식에 가깝다. 
+경청 행동 가운데 화자가 가장 직접적으로 체감하는 요소는 발화의 흐름을 방해하지 않고 즉각적으로 드러나는 짧은 피드백 반응인 백채널(backchannel)이다. 백채널은 고개 끄덕임, 시선, 표정과 같은 비언어적 신호와 ‘아’, ‘음’과 같은 짧은 반언어적(paralinguistic) 음성 신호로 구성되며 (Blomsma et al., 2022), 화자가 자신의 발화가 청중에게 어떻게 받아들여지고 있는지를 추론하게 하는 신호로 작동한다. Clark와 Brennan(1991)은 이러한 백채널을 유발하는 발화 단서를 형식적 단서(formal cues)와 의미적 단서(semantic cues)로 구분하였다. 형식적 단서는 억양, 발화 속도, 강세, 말 끊김과 같은 발화의 형식・운율적 정보를 통해 청자가 얻게 되는 신호를 의미한다. 이러한 정보는 대화적 상호작용에서는 청자의 반응을 조율하는 역할을 하지만, 발표처럼 단방향 발화가 중심인 상황에서는 백채널을 직접적으로 유도하는 기능은 제한적이며, 주로 발화의 인지적 부담과 이해 용이성에 간접적으로 영향을 미치는 보조적 신호로 작용한다. 반면 의미적 단서는 새 정보 제시, 논점 전환, 모호함, 근거 제공 여부 등과 같이 발화 내용에 포함된 의미 기반 정보 중 청자가 단서로 인식하는 부분을 가리킨다. 이러한 의미 기반 신호는 청중의 해석·판단·평가를 직접적으로 촉발하여, 발표자가 청중의 인지적·평가적 반응을 파악하는 주요 근거가 된다. [그림 1]은 발표자–청중 상호작용에서 발화 단서, 청중의 인지·평가 과정, 백채널, 발표자의 체감 반응성, 반복 노출 효과가 어떻게 연결되는지를 개념적 관계 모형으로 정리한 것이다. 
+ 발표자–청중 상호작용에서 백채널-체감 반응성-노출 효과의 관계 모형
+이처럼 백채널은 의미 기반 정보를 반영하는 평가적 신호로 기능하며, 발표 상황에서는 이러한 신호들이 발표자의 수행에 대한 사회적 평가로 해석될 수 있다. Grieve 등(2021)은 학생들을 대상으로 한 질적 연구에서, 많은 학습자들이 발표 상황에서 청중의 시선, 표정, 고개 끄덕임, 메모하는 행동 등을 자신의 능력과 내용에 대한 평가 행위로 인식하며, 이로 인해 “평가받는 것에 대한 두려움(fear of being judged)”을 강하게 경험한다고 보고하였다. 이는 발표자가 청중의 백채널을 단순한 경청 신호가 아니라, 자신의 수행을 측정·판단하는 평가의 일부로 받아들이고 있음을 의미한다. 따라서 청중의 반응은 발표자가 불안을 경험하는 맥락에서 단순 피드백을 넘어서 평가 과정의 일부로 이해되어야 한다. 
+제 2 절 발표 구조와 평가
+발표 맥락에서 청중의 평가는 발표가 따르는 장르적 구조(rhetorical move structure)에 기반하여 이루어진다. 여기서 장르적 구조란 발표가 관습적으로 거치는 전형적인 단계들을 의미하며, 예를 들어 청중 인사-주제 제시-배경 설명-연구 내용 제시-결론 요약과 같은 단계들이 이에 해당한다 (Singh et al., 2019). Hu와 Liu  (2018)는 3분 학위논문 발표 (Three Minute Thesis, 3MT) 200여 건을 분석하여 다음과 같은 여덟 가지 전형적인 담화 단위(move)를 도출하였다. 필수적 단계인 도입부(Orientation), 연구 동기(Rationale), 연구 목적(Purpose), 연구 방법(Methods), 연구 함의(Implication), 발표 마무리(Termination)와 선택적 단계인 이론적 틀(Framework), 연구 결과(Results)는 실제 발표가 문제 제기 → 목표 설정 → 연구 수행 과정 → 결과·의의 제시 → 마무리의 일련의 구조적 흐름을 따른다는 점을 보여준다. 
+청중은 이러한 전형적인 발표 구조를 따라가면서 각 단계에서 제시되는 내용을 평가(appraisal)한다. 여기서 평가란 발화 내용을 특정 기준에 따라 해석하고 판단하는 일련의 인지적 과정이다(Moors et al., 2013). 이러한 평가 과정이 때로는 특정 감정이나 태도로 이어질 수 있기 때문에, 발표 맥락에서 청중의 반응을 설명하기 위한 다양한 평가 이론들이 제안되어 왔다.
+초기 평가 이론은 ‘무엇을 평가하는가’에 초점을 두었다. Lazarus(1991)는 인지-동기-관계 모형(cognitive-motivational-relational theory)에서 감정을 유발하는 핵심 평가 기준을 사건의 중요성 (goal relevance), 목표와의 일치 여부(goal congruence), 대처 가능성(coping potential)이라는 세 차원으로 제시하며 평가의 인지적 구조를 규정했다. 이후 Roseman 등 (2001)은 이러한 틀을 확장하여 욕구 충족 여부・원인 귀속・예상 가능성의 조합이 특정 감정 범주를 형성한다는 점을 제시함으로써, 평가 기준을 감정 구분의 메커니즘으로 정교화하였다. 이어 Frijda 등(2009)은 이러한 평가의 결과가 단지 내적 감정 경험에 그치지 않고 특정 행동 경향(action readiness)을 유발하는 동적 기제라는 점을 강조하여, 감정을 상황에 대한 행동적 준비 상태로 이해하고 평가 이론을 ‘정적 감정 설명’에서 ‘동적 반응 메커니즘’으로 확장시켰다. 그러나 이러한 접근들은 평가의 ‘결과’로 나타나는 감정과 행동 상태에 초점을 두고 있기 때문에, 발표처럼 정보가 시간의 흐름에 따라 단계적으로 제시되고, 그때마다 평가 기준이 실시간으로 변하는 맥락을 충분히 설명하기에는 한계가 있다 (Marsella & Gratch, 2009). 발표는 각 구간에서 새로운 정보가 제시되며, 청중이 그때그때 다른 기준으로 의미를 해석하고 평가하기 때문이다.
+이러한 한계를 보완하기 위해, Scherer(2009)는 감정을 단일한 반응이 아니라 평가를 중심으로 여러 컴포넌트가 시간의 흐름에 따라 변화하는 과정으로 이해하는 구성요소 과정 모형(Component Process Model, CPM)을 제안했다. CPM에 따르면 자극을 처리되기 위해서는 먼저 해당 자극에 대한 최소한의 주의(attention)가 필요하며, 이후 새로움(Novelty)•내재적 쾌·불쾌(Intrinsic Pleasantness)•목표 관련성(Goal Relevance)•대처 가능성(Coping Potential)•규범·자기 일치성(Norm·Self-Compatibility)이라는 다섯 가지 기준에 따라 의미가 평가된다. 이때 주의는 평가를 시작하기 위한 전제 조건이면서도, 평가 결과에 따라 다시 강화되거나 약화되는 요소로 작동한다. 평가 결과는 정서·생리·행동 반응을 유발하고, 이 반응은 다음에 어떤 정보에 주의를 기울일지와 어떤 기준으로 다시 평가할지를 조정함으로써 평가-반응-주의의 순환적 구조를 형성한다. 즉, 한 번으로 끝나는 일회적 판단이 아니라, 자극의 변화에 따라 반복적으로 갱신되며 여러 컴포넌트가 동적으로 조정되는 과정이다. 
+평가가 시간의 흐름에 따라 단계적으로 갱신되는 이러한 구조는 발표처럼 각 단계에서 새로운 정보가 제시되고 그때마다 청중의 평가 기준이 달라지는 상황을 설명하는 데 적합한 이론적 틀을 제공한다. 예를 들어 도입부에서는 발표 주제의 새로움과 인상에 관한 평가가 두드러지며, 연구 목적을 다루는 구간에서는 목표 관련성과 규범적 수용 가능성에 대한 판단이 중요하게 작동한다. 연구 방법 제시 단계에서는 연구 절차의 타당성과 실행 가능성에 대한 대처 가능성 판단이 주로 개입한다. 이처럼 발표 구조와 평가 차원을 함께 고려하면 청중이 각 발표 단계에서 어떤 기준에 따라 내용을 해석하고 반응하는지, 그리고 그에 따라 평가가 어떻게 변화하는지를 이해할 수 있다. [표1]은 3MT 발표 구조와 CPM 평가 기준(appraisal criteria) 간의 대응 관계를 정리한 것으로, 각 단계에서 활성화되는 평가기준이 청중에게 어떤 평가 내용으로 작동하는지, 그리고 그에 수반되는 정서적 반응을 함께 제시한다.  
+3MT 발표 구조와 CPM 평가 기준의 대응 관계 및 청중의 정서적 반응
+이러한 분석은 발표자가 각 단계에서 청중이 어떤 평가 기준을 적용하고 있는지를 추론하는 데 도움을 줄 뿐 아니라, 어느 구간에서 평가적 백채널이 필요한지를 판단하는 근거가 된다. 또한, 각 단계에서의 평가 결과는 청중의 정서적 반응으로 나타나며, 이러한 정서적 변화는 시선·표정·고개 끄덕임 같은 행동 반응으로 외현화되어 발표자가 지각하는 평가적 태도의 근거가 된다. 이때 [표 1]에서 제시된 다양한 정서적 반응은 설계적 관점에서는 지지적·비판적과 같은 긍정·부정 평가 경향으로 단순화될 수 있으며, 이 상위 차원을 본 연구에서는 정서적 방향성(affective direction)이라 정의한다. 이러한 정서적 방향성이 청중의 주의(attentiveness) 수준과 결합될 때, 동일한 발표 구조에서도 발표자가 체감하는 반응성의 강도와 성격은 크게 달라질 수 있다 (Kang et al., 2016). 따라서 다음 절에서는 청중의 평가적 태도를 정서적 방향성과 주의라는 두 차원으로 구성한 중립성 모델로 정의하고, 이를 바탕으로 VR 발표 환경에서 요구되는 ‘중립성(neutrality)’의 개념을 논의한다.
+제 3 절 AI 청중 에이전트 백채널 디자인 프레임워크
+청중의 평가적 태도는 발표자의 인지적·정서적 반응을 결정하는 주요 요인이며, 발표 훈련의 난이도를 조절하는 핵심 변수로 작용한다. 앞 절에서 논의한 바와 같이, 발표 상황에서 청중의 평가는 정서적 방향성과 주의의 두 차원뿐 아니라, 발표 구조에 따라 단계적으로 변화하는 평가 기준에 의해 이루어진다. 따라서 VR 기반 발표 훈련에서 ‘중립 청중’은 단순히 긍정·부정을 드러내지 않는 상태를 넘어, 발표 구조에 따라 제시되는 정보의 흐름을 인지적으로 추적하되 정서적 방향성은 절제된 상태 — 즉, 이후 다른 평가적 태도의 기준선 — 으로 재정의될 필요가 있다. 이러한 중립성 기준을 명확히 규정해야만, 이를 토대로 VR 발표 훈련 환경의 청중 반응성을 체계적으로 설계하고 조작할 수 있다. 
+초기의 가상 발표 환경 연구에서는 중립 청중을 “발표 내내 감정 표현이 없고 정적인 상태(emotionally neutral and entirely static throughout the talk)”로 규정했다(Pertaub et al., 2002). 이후 Slater 등(2006)은 중립 청중을 긍정·부정 반응을 전혀 드러내지 않고, 최소한의 기본적인 움직임만 보이는 ‘평범하고 무반응한 청중’으로 설정했다. Poeschl(2017)는 이러한 정의를 계승하여 청중 행동을 “명시적으로 긍정도 부정도 아닌 (neither explicitly positive nor negative)” 상태로 설계하고 이를 중립 조건으로 사용하였다. 그러나 Herrera 등(2018)은 이러한 무반응적 중립이 청중 에이전트의 행동 사실성이 결여된 상태로 보았으며, 이는 발표자에게 사회적 존재감(social presence)과 체감 반응성을 저하시킬 수 있음을 지적하였다. 즉, 감정적 중립을 ‘정적·무반응’으로 구현할 경우, 발표자가 체감하는 상호작용의 질이 저하된다는 것이다. 
+이후 연구들은 이러한 비판을 반영하여, 중립을 더 이상 정적이거나 완전히 무반응 상태로만 구현하지 않았다. Arushi 등(2021)은 중립 청중을 단순히 가만히 앉아 있는 존재로 보지 않고, 강의실에서 흔히 나타나는 관심이 줄거나 지루해 하는 표정, 주변을  둘러보는 시선, 가벼운 하품과 같은 일상적 행동을 포함하여 설계하였다. Park 등(2025) 역시 중립 청중을 점차 집중이 흐트러지거나(waning attention) 일부가 다른 곳을 바라보는 등 실제 발표 환경에서 자주 관찰되는 자연스러운 무반응 모습으로 구현하였다. 
+이처럼 중립 청중의 개념은 초기의 감정 표현이 없는 비평가적 ‘정적 중립성’에서 출발하여, 최소한의 움직임을 허용하는 비평가적 ‘기본 동작 중립성’을 거쳐, 현실감 있는 자연스러운 행동을 수반하는 비평가적 ‘사실적 동작 중립성’으로 확장되었다. 이는 모두 평가적 판단은 여전히 배제하면서도 행동 표현의 사실성이 강화된 것이며, 중립성이 ‘아무 반응도 없는 상태’가 아니라, 평가적 개입은 배제하되 존재감과 사실성은 유지하는 청중 상태로 재해석되고 있음을 보여준다. 
+그럼에도 불구하고, 중립 청중이 발표자의 발화 내용이나 전개 흐름을 얼마나 따라가고 있는지, 즉 발표의 의미적·구조적 변화를 인지적으로 추적하고 있는지는 여전히 반영되지 않는다. 최근 연구에서 구현된 중립 청중은 현실감은 확보했지만, 그 행동이 발표 내용과 구조 변화에 연동되지 않아 내용 기반 평가적 단서로 작용하지 못한다. 발표자는 이러한 단편적 행동을 평가적 신호로 해석하기보다는, 청중이 흐름을 따라오지 못하거나 주의를 잃은 것으로 해석할 가능성이 크다. 이에 따라 본 연구는 기존의 중립성과는 구별되는 새로운 ‘반응적 중립성(responsive neutrality)’을 제안한다. 반응적 중립성은 정서적 방향성은 중립적으로 유지하되, 발표 내용을 따라가고 있음을 나타내는 인지 기반 반응은 유지하는 태도이다. 즉, 긍정·부정의 감정 표현은 절제하지만, 시선·표정·미세한 고개 끄덕임과 같은 비언어적 백채널을 통해 “당신의 말을 이해하며 평가하고 있다”는 최소한의 평가적 신호를 제공하는 청중 상태이다. 이러한 반응적 중립성은 발표자가 과도한 정서적 압박 없이도 ‘평가받고 있다’는 사회적 평가 상황을 체감하게 하며, 기존 VRET에서 구현되지 않았던 내용 기반·인지 기반의 평가적 중립 상태를 가능하게 한다. [그림2]는 기존 비평가적 중립성 유형들이 모두 낮은 주의 수준에 위치하는 반면, 반응적 중립성은 높은 주의 수준에 위치함을 보여준다. 
+
+정서적 방향성과 주의 수준에 따른 중립성 개념 구조
+반응적 중립성은 Kang 등(2016)이 밝혀낸 두 가지 핵심 차원—정서적 방향성과 주의—을 기반으로 구성된다. 첫 번째 요소인 정서적 방향성의 중립은 웃음, 과도한 고개 끄덕임, 찌푸린 표정, 팔짱과 같이 즉각적으로 긍정·부정 평가로 해석되는 정서 단서를 최소화하는 것을 의미한다. 이를 통해 발표자는 불필요한 정서적 압박 없이 평가 상황에 머무를 수 있다. 두 번째 요소인 주의 기반 내용 반응성은, 사람들이 청중을 지각할 때 가장 뚜렷하게 구분한 차원인 ‘주의’이다. 시선 유지, 간헐적 고개 움직임, 미세한 자세 반응과 같은 단서는 청중이 발화를 이해·추적하고 있음을 드러내며, 발표자가 자신의 수행이 인지적으로 평가되고 있다는 일관된 사회적 맥락을 형성한다. 따라서 반응적 중립성은 정서적 방향성은 억제하되 내용 추적을 위한 주의 신호는 유지함으로써, 기존 VRET 중립 청중이 제공하지 못했던 사회적 존재감과 체감 반응성을 동시에 확보한다. 다음 장에서는 이러한 반응적 중립성 개념을 기준점으로 삼아, AI 청중 퍼소나와 발표 단계별 백채널 레퍼토리를 어떻게 설계할 것인지 구체적인 디자인 프레임워크를 제안한다.
+제 3 장 반응적 중립성 기반 AI 청중 백채널 디자인 프레임워크 
+제 1 절 프레임워크 개요
+본 연구는 XR 발표 훈련 환경에서 사회적 평가 경험을 형성하기 위한 AI 청중 에이전트 백채널 디자인 프레임워크를 제안한다. 본 프레임워크는 발표자의 수행 입력을 분석하여 AI 청중의 상태를 산출하고, 이를 비언어적 백채널 반응으로 전환하는 구조를 갖는다. 여기서 백채널은 단순한 애니메이션 반응이 아니라, 발표 내용과 전달 방식에 대한 AI 청중의 주의, 평가, 이해 상태를 드러내는 사회적 단서로 기능한다.
+
+ AI 청중 에이전트 백채널 디자인 프레임워크의 전체 구조
+[그림３]은 본 연구에서 제안하는 AI 청중 에이전트 백채널 디자인 프레임워크의 전체 구조를 나타낸다. 프레임워크는 크게 두 개의 흐름으로 구성된다. 상단은 발표자의 경험 흐름을 나타낸다. 발표자는 발표 수행 중 AI 청중 에이전트의 시선, 표정, 고개 움직임, 자세 변화와 같은 백채널을 지각하며, 이를 통해 발표 상황에서의 사회적 평가 분위기를 경험한다. 이러한 경험은 발표자가 평가적 청중 반응이 존재하는 환경에 반복적으로 노출되며 발표 상황에 적응하는 훈련 맥락을 형성한다. 하단은 AI 청중 에이전트의 시스템 처리 흐름을 나타내며, 발표자의 발화, 음성, 시선 이동을 입력으로 수집한 뒤 STT 변환, 발표 단계 판별, 내용·전달 평가 산출, 청중 상태 산출 및 갱신, 백채널 생성의 순서로 처리된다.
+본 프레임워크의 첫 번째 단계는 발표자 입력 수집이다. 발표자의 음성 데이터와 시선 이동 데이터는 AI 청중 에이전트가 발표 상황을 해석하기 위한 기본 입력으로 사용된다. 음성 데이터는 발표자의 발화 내용과 전달 방식 분석에 활용되며, 시선 이동 데이터는 발표자가 청중, 슬라이드, 노트 사이에서 시선을 어떻게 분배하는지를 판단하는 데 사용된다. 이후 음성 입력은 STT 변환을 거쳐 텍스트 데이터로 전환된다.
+두 번째 단계는 발표 단계 판별이다. 본 연구는 발표가 단순한 발화의 연속이 아니라, 특정한 의사소통 기능을 수행하는 단계들의 배열로 구성된다고 본다. 따라서 STT로 변환된 발표 발화와 발표자료의 구조를 함께 참조하여, 현재 발화가 발표 안에서 어떤 기능적 단계에 해당하는지를 판별한다. 이 단계 판별 결과는 이후 내용 평가 기준을 선택하는 데 사용된다.
+세 번째 단계는 내용·전달 평가 산출이다. 내용 평가는 발표자가 무엇을 말했는가를 평가하는 과정이며, 발표 내용의 구조, 근거, 핵심 메시지, 주장-근거-추론 연결성을 중심으로 이루어진다. 전달 평가는 발표자가 그 내용을 어떻게 전달했는가를 평가하는 과정이며, 언어적 명료성, 음성 전달, 시선 분배, 슬라이드-발화 정렬성을 중심으로 이루어진다. 이 두 평가 결과는 각각 내용 평가 결과와 전달 평가 결과로 산출되며, 이후 청중 상태를 갱신하는 입력으로 사용된다.
+네 번째 단계는 청중 상태 산출 및 갱신이다. 본 연구에서 AI 청중의 상태는 Engagement, Evaluative Valence, Cognitive Clarity로 구성된 E·V·C 청중 상태 모델로 정의된다. Engagement는 발표 상황과 발표자에 대한 주의적 연결 정도를 의미하고, Evaluative Valence는 발표 내용 또는 발표 수행에 대한 긍정적·부정적 평가 방향성을 의미하며, Cognitive Clarity는 발표자의 메시지 구조와 의미를 명확하게 파악하는 정도를 의미한다. 청중 상태는 현재 발화의 평가 결과만으로 즉시 결정되는 것이 아니라, 이전 청중 상태와 현재 입력을 함께 반영하여 연속적으로 갱신된다.
+다섯 번째 단계는 백채널 생성이다. 산출된 청중 상태는 표정, 자세, 시선, 고개 움직임으로 구성된 비언어적 백채널 반응으로 전환된다. 이 단계에서는 E·V·C 청중 상태의 우세 축과 상태 수준을 기준으로 백채널 유형을 선택하고, 이를 AI 청중 에이전트의 반응으로 표현한다. 이를 통해 청중 상태 산출 결과는 발표자가 지각할 수 있는 사회적 평가 단서로 구체화된다.
+3MT 발표 구조와 CPM 평가 기준의 대응 관계 및 청중의 정서적 반응
+프레임워크의 하단 시스템 처리 흐름을 처리 층위, 역할, 입력 데이터, 시스템 처리, 출력의 관점에서 정리한 것이다. 발표 단계 판별과 단계별 평가 요소 선정은 현재 발화가 발표 안에서 수행하는 기능을 파악하고, 해당 단계에 적합한 내용 평가 기준을 선택하기 위한 과정이다. 내용 평가와 전달 평가는 발표자의 수행을 각각 “무엇을 말했는가”와 “어떻게 전달했는가”의 관점에서 분석한다. 이후 두 평가 결과는 AI 청중의 E·V·C 청중 상태를 산출하고 갱신하는 입력으로 사용되며, 최종 청중 상태는 비언어적 백채널 반응으로 전환된다.
+이와 같이 본 프레임워크는 발표자를 단순히 평가하거나 채점하기 위한 시스템이 아니라, 발표 훈련 환경에서 AI 청중 에이전트가 발표자의 수행에 반응하는 사회적 평가 단서를 생성하기 위한 구조이다. 발표자의 발화와 전달 방식은 AI 청중 상태를 갱신하는 입력으로 사용되고, 갱신된 청중 상태는 평가적 백채널로 표현된다. 발표자는 이 백채널을 지각함으로써 청중의 주의, 이해, 혼란, 수용, 의심, 이탈 가능성을 감지하고, 이를 바탕으로 자신의 발표 수행을 조절하게 된다. 따라서 본 프레임워크는 발표자 수행 입력, AI 청중 상태 산출, 백채널 반응 생성, 발표자의 사회적 평가 경험을 하나의 순환적 구조로 연결한다.
+
+제 4 장 결론 및 향후 연구
+제 1 절 결론
+본 연구는 VR 기반 발표 훈련 환경에서 기존 청중 에이전트가 제공해온 중립성의 한계를 지적하고, 발표자가 체감하는 사회적 평가 맥락을 보다 사실적으로 재현하기 위해 새로운 청중 중립성 개념인 ‘반응적 중립성’을 제안하였다. 기존 VRET 연구에서 사용된 중립 청중은 감정 표현을 배제하고 최소한의 움직임만을 허용하는 형태로 설계되었으며, 이로 인해 발표자는 사회적 존재감과 체감 반응성을 충분히 경험하지 못한다는 문제가 있었다. 특히 발화 내용과 발표 구조의 변화에 따라 자연스럽게 조정되는 평가적 백채널이 없어, 발표자가 실제 발표 상황에서 느끼는 ‘평가받는 맥락’이 충분히 구현되지 못했다.
+이러한 한계를 극복하기 위해 본 연구는 체감 반응성, 백채널, 평가 이론, CPM(Component Process Model)을 통합하여 발표자가 청중의 반응을 어떻게 지각하고 평가적 단서를 해석하는지를 이론적으로 정리하였다. 3MT구조와 CPM 평가 기준을 교차하여 정리한 [표 1]을 중심으로, 발표의 각 단계에서 청중이 활성화하는 평가 기준과 이에 수반되는 정서적 반응을 체계적으로 구조화하였다. 이를 통해 청중 반응이 경청 신호를 넘어 발표 내용을 해석하고 평가하는 과정에서 나오는 반응임을 확인할 수 있었다.
+이러한 분석을 토대로 본 연구는 기존 연구에서 확인된 정서적 방향성과 주의의 두 차원을 청중 특성을 설명하는 핵심 축으로 정리하고, 이 두 차원의 조합 중 정서적 방향성은 중립적으로 유지하되 주의 수준은 중간 이상으로 유지되는 상태를 ‘반응적 중립성’으로 정의하였다. 이는 발표자가 “평가받고 있다”는 사회적 평가 맥락을 체감할 수 있게 하면서도 과도한 정서적 압박을 최소화할 수 있는 상태이다.
+마지막으로 본 연구는 이러한 반응적 중립성을 VR 청중 디자인에 실현하기 위한 개념적 설계 원칙을 제시하였다. 본 프레임워크는 (1) 지속적 주의 유지, (2) 인지적 추적의 외현화, (3) 발화 단서 기반 반응 조율, (4) 정서적 방향성 억제 라는 네 가지 기준을 중심으로 AI 청중 백채널의 기준 상태를 정의하였다.
+본 연구의 기여는 다음과 같이 정리될 수 있다. 첫째, 발표 훈련 맥락에서 청중 반응을 평가 기반 인지·정서 과정으로 위치시킴으로써, 기존 VRET 청중 모델의 개념적 한계를 확장하였다. 둘째, 기존의 정적 중립 개념을 대체할 수 있는 반응적 중립성 모델을 제안함으로써, 발표자의 체감 반응성과 사회적 존재감을 유지하면서도 훈련 난이도를 과도하게 높이지 않는 새로운 청중 상태를 제시하였다. 셋째, 반응적 중립성을 실현하기 위한 개념적 설계 기준을 정립하여, 향후 AI 청중 퍼소나 모델, 백채널 패턴 구조, 행동 요소 매핑을 정교화하기 위한 기반을 마련하였다.
+본 논문은 개념적 토대를 구축하는 단계까지를 범위로 삼았으며, 이에 따라 반응적 중립성을 실제 VR 시스템으로 구현하고 평가하는 과정은 향후 연구 과제로 남는다.
+제 2 절 향후 연구
+본 연구에서 제안한 반응적 중립성 개념과 설계 프레임워크는 향후 다음과 같은 방향으로 확장될 필요가 있다.
+반응적 중립 퍼소나의 파라미터 구체화 — 본 논문에서는 반응적 중립성을 정서적 방향성과 주의의 조합으로 정의하였으나, 이를 실제 AI 청중 모델에 적용하기 위해서는 시선 유지 비율, 고개 끄덕임의 강도와 빈도, 표정 변화의 허용 범위, 자세 반응의 변화율 등을 정량적 파라미터 범위로 구체화할 필요가 있다. 이를 통해 반응적 중립 퍼소나는 설계 가이드라인으로서 뿐만 아니라 실제 애니메이션 제어에 활용 가능한 모델로 발전할 수 있다.
+발표 단계별 백채널 패턴 구조 정교화 — 3MT 기반 발표 구조를 중심으로 발표 단계별 평가 기준을 정리하였으나, 각 단계에 적합한 반응적 중립 백채널 패턴을 체계적으로 구조화하는 작업이 필요하다. 
+백채널 행동 요소 및 매핑 규칙 개발 — 발표자의 발화 단서와 백채널 행동 요소를 연결하는 매핑 규칙이 필요하다. 이는 이후 AI 청중 에이전트가 발표 내용에 연동된 반응을 생성하는 데 핵심 요소가 된다.
+AI 청중 에이전트 및 시스템 구현 — 반응적 중립 퍼소나와 백채널 패턴을 실제 VR 시스템에서 구현하기 위해, 백채널 생성 모듈・에이전트 애니메이션 제어 모듈・발표자 음성·행동 인식 기반 피드백 루프 등의 시스템 구성이 필요하다. 이는 3장에서 제안한 개념적 프레임워크를 실제 기능적 프로토타입으로 발전시키는 핵심 단계이다.
+사용자 연구를 통한 효과 검증 — 반응적 중립 청중이 다음과 같은 발표 경험 요소에 어떤 영향을 미치는지 실증 평가가 필요하다: 체감 반응성, 사회적 존재감, 발표 불안 감소 효과, 발표 수행 능력 향상.
+제 5 장 실험 설계
+본 장에서는 XR 발표 훈련 환경에서 사회적 평가 경험 형성을 위한 AI 청중 에이전트 백채널 디자인 프레임워크의 실험 설계를 제시한다. 본 연구의 실험 설계는 크게 두 단계로 구성되며, 각 단계는 실험 1과 실험 2로 구분한다. 실험 1은 E·V·C 청중상태 모델 및 청중상태-백채널 전환 규칙의 타당성을 검토하고 보완하는 단계이며, 실험 2는 보완된 모델과 규칙을 XR 발표 훈련 환경에 적용하여 사용자 경험 차원에서 검증하는 단계이다.
+이에 따라 본 장은 제1절에서 E·V·C 청중상태 모델 및 백채널 타당성 검증 설계를, 제2절에서 XR 발표 훈련 환경 적용 검증 설계를 서술한다.
+제 1 절 E·V·C 청중 상태 모델 및 백채널 타당성 검증
+본 절에서는 E·V·C 청중상태 모델 및 청중상태-백채널 전환 규칙의 타당성을 검토하기 위한 실험 1의 설계를 제시한다. 실험 1은 두 단계로 구성된다. 첫 번째 단계는 전문가 내용타당도 검토이며, 제안된 모델과 전환 규칙이 연구 목적 및 XR 발표 훈련 맥락에 적절한지를 전문가 관점에서 검토한다. 두 번째 단계는 발표 맥락 기반 백채널 지각 타당성 검증이며, 사용자가 발표 맥락 속에서 제시된 백채널 단서를 연구자가 의도한 E·V·C 청중상태 범위 안에서 지각하는지를 확인한다. 이를 통해 후속 XR 발표 실험에 적용할 백채널 단서의 지각 타당성과 상태 간 변별 가능성을 확인한다.
+전문가 내용타당도 검토
+목적 및 설계 개요
+전문가 내용타당도 검토는 제안된 E·V·C 청중상태 모델과 청중상태-백채널 전환 규칙을 후속 XR 발표 실험에 적용하기에 앞서, 전문가 관점에서 그 내용타당성을 검토하기 위한 절차이다. 내용타당도는 측정 내용이 측정하고자 하는 구성개념의 영역을 적절히 반영하거나 대표하는 정도를 의미하며, 척도 개발 및 검증 연구에서는 해당 영역에 대한 지식을 가진 전문가가 항목의 관련성, 대표성, 기술적 적절성을 검토하는 절차가 활용된다(Lynn, 1986; Polit & Beck, 2006; Boateng et al., 2018).
+본 검토에서는 전문가 평정과 개방형 응답을 함께 활용하여, 제안된 모델과 전환 규칙의 보완 필요 지점을 도출한다. 전문가는 동일한 평가 대상에 대해 공통 평가 기준에 따라 평정하고, 개방형 문항을 통해 판단 근거와 수정·보완 의견을 서술한다. 평가 대상의 구체적 구성은 다음 항에서 제시한다.
+평가 대상
+전문가 내용타당도 검토는 E·V·C 청중상태 정의, 청중상태 산출 규칙, 청중상태-백채널 전환 규칙의 세 가지를 대상으로 한다. 이는 본 연구에서 제안하는 백채널 디자인 프레임워크가 청중상태를 정의하고, 발표 내용 및 전달 방식 평가를 통해 청중상태를 산출한 뒤, 이를 가상 청중의 비언어적 백채널로 전환하는 구조를 갖기 때문이다. 각 평가 대상과 검토 내용은 [표 2]와 같다.
+E·V·C 청중상태 모델 및 전환 규칙의 평가 대상
+전문가 패널 구성 
+전문가 패널은 총 7명을 목표로 구성한다. 전문가 수는 내용타당도 검토에서 복수의 전문가 판단을 통해 항목의 대표성과 관련성을 평가하며, 선행 방법론 연구에서 5–7명 수준의 전문가 패널이 내용타당도 평가에 활용되어 왔다는 점을 고려하여 설정하였다(Boateng et al., 2018). 또한 6명 이상의 전문가 패널에서는 I-CVI 기준을 적용하여 항목 수준의 전문가 동의 정도를 산출할 수 있으므로(Polit & Beck, 2006; Lynn, 1986), 본 연구의 7명 패널은 정량적 내용타당도 산출과 분야별 전문 관점 확보를 함께 고려한 규모로 설정한다.
+전문가는 관련 분야의 연구·교육·실무 또는 프로젝트 경험을 보유하고, E·V·C 청중상태 정의 및 전환 규칙을 검토할 수 있는 사람으로 선정한다. 전문가 판단 기반 내용타당도 검토에서는 평가 대상에 적합한 전문가의 수와 특성을 사전에 정의해야 하므로(Romero Jeldres et al., 2023), 본 연구에서는 연구 대상의 다학제적 성격에 따라 HCI·UX, XR·Virtual Agent, 발표교육·커뮤니케이션, 심리·사회적 평가 분야의 전문가를 포함한다.
+이러한 분야 구성은 본 연구의 프레임워크가 XR 발표 훈련 환경에서 가상 청중의 평가적 백채널을 설계하기 위한 것이기 때문이다. 즉, 발표자가 이를 어떻게 지각하고 해석하는지, 청중 에이전트를 통해 어떻게 표현될 수 있는지, 발표 훈련 및 피드백 맥락에서 의미 있게 기능하는지, 사회적 평가 경험과 어떻게 연결되는지를 함께 고려해야 한다. 이에 따라 전문가 패널은 HCI·UX 연구자 2명, XR·Virtual Agent 연구자 2명, 발표교육·커뮤니케이션 전문가 2명, 심리·사회적 평가 전문가 1명으로 구성한다.
+모든 전문가는 동일한 평가 대상과 기준에 따라 E·V·C 청중상태 정의 및 전환 규칙을 검토한다. 다만 각 전문가는 자신의 전문 배경에 기반하여 평정 결과에 대한 판단 근거를 기술하고, 정량 평가만으로 포착하기 어려운 수정 필요 지점과 보완 의견을 개방형 문항을 통해 서술한다.
+ 평가 기준
+전문가 내용타당도 평가 기준은 본 연구의 평가 대상인 E·V·C 청중상태 정의, 청중상태 산출 규칙, 청중상태-백채널 전환 규칙을 검토하기 위해 설정하였다. 내용타당도는 측정 내용이 측정하고자 하는 구성개념을 적절히 반영하는 정도를 의미하며 (Terwee et al., 2018), CVI 기반 내용타당도 검토에서는 전문가가 각 항목의 관련성 또는 적절성을 평정하고, 이를 항목 수준 및 척도 수준의 지표로 산출한다(Polit & Beck, 2006; Lynn, 1986).
+이에 본 연구에서는 적절성, 명확성, 개념적 변별성, 맥락 적합성, 백채널 전환 타당성을 평가 기준으로 설정하였다. 적절성과 명확성은 각각 제안된 상태 정의와 규칙이 연구 목적에 부합하는지, 전문가가 이를 모호하지 않고 일관되게 이해할 수 있는지를 검토하기 위한 기준이다. 개념적 변별성은 E·V·C 각 차원이 서로 중복되거나 혼동되지 않는지를 확인하기 위한 기준이며, 맥락 적합성은 해당 정의와 규칙이 XR 발표 훈련 및 사회적 평가 맥락에 부합하는지를 검토하기 위한 기준이다. 마지막으로 백채널 전환 타당성은 산출된 E·V·C 청중상태가 가상 청중의 백채널로 전환되는 방식이 논리적으로 타당한지를 판단하기 위한 기준이다.
+E·V·C 청중 상태 모델 및 전환 규칙의 내용타당도 평가 기준
+ 평가 절차
+전문가 내용타당도 검상태 정의와 규칙을 모호하지 않게 이해할 수  세 가지 평가 대상에 관한 검토 자료를 제공한다. 평가 대상은 평가와 전달 방식 평가를 통합하여 최종 청중상태를 산출하는 규칙, ③ 산출된 E·V·C 청중상태를 백채널로 전한다.료를 검토한 뒤, 각 평가 대상에 대해 앞서 설정한 평가 기준에 따라 평정 문항에 응답한다. 이후 통해 각 평가 대상에 대 수정이 필요한 지점, 추가 보완 의견을 서술한다.  기준으로 항목별 전문가 동의 수준을 산대상별로 코딩하여 정량 
+분석 방법
+판정 및 해석 기준
+산출물
+
+발표 맥락 기반 백채널 지각 타당성 검증
+참고 문헌
+Bachmann, M., Subramaniam, A., Born, J., & Weibel, D. (2023). Virtual reality public speaking training: Effectiveness and user technology acceptance. Frontiers in Virtual Reality, 4, Article 1242544. https://doi.org/10.3389/frvir.2023.1242544
+Blomsma, P., Skantze, G., & Swerts, M. (2022). Backchannel Behavior Influences the Perceived Personality of Human and Artificial Communication Partners. Frontiers in Artificial Intelligence, 5, 835298. https://doi.org/10.3389/frai.2022.835298
+Bodie, G. D., & Jones, S. M. (2012). The Nature of Supportive Listening II: The Role of Verbal Person Centeredness and Nonverbal Immediacy. Western Journal of Communication, 76(3), 250–269. https://doi.org/10.1080/10570314.2011.651255
+Carmichael, C. L., & Mizrahi, M. (2023). Connecting cues: The role of nonverbal cues in perceived responsiveness. Current Opinion in Psychology, 53, 101663. https://doi.org/10.1016/j.copsyc.2023.101663
+Clark, H. H., & Brennan, S. E. (1991). Grounding in communication. In L. B. Resnick, J. M. Levine, & S. D. Teasley (Eds.), Perspectives on socially shared cognition (pp. 127–149). American Psychological Association. https://doi.org/10.1037/10096-006
+Downing, V. R., Cooper, K. M., Cala, J. M., Gin, L. E., & Brownell, S. E. (2020). Fear of Negative Evaluation and Student Anxiety in Community College Active-Learning Science Courses. CBE Life Sciences Education, 19(2), ar20. https://doi.org/10.1187/cbe.19-09-0186
+Dwyer, K. K., & Davidson, M. M. (2012). Is Public Speaking Really More Feared Than Death? Communication Research Reports, 29(2), 99–107. https://doi.org/10.1080/08824096.2012.667772
+Finn, A. N., Sawyer, C. R., & Schrodt, P. (2009). Examining the Effect of Exposure Therapy on Public Speaking State Anxiety. Communication Education, 58(1), 92–109. https://doi.org/10.1080/03634520802450549
+Foa, E. B., & Kozak, M. J. (1986). Emotional Processing of Fear: Exposure to Corrective Information. Psychological Bulletin, 99(1), 20–35. https://doi.org/10.1037/0033-2909.99.1.20
+Frijda, N. H., Reisenzein, R., & Döring, S. A. (2009). Emotion Experience and its Varieties. Emotion Review, 1(3), 264–271. https://doi.org/10.1177/1754073909103595
+Gallego, A., McHugh, L., Penttonen, M., & Lappalainen, R. (2022). Measuring Public Speaking Anxiety: Self-report, behavioral, and physiological. Behavior Modification, 46(4), 782–798. https://doi.org/10.1177/0145445521994308
+Grieve, R., Woodley, J., Hunt, S. E., & McKay, A. (2021). Student fears of oral presentations and public speaking in higher education: a qualitative survey. Journal of Further and Higher Education, 45(9), 1281–1293. https://doi.org/10.1080/0309877X.2021.1948509
+Herrera, F., Oh, S.Y., & Bailenson, J.N. (2018). Effect of Behavioral Realism on Social Interactions Inside Collaborative Virtual Environments. PRESENCE: Virtual and Augmented Reality, 27, 163-182.
+Hu, G., & Liu, Y. (2018). Three minute thesis presentations as an academic genre: A cross-disciplinary study of genre moves. Journal of English for Academic Purposes, 35, 16–30. https://doi.org/10.1016/j.jeap.2018.06.004
+Huda, N., Bibi, M., Muhammad Sajjad Shahid, Mukhtar, S., & Mukhtar, R. (2024). Stage Fright to Scholarly Flight: The Impact of Public Speaking Anxiety and Fear of Negative Evaluation on Academic Performance in University Students. Journal of Health and Rehabilitation Research, 4(3), 1–7. https://doi.org/10.61919/jhrr.v4i3.1331
+Itzchakov, G., Reis, H. T., & Weinstein, N. (2022). How to foster perceived partner responsiveness: High‐quality listening is key. Social and Personality Psychology Compass, 16(1), n/a-n/a. https://doi.org/10.1111/spc3.12648
+Kang, N. (2016). Public speaking in virtual reality: Audience design and speaker experiences. [Dissertation (TU Delft), Delft University of Technology]. https://doi.org/10.4233/uuid:e920dec8-2b71-4377-bc0f-8f9c950fff42
+Kang, N., Brinkman, W.-P., Birna van Riemsdijk, M., & Neerincx, M. (2016). The design of virtual audiences: Noticeable and recognizable behavioral styles. Computers in Human Behavior, 55, 680–694. https://doi.org/10.1016/j.chb.2015.10.008
+Laurenceau, J.-P., Barrett, L. F., & Pietromonaco, P. R. (1998). Intimacy as an Interpersonal Process: The Importance of Self-Disclosure, Partner Disclosure, and Perceived Partner Responsiveness in Interpersonal Exchanges. Journal of Personality and Social Psychology, 74(5), 1238–1251. https://doi.org/10.1037/0022-3514.74.5.1238
+Lazarus, R. S. (1991). Progress on a Cognitive-Motivational-Relational Theory of Emotion. The American Psychologist, 46(8), 819–834. https://doi.org/10.1037/0003-066X.46.8.819
+Lindner, P., Dagöö, J., Hamilton, W., Miloff, A., Andersson, G., Schill, A., & Carlbring, P. (2021). Virtual Reality exposure therapy for public speaking anxiety in routine care: a single-subject effectiveness trial. Cognitive Behaviour Therapy, 50(1), 67–87. https://doi.org/10.1080/16506073.2020.1795240
+Maktiar Singh, K. K., Ali, A. M., Yuit, C. M., & Tan, H. (2019). A genre-based investigation of the introduction sections of academic oral presentations. Asian Journal of University Education, 15(2), 95–124.
+Moors, A., Ellsworth, P. C., Scherer, K. R., & Frijda, N. H. (2013). Appraisal Theories of Emotion: State of the Art and Future Development. Emotion Review, 5(2), 119–124. https://doi.org/10.1177/1754073912468165
+Nahk Bohk Kim. (2017). A comparative analysis of public speaking anxiety among three different nationalities. Modern English Education, 18(2), 109. https://doi.org/10.18095/meeso.2017.18.2.06
+Park, S., Carlisle, D. D. E., Cheng, Z., Gillies, M., & Pan, X. (2025). Reducing foreign language anxiety through repeated exposure to a customizable VR public speaking application. Frontiers in Virtual Reality, 6. https://doi.org/10.3389/frvir.2025.1519409
+Pertaub, D.-P., Slater, M., & Barker, C. (2002). An Experiment on Public Speaking Anxiety in Response to Three Different Types of Virtual Audience. Presence : Teleoperators and Virtual Environment, 11(1), 68–78. https://doi.org/10.1162/105474602317343668
+Pittig, A., Kotter, R., & Hoyer, J. (2019). The Struggle of Behavioral Therapists With Exposure: Self-Reported Practicability, Negative Beliefs, and Therapist Distress About Exposure-Based Interventions. Behavior Therapy, 50(2), 353–366. https://doi.org/10.1016/j.beth.2018.07.003
+Poeschl, S. (2017). Virtual Reality Training for Public Speaking—A QUEST-VR Framework Validation. Frontiers in ICT, 4, Article 13. https://doi.org/10.3389/fict.2017.00013
+Rapee, R. M., & Heimberg, R. G. (1997). A cognitive-behavioral model of anxiety in social phobia. Behaviour Research and Therapy, 35(8), 741–756. https://doi.org/10.1016/S0005-7967(97)00022-3
+Reis, H. T., Clark, M. S., & Holmes, J. G. (2004). Perceived partner responsiveness as an organizing construct in the study of intimacy and closeness. In Handbook of Closeness and Intimacy (pp. 201–225).
+Reis, H. T., & Shaver, P. (1988). Intimacy as an interpersonal process. In S. Duck, D. F. Hay, S. E. Hobfoll, W. Ickes, & B. M. Montgomery (Eds.), Handbook of personal relationships: Theory, research and interventions (pp. 367–389). John Wiley & Sons.
+Roseman, I. J., Johnstone, T., Schorr, A., & Scherer, K. R. (2001). A Model of Appraisal in the Emotion System Integrating Theory, Research, and Applications. In Appraisal Processes in Emotion. Oxford University Press. https://doi.org/10.1093/oso/9780195130072.003.0004
+Scherer, K. R. (2009). The dynamic architecture of emotion: Evidence for the component process model. Cognition and Emotion, 23(7), 1307–1351. https://doi.org/10.1080/02699930902928969
+Slater, M., Pertaub, D. P., Barker, C., & Clark, D. M. (2006). An experimental study on fear of public speaking using a virtual environment. Cyberpsychology & behavior : the impact of the Internet, multimedia and virtual reality on behavior and society, 9(5), 627–633. https://doi.org/10.1089/cpb.2006.9.627
+Ye, T., Elliott, R., McFarquhar, M., & Mansell, W. (2024). The impact of audience dynamics on public speaking anxiety in virtual scenarios: An online survey. Journal of Affective Disorders, 363, 420–429. https://doi.org/10.1016/j.jad.2024.07.061
+Abstract
+Designing Responsive-Neutral Backchannels for AI Audience Agents in VR Presentations
+
+윤보라(Bora Youn)
+디자인학부 디자인전공
+(Department of Crafts and Design, Design Major)
+The Graduate School
+Seoul National University
+
+   This study begins with the observation that, in VR-based public speaking training, the “neutral” responses provided by virtual audience agents fail to adequately reproduce the social-evaluative context of real presentation situations. Neutral audiences used in prior VRET studies typically suppress emotional expressions and exhibit only minimal movement, resulting in a non-evaluative form of neutrality that does not provide content-contingent evaluative backchannels aligned with the speaker’s message or the rhetorical structure of the presentation.
+To address this gap, the present study integrates theories of perceived responsiveness, backchannel cues, appraisal, and the Component Process Model (CPM) to articulate how speakers perceive and interpret audience reactions. Based on this synthesis, the study proposes responsive neutrality, a new audience neutrality model defined along two dimensions—affective direction and attentiveness. Responsive neutrality maintains a neutral affective direction while offering subtle evaluative signals through sustained and stable attentiveness to the flow of the speaker’s message, allowing the audience to convey that they are “following and assessing” the presentation without exerting undue emotional pressure.
+Building on this definition, the study further presents a conceptual design framework for implementing responsive neutrality in VR audience agents, deriving four design principles: maintaining continuous attentiveness, externalizing cognitive tracking, coordinating backchannels with formal and semantic cues in the speaker’s discourse, and suppressing overt affective direction. As a 0th-stage dissertation, this work focuses on establishing conceptual foundations; future research will aim to operationalize responsive-neutral persona parameters, structure stage-specific backchannel patterns, develop AI audience-agent prototypes, and empirically evaluate the effectiveness of the proposed model through user studies.
+
+Keywords : VR public speaking, AI audience agents, backchannel cues, responsive neutrality, perceived responsiveness
+Student Number : 2024-35945
+발표 구조 | CPM 평가 기준 | 평가 내용 | 정서적 반응
+도입부
+※ 필수 | 새로움,
+내재적 쾌·불쾌 | 주제·도입부가 얼마나 새롭고 긍정적으로 지각되는지 평가 | 흥미, 기대감, 지루함, 무관심
+연구 동기
+※ 필수 | 목표 관련성 | 문제 제기가 청중에게 얼마나 중요한지 평가 | 공감, 관심, 무관심
+이론적 틀
+※ 선택 | 규범·자기 일치성 | 제시된 이론이 학문적 규범·기존 지식과 일치하는지 평가 | 신뢰, 납득, 위화감
+연구 목적
+※ 필수 | 목표 관련성,
+규범·자기 일치성 | 목적이 문제 제기와 논리적으로 일관적인지 평가 | 기대감, 안도감
+연구 방법
+※ 필수 | 대처 가능성 | 연구 설계가 타당하고 신뢰 가능한지 평가 | 신뢰감, 이해, 혼란, 회의
+연구 결과
+※ 선택 | 새로움,
+내재적 쾌·불쾌,
+목표 관련성 | 결과가 예기치 않음·가치·의미를 갖는지 평가 | 놀람, 흥미, 만족, 실망
+연구 함의
+※ 필수 | 목표 관련성,
+규범·자기 일치성 | 결과의 사회적·학문적 의미 평가 | 중요성 인식, 수용, 회의
+마무리 
+※ 필수 | 내재적 쾌·불쾌 | 발표 전체의 완결감·인상 평가 | 만족감, 완결감, 아쉬움
+처리 층위 | 역할 | 입력 데이터 | 시스템 처리 | 출력
+발표 단계 판별 | 현재 발화가 연구 발표 안에서 수행하는 의사소통 기능을 파악 | STT 텍스트
+발표자료
+ | STT 발화를 일정 단위로 분절하고, 발화 내용과 발표자료 구조를 참조하여 현재 발화의 move를 판별 | 현재 발화의 발표 단계
+단계별 평가 요소 선정 | 해당 move에서 청중이 기대하는 정보 요소를 내용 평가 기준으로 설정 | 현재 발화의 move | 판별된 move에 따라 내용 평가 기준과 가중치 선택 | move별 내용 평가 기준
+
+내용 평가 | 현재 발화가 해당 move의 기대를 충족하는지 판단 | STT 텍스트
+발표자료
+move별 내용 평가 기준 | 발화 내용과 발표자료를 비교하여 Organization, Supporting Material, Central Message, Claim–Evidence–Reasoning Validity를 평가
+ | 내용 평가 결과 Mₜ
+전달 평가 | 발표 단계와 무관하게 실시간으로 관찰되는 전달 수행 단서 평가 | 음성 데이터
+시선 데이터
+ | Language Clarity, Vocal Delivery, Gaze Delivery, Slide–Speech Alignment를 분석 | 전달 평가 결과 Dₜ
+청중 상태 산출 및 갱신 | 내용 평가와 전달 평가를 결합하여 AI 청중의 현재 상태를 갱신 | 내용 평가 결과 Mₜ
+전달 평가 결과 Dₜ
+이전 청중 상태
+ | E·V·C 청중 상태 벡터를 산출하고 이전 상태와 통합하여 갱신 | 청중 상태 Aₜ
+
+백채널 생성 | 청중 상태에 대응하는 비언어적 백채널 반응 출력 | 청중 상태 Aₜ | 청중 상태-백채널 전환 규칙에 따라 표정, 자세, 시선, 고개 움직임을 선택 | 백채널 반응
+
+평가 대상 | 검토 내용
+E·V·C 청중상태 정의 | Engagement, Evaluative Valence, Cognitive Clarity의 세 차원이 XR 발표 훈련 환경에서 AI 청중 에이전트의 청중상태를 설명하는 개념적 차원으로 적절한지 검토
+청중상태 산출 규칙 | 발표 내용 평가와 전달 방식 평가를 통합하여 최종 E·V·C 청중상태를 산출하는 논리가 타당한지 검토
+청중상태-백채널 전환 규칙 | 산출된 E·V·C 청중상태가 가상 청중의 비언어적 백채널로 전환되는 방식이 논리적으로 타당한지 검토
+평가 기준 | 조작적 정의
+적절성 | E·V·C 청중상태 정의와 전환 규칙이 연구 목적 및 평가 대상에 부합하는 정도
+명확성 | 각 상태 정의와 규칙이 모호하지 않고 일관되게 이해될 수 있는 정도
+개념적 변별성 | E·V·C 각 차원이 서로 중복되거나 혼동되지 않고 개념적으로 구별되는 정도
+맥락 적합성 | E·V·C 청중상태 정의와 전환 규칙이 XR 발표 훈련 및 사회적 평가 맥락에 적절하게 부합하는 정도
+백채널 전환 타당성 | 산출된 E·V·C 청중상태가 가상 청중의 백채널로 전환되는 방식이 논리적으로 타당한 정도

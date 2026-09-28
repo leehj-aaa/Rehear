@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5a83772689e95674eaa420ac0381347e
+timeCreated: 1535096369
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/Materials/wood.mat
+  uploadId: 398103

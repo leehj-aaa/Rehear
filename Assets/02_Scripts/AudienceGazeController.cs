@@ -2,7 +2,8 @@
 using Rehear.Evc.Audience;
 using UnityEngine;
 
-public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
+[DefaultExecutionOrder(100)]
+public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver, IAudienceQuestionWaitReceiver, IAudienceQuestionPhaseReceiver
 {
     public Transform SlideTarget => slideTarget;
     public void ConfigureTargets(Transform presenter, Transform slide, Transform[] around)
@@ -13,7 +14,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
     {
         Presenter,
         Slide,
-        Around
+        AnimationPose
     }
 
     [Header("머리 설정")]
@@ -92,6 +93,16 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
     [Range(0.5f, 15f)]
     private float directionSmoothSpeed = 4f;
 
+    [Tooltip("애니메이션 자세에서 시선 목표로 전환되는 속도")]
+    [SerializeField]
+    [Range(0.1f, 5f)]
+    private float gazeBlendInSpeed = 2.2f;
+
+    [Tooltip("시선 목표에서 원래 애니메이션 자세로 복귀하는 속도")]
+    [SerializeField]
+    [Range(0.1f, 5f)]
+    private float gazeReleaseSpeed = 0.65f;
+
     [Header("개인차")]
 
     [Tooltip(
@@ -121,9 +132,22 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
     private float evaluatedPresenterProbability = -1f;
     private float evaluatedSlideProbability = -1f;
     private float evaluatedAroundProbability = -1f;
+    // Either low engagement or low comprehension must release the animated head.
+    private float attentionGazeWeight = 1f;
+    private float blendedGazeWeight;
+    private AudienceAnimationPlayer animationPlayer;
+    private bool hasEvaluationState;
+    private bool nextFocusedTargetIsSlide;
+    private bool questionGenerationWaiting;
+    private bool questionPhaseActive;
+    public void SetQuestionGenerationWaiting(bool waiting) => questionGenerationWaiting = waiting;
+    public void SetQuestionPhaseActive(bool active) => questionPhaseActive = active;
+    public float AttentionGazeWeight => attentionGazeWeight;
+    public float CurrentGazeWeight => blendedGazeWeight;
 
     private void Awake()
     {
+        animationPlayer=GetComponent<AudienceAnimationPlayer>();
         personalTargetOffset =
             new Vector3(
                 Random.Range(
@@ -149,6 +173,9 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
         smoothedDirection =
             gazeForwardReference.forward;
 
+        SetState(GazeState.Presenter, presenterTarget);
+        blendedGazeWeight = 0f;
+
         ruleRoutine =
             StartCoroutine(RuleBasedGazeRoutine());
     }
@@ -162,6 +189,8 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
         }
 
         hasServerOverride = false;
+        questionPhaseActive = false;
+        questionGenerationWaiting = false;
     }
 
     private void LateUpdate()
@@ -173,7 +202,13 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
     public float ResetManualGaze()
     {
         hasServerOverride = false;
+        questionPhaseActive = false;
+        questionGenerationWaiting = false;
         evaluatedPresenterProbability = evaluatedSlideProbability = evaluatedAroundProbability = -1f;
+        hasEvaluationState=false;
+        nextFocusedTargetIsSlide=false;
+        attentionGazeWeight = 1f;
+        blendedGazeWeight = 0f;
         smoothedDirection = gazeForwardReference ? gazeForwardReference.forward : transform.forward;
         SetState(GazeState.Presenter, presenterTarget);
         return Random.Range(initialDelayRange.x, initialDelayRange.y);
@@ -201,47 +236,86 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             hasServerOverride
                 ? serverOverrideTarget
                 : currentTarget;
-        var body=GetComponent<AudienceAnimationPlayer>();
+        if(!animationPlayer)animationPlayer=GetComponent<AudienceAnimationPlayer>();
+        var body=animationPlayer;
         if(body && body.TypingLookTarget) target=body.TypingLookTarget;
         if(body && body.DeviceLookTarget) target=body.DeviceLookTarget;
-        if(body && body.IsTakingPhoto && slideTarget) target=slideTarget;
         if(body && body.IsQuestionTurn && presenterTarget) target=presenterTarget;
+        bool takingPhoto=body && body.IsTakingPhoto;
+        if(takingPhoto)target=null;
 
-        if (target == null)
-            return;
-        Debug.DrawLine(
-            gazeForwardReference.position,
-            target.position,
-            Color.cyan
-        );
-        Vector3 targetPosition =
-            target.position + (body && (body.DeviceLookTarget || body.TypingLookTarget) ? Vector3.zero : personalTargetOffset);
-
-        Vector3 desiredDirection =
-            targetPosition -
-            gazeForwardReference.position;
-
-        if (desiredDirection.sqrMagnitude <
-            0.0001f)
+        var state = hasServerOverride ? serverOverrideState : currentState;
+        bool actionTarget = body && (body.TypingLookTarget || body.DeviceLookTarget || body.IsQuestionTurn);
+        // Keep authored nods readable while retaining enough gaze correction to
+        // face the presenter. At full nod weight, roughly half of each system is kept.
+        float nodGazeMultiplier = body ? Mathf.Lerp(1f, .55f, body.HeadNodWeight) : 1f;
+        float desiredWeight = target && (state != GazeState.AnimationPose || actionTarget)
+            ? gazeWeight * attentionGazeWeight * nodGazeMultiplier * (body ? 1f - body.ConversationWeight : 1f)
+            : 0f;
+        if(takingPhoto)desiredWeight=0f;
+        // All listeners face the presenter throughout Q&A, independent of E/C,
+        // random gaze and any remaining body-action look target.
+        // Keep the evaluation values intact so normal gaze resumes afterwards.
+        bool focusPresenter = (questionGenerationWaiting || questionPhaseActive) && presenterTarget;
+        if (focusPresenter)
         {
-            return;
+            target = presenterTarget;
+            desiredWeight = gazeWeight;
+        }
+        float gazeBlendSpeed = desiredWeight > blendedGazeWeight
+            ? gazeBlendInSpeed
+            : gazeReleaseSpeed;
+        blendedGazeWeight = Mathf.MoveTowards(
+            blendedGazeWeight,
+            desiredWeight,
+            Mathf.Max(0f, deltaTime) * gazeBlendSpeed
+        );
+        // When gaze is released (low E/C, photo pose, or AnimationPose), keep
+        // applying the last correction while its weight fades out. Returning as
+        // soon as target becomes null drops the correction in one frame and makes
+        // the head visibly snap back to the authored animation.
+        bool activelyTracking = target && desiredWeight > .0001f;
+        if (activelyTracking)
+        {
+            Debug.DrawLine(
+                gazeForwardReference.position,
+                target.position,
+                Color.cyan
+            );
+            Vector3 targetPosition =
+                target.position + (!focusPresenter && body && (body.DeviceLookTarget || body.TypingLookTarget) ? Vector3.zero : personalTargetOffset);
+
+            Vector3 desiredDirection =
+                targetPosition -
+                gazeForwardReference.position;
+
+            if (desiredDirection.sqrMagnitude > 0.0001f)
+            {
+                desiredDirection.Normalize();
+
+                float smoothFactor =
+                    1f -
+                    Mathf.Exp(
+                        -directionSmoothSpeed *
+                        Mathf.Max(0f, deltaTime)
+                    );
+
+                smoothedDirection =
+                    Vector3.Slerp(
+                        smoothedDirection,
+                        desiredDirection,
+                        smoothFactor
+                    ).normalized;
+            }
         }
 
-        desiredDirection.Normalize();
-
-        float smoothFactor =
-            1f -
-            Mathf.Exp(
-                -directionSmoothSpeed *
-                deltaTime
-            );
-
-        smoothedDirection =
-            Vector3.Slerp(
-                smoothedDirection,
-                desiredDirection,
-                smoothFactor
-            ).normalized;
+        if (blendedGazeWeight <= 0f)
+        {
+            // Only reset after the correction is fully invisible, so the next
+            // tracking interval starts from the current authored head direction.
+            smoothedDirection = gazeForwardReference.forward;
+            return;
+        }
 
         // Animator와 FBX 애니메이션이 먼저 적용한
         // 현재 머리 회전을 기준으로 시선 보정을 계산한다.
@@ -269,7 +343,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             Quaternion.Slerp(
                 animatedHeadRotation,
                 limitedHeadRotation,
-                gazeWeight * (body ? 1f - body.ConversationWeight : 1f)
+                blendedGazeWeight
             );
     }
 
@@ -300,6 +374,24 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
 
     private void SelectNextRuleState()
     {
+        // Once E/C data is available, focused listeners use only the two useful
+        // presentation targets. Alternation avoids repeated random selections of
+        // the same target while keeping each actor's randomized dwell time.
+        if(hasEvaluationState)
+        {
+            if(attentionGazeWeight<=0f)
+            {
+                SetState(GazeState.AnimationPose,null);
+                return;
+            }
+            bool lookAtSlide=nextFocusedTargetIsSlide && slideTarget;
+            if(!presenterTarget)lookAtSlide=true;
+            SetState(lookAtSlide?GazeState.Slide:GazeState.Presenter,
+                lookAtSlide?slideTarget:presenterTarget);
+            nextFocusedTargetIsSlide=!nextFocusedTargetIsSlide;
+            return;
+        }
+
         float activePresenterProbability = evaluatedPresenterProbability >= 0f
             ? evaluatedPresenterProbability
             : presenterProbability;
@@ -354,31 +446,19 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             Transform aroundTarget =
                 GetRandomAroundTarget();
 
-            if (aroundTarget != null)
-            {
-                SetState(
-                    GazeState.Around,
-                    aroundTarget
-                );
-            }
-            else
-            {
-                SetState(
-                    GazeState.Presenter,
-                    presenterTarget
-                );
-            }
+            SetState(GazeState.AnimationPose, aroundTarget);
         }
     }
 
     public void ApplyEvaluationState(float engagement, float clarity)
     {
-        // E/C are supplied by the server on a 0..1 scale. Their mean controls
-        // sustained attention: high values favour the presenter, while low
-        // values favour the non-presenter points around the room.
-        float attention = Mathf.Clamp01((engagement + clarity) * 0.5f);
-        evaluatedPresenterProbability = Mathf.Lerp(0.20f, 0.85f, attention);
-        evaluatedSlideProbability = Mathf.Lerp(0.15f, 0.10f, attention);
+        // A high value in one channel must not mask a low value in the other.
+        // Below .35, use the original animation; from .35 to .70, blend gaze in.
+        float attention = Mathf.Clamp01(Mathf.Min(engagement, clarity));
+        hasEvaluationState=true;
+        attentionGazeWeight = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.35f, .70f, attention));
+        evaluatedPresenterProbability = Mathf.Lerp(0.20f, 0.65f, attention);
+        evaluatedSlideProbability = Mathf.Lerp(0.15f, 0.30f, attention);
         evaluatedAroundProbability = Mathf.Max(
             0f,
             1f - evaluatedPresenterProbability - evaluatedSlideProbability
@@ -444,7 +524,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
                     slideDurationRange.y
                 );
 
-            case GazeState.Around:
+            case GazeState.AnimationPose:
                 return Random.Range(
                     aroundDurationRange.x,
                     aroundDurationRange.y
@@ -522,7 +602,7 @@ public class AudienceGazeController : MonoBehaviour, IAudienceStateReceiver
             normalized.Contains("laptop"))
         {
             serverOverrideState =
-                GazeState.Around;
+                GazeState.AnimationPose;
 
             serverOverrideTarget =
                 GetRandomAroundTarget();

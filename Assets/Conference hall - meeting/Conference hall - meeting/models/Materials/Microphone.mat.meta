@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f51e7f2da217f0b418dc9f6650bab68e
+timeCreated: 1531912302
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/Materials/Microphone.mat
+  uploadId: 398103

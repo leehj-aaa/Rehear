@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ffa26878798486f448c54c7680ef9da4
+timeCreated: 1533129428
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Sprinkler.prefab
+  uploadId: 398103

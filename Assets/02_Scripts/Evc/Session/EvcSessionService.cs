@@ -37,6 +37,12 @@ namespace Rehear.Evc.Session
                 slide_file = optionalSlideFile
             };
 
+#if UNITY_EDITOR
+            // Read the PIN presentation normally, but never claim its production
+            // session or persist a recording rehearsal to the production website.
+            if (Rehear.Evc.Config.EvcEnvironmentConfig.UseLocalRecordingServer)
+                request.pre_session_pin = null;
+#endif
             var response = await apiClient.StartSessionAsync(request, cancellationToken);
             ValidateResponse(response);
             context.ApplySmartStart(response);

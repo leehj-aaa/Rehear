@@ -28,6 +28,7 @@ public sealed partial class RehearAudienceMotionPreview
             if(!scene.isLoaded)scene=UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/01_Scene/Scene_02_Presentation.unity",UnityEditor.SceneManagement.OpenSceneMode.Additive);
             UnityEngine.SceneManagement.SceneManager.SetActiveScene(scene);
             StartReview();
+            focusedReview=true;
             for(int i=0;i<UnityEngine.SceneManagement.SceneManager.sceneCount;i++){
                 var other=UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
                 if(other!=scene)foreach(var item in other.GetRootGameObjects())if(item.activeSelf){focusedSuspended.Add(item);item.SetActive(false);}
@@ -50,6 +51,7 @@ public sealed partial class RehearAudienceMotionPreview
     [MenuItem("Rehear/Audience/Review All Animations")]
     static void StartReview()
     {
+        focusedReview=false;
         if(!root)Open();
         Restart();
         var catalog=AssetDatabase.LoadAssetAtPath<AudienceAnimationCatalog>("Assets/Settings/AudienceAnimationCatalog.asset");
@@ -161,7 +163,10 @@ public sealed partial class RehearAudienceMotionPreview
             var phone=(GameObject)typeof(AudienceAnimationPlayer).GetField("photoPhone",Flags).GetValue(body);
             var screen=body.GetComponent<AudienceGazeController>().SlideTarget;
             float angle=Vector3.Angle(-phone.transform.forward,screen.position-phone.transform.position);
-            report.AppendLine($"{body.name}: rear lens -> {screen.name}, error={angle:F2}deg, parent={phone.transform.parent.name}");
+            var flatSlide=Vector3.ProjectOnPlane(screen.position-body.transform.position,Vector3.up);
+            var flatForward=Vector3.ProjectOnPlane(body.transform.forward,Vector3.up);
+            float facingError=Vector3.Angle(flatForward,flatSlide);
+            report.AppendLine($"{body.name}: animation-only grip, seated facing -> {screen.name}, error={facingError:F2}deg, phone lens error={angle:F2}deg, parent={phone.transform.parent.name}");
             var hand=body.GetComponentsInChildren<Transform>().Single(t=>t.name=="hand_r");
             var thigh=body.GetComponentsInChildren<Transform>().Single(t=>t.name=="thigh_r");
             var grip=phone.GetComponent<AudiencePhotoGrip>();
@@ -173,6 +178,59 @@ public sealed partial class RehearAudienceMotionPreview
         lastTime=EditorApplication.timeSinceStartup;
         } finally { RehearPhotoAudioPreview.Suppress=false; }
     }
+
+    static void FreezeFocusedPhoto()
+    {
+        if(!root||!focusedReview)StartFocusedPropsReview();
+        RehearPhotoAudioPreview.Suppress=true;
+        try {
+            SelectReview(0);
+            // The three PhotoSlide actors have raised their phones at this point.
+            // Freeze the custom editor preview (not Play Mode) so the scene camera
+            // can still be moved and its Transform can be edited normally.
+            while(elapsed<5.5f){elapsed+=1f/60f;EvaluatePreview(1f/60f);}
+            reviewAuto=false;
+            paused=true;
+            reviewStatus="사진 촬영 자세에서 일시정지 · 카메라를 조정한 뒤 계속 재생을 누르세요";
+            lastTime=EditorApplication.timeSinceStartup;
+            SceneView.RepaintAll();
+            if(window)window.Repaint();
+        } finally { RehearPhotoAudioPreview.Suppress=false; }
+    }
+
+    static void TraceFocusedPhotoTurn()
+    {
+        if(!root||!focusedReview)StartFocusedPropsReview();
+        RehearPhotoAudioPreview.Suppress=true;
+        try {
+            SelectReview(0);
+            var body=bodies.Single(item=>item.name.StartsWith("Aud_W_01",StringComparison.OrdinalIgnoreCase));
+            var pelvis=body.GetComponentsInChildren<Transform>().Single(item=>item.name=="pelvis");
+            var spine=body.GetComponentsInChildren<Transform>().Single(item=>item.name=="spine_01");
+            var seat=body.GetComponent<AudienceSeatAssignment>().Seat;
+            var report=new System.Text.StringBuilder("frame,time,rootYaw,rootStep,pelvisStep,spineStep,rootX,rootY,rootZ,hipX,hipY,hipZ,hipSeatDistance,photo\n");
+            float previousYaw=body.transform.eulerAngles.y;
+            var previousPelvis=pelvis.rotation;
+            var previousSpine=spine.rotation;
+            for(int frame=0;frame<360;frame++) {
+                const float dt=1f/60f;
+                elapsed+=dt;EvaluatePreview(dt);
+                float yaw=body.transform.eulerAngles.y;
+                float rootStep=Mathf.Abs(Mathf.DeltaAngle(previousYaw,yaw));
+                float pelvisStep=Quaternion.Angle(previousPelvis,pelvis.rotation);
+                float spineStep=Quaternion.Angle(previousSpine,spine.rotation);
+                var rootPosition=body.transform.position;
+                var hipPosition=pelvis.position;
+                report.AppendLine($"{frame},{elapsed:F3},{yaw:F4},{rootStep:F4},{pelvisStep:F4},{spineStep:F4},"+
+                    $"{rootPosition.x:F4},{rootPosition.y:F4},{rootPosition.z:F4},{hipPosition.x:F4},{hipPosition.y:F4},{hipPosition.z:F4},"+
+                    $"{Vector3.Distance(hipPosition,seat.transform.position):F4},{body.IsTakingPhoto}");
+                previousYaw=yaw;previousPelvis=pelvis.rotation;previousSpine=spine.rotation;
+            }
+            File.WriteAllText("Temp/RehearPhotoTurnTrace.csv",report.ToString());
+            paused=true;lastTime=EditorApplication.timeSinceStartup;SceneView.RepaintAll();
+        } finally { RehearPhotoAudioPreview.Suppress=false; }
+    }
+
     static void CapturePhotoCamera(AudienceAnimationPlayer body,Transform phone,bool close)
     {
         var go=new GameObject("Photo inspection camera"){hideFlags=HideFlags.HideAndDontSave};
@@ -207,12 +265,22 @@ public sealed partial class RehearAudienceMotionPreview
         if(!reviewMode || !root || reviewEntries==null)return;
         Handles.BeginGUI();
         var width=Mathf.Min(600f,view.position.width-32f);
-        GUI.Box(new Rect(16,48,width,66),GUIContent.none);
+        GUI.Box(new Rect(16,48,width,focusedReview?100:106),GUIContent.none);
         var style=new GUIStyle(EditorStyles.boldLabel){fontSize=18,wordWrap=true};
         GUI.Label(new Rect(26,54,width-20,48),focusedReview?"동시 비교 · 남녀 각각 다른 파일 적용\nSmallStretch 3명 / Photo Slide 3명":$"동작 점검 {reviewIndex+1}/{reviewEntries.Length}\n{ReviewTitle(reviewEntries[reviewIndex])}",style);
         if(focusedReview){
             if(GUI.Button(new Rect(16,120,170,28),"두 동작 함께 다시 보기"))SelectReview(0);
             if(GUI.Button(new Rect(194,120,100,28),"점검 종료")){StopPreview();focusedReview=false;}
+        }else{
+            GUI.enabled=reviewIndex>0;
+            if(GUI.Button(new Rect(16,120,80,28),"이전"))SelectReview(reviewIndex-1);
+            GUI.enabled=true;
+            if(GUI.Button(new Rect(102,120,96,28),"다시 보기"))SelectReview(reviewIndex);
+            if(GUI.Button(new Rect(204,120,96,28),paused?"계속 재생":"일시정지")){paused=!paused;lastTime=EditorApplication.timeSinceStartup;}
+            GUI.enabled=reviewIndex<reviewEntries.Length-1;
+            if(GUI.Button(new Rect(306,120,80,28),"다음"))SelectReview(reviewIndex+1);
+            GUI.enabled=true;
+            if(GUI.Button(new Rect(392,120,120,28),reviewAuto?"자동 넘김 켜짐":"자동 넘김 꺼짐"))reviewAuto=!reviewAuto;
         }
         Handles.EndGUI();
     }

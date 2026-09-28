@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 0693248a8951c454fb5b3c6db35e9ebb
+timeCreated: 1533127560
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Flipchart.prefab
+  uploadId: 398103

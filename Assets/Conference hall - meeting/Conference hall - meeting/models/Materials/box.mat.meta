@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5448039537d6a2443bab7bef48fff9f0
+timeCreated: 1535099606
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/Materials/box.mat
+  uploadId: 398103

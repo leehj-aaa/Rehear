@@ -73,6 +73,10 @@ namespace Rehear.Evc.Audio
                 await Task.Yield();
             }
             token.ThrowIfCancellationRequested();
+            if (request.responseCode == 503)
+            {
+                throw new InvalidOperationException("음성 서버를 사용할 수 없습니다 (HTTP 503). 서버 관리자 확인이 필요합니다.");
+            }
             if (request.result != UnityWebRequest.Result.Success)
                 throw new InvalidOperationException($"음성 서버 요청 실패 (HTTP {request.responseCode}). 연결과 리소스 설정을 확인해주세요.");
         }
