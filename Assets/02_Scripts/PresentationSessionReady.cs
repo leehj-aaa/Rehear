@@ -1,7 +1,9 @@
 using Rehear.Evc.Presentation;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,7 +20,17 @@ public sealed class PresentationSessionReady : MonoBehaviour
     public Vector3 cameraLocalPosition = new Vector3(0f, 0f, 1.7f);
     public Vector3 cameraLocalEuler;
     bool leaving;
+    Transform presentationRig;
+    Transform xrCamera;
+    Vector3 authoredRigPosition;
+    float authoredRigYaw;
+    readonly List<BaseRaycaster> suspendedRaycasters = new();
     public bool IsOpen => gameObject.activeInHierarchy && RuntimeSessionData.IsLoaded && RuntimeSessionData.Session != null;
+
+    void Awake()
+    {
+        FindAndLockPresentationRig();
+    }
 
     IEnumerator Start()
     {
@@ -28,21 +40,94 @@ public sealed class PresentationSessionReady : MonoBehaviour
             yield break;
         }
 
+        IsolateModalRaycasts();
         Populate();
-        AlignToViewer();
         if (continueButton) continueButton.interactable = true;
-        // Give the XR origin its first tracked pose before final placement.
+
+        // Wait until OpenXR has supplied the first stable HMD pose, then restore
+        // the authored presentation origin before placing the confirmation UI.
         yield return null;
+        yield return null;
+        yield return null;
+        StabilizePresentationRig();
         AlignToViewer();
+    }
+
+    void FindAndLockPresentationRig()
+    {
+        var camera = Camera.main;
+        if (!camera)
+            return;
+
+        xrCamera = camera.transform;
+        Transform candidate = xrCamera;
+        while (candidate != null)
+        {
+            if (candidate.name.Contains("XR Origin"))
+            {
+                presentationRig = candidate;
+                break;
+            }
+
+            candidate = candidate.parent;
+        }
+
+        if (!presentationRig)
+        {
+            Debug.LogWarning("[발표 씬] XR Origin을 찾지 못했습니다.", this);
+            return;
+        }
+
+        authoredRigPosition = presentationRig.position;
+        authoredRigYaw = presentationRig.eulerAngles.y;
+
+        // The presentation is stationary. Locomotion and gravity can move the
+        // origin before the first frame and make the viewer and UI appear low.
+        var characterController = presentationRig.GetComponent<CharacterController>();
+        if (characterController)
+            characterController.enabled = false;
+
+        foreach (MonoBehaviour behaviour in
+                 presentationRig.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (!behaviour)
+                continue;
+
+            string typeName = behaviour.GetType().Name;
+            if (typeName.Contains("MoveProvider") ||
+                typeName.Contains("CharacterControllerDriver") ||
+                typeName.Contains("GravityProvider"))
+            {
+                behaviour.enabled = false;
+            }
+        }
+    }
+
+    void StabilizePresentationRig()
+    {
+        if (!presentationRig || !xrCamera)
+            return;
+
+        float yawDelta = Mathf.DeltaAngle(xrCamera.eulerAngles.y, authoredRigYaw);
+        presentationRig.RotateAround(xrCamera.position, Vector3.up, yawDelta);
+
+        Vector3 planarOffset = xrCamera.position - presentationRig.position;
+        planarOffset.y = 0f;
+        presentationRig.position = new Vector3(
+            authoredRigPosition.x - planarOffset.x,
+            authoredRigPosition.y,
+            authoredRigPosition.z - planarOffset.z);
+
+        Debug.Log("[발표 씬] 플레이어 시작 위치와 방향을 자동 보정했습니다.");
     }
 
     public void AlignToViewer()
     {
-        var camera = Camera.main;
+        var camera = xrCamera ? xrCamera : Camera.main ? Camera.main.transform : null;
         if (!camera) return;
-        var heading = Quaternion.Euler(0f, camera.transform.eulerAngles.y, 0f);
+        var heading = Quaternion.Euler(0f, camera.eulerAngles.y, 0f);
         transform.SetPositionAndRotation(
-            camera.transform.position + heading * cameraLocalPosition,
+            camera.position + heading * cameraLocalPosition,
             heading * Quaternion.Euler(cameraLocalEuler));
     }
 
@@ -72,6 +157,7 @@ public sealed class PresentationSessionReady : MonoBehaviour
     public void Confirm()
     {
         if (leaving || !RuntimeSessionData.IsLoaded || RuntimeSessionData.Session == null) return;
+        RestoreSuspendedRaycasts();
         gameObject.SetActive(false);
         if (controller) controller.SetSessionConfirmationVisible(false);
     }
@@ -92,5 +178,39 @@ public sealed class PresentationSessionReady : MonoBehaviour
         RuntimeSessionData.Clear();
         PresentationSessionContext.Current.ClearAll();
         SceneManager.LoadSceneAsync("Scene_00");
+    }
+
+    void IsolateModalRaycasts()
+    {
+        RestoreSuspendedRaycasts();
+        var ownRaycaster = GetComponent<BaseRaycaster>();
+
+        foreach (var raycaster in FindObjectsByType<BaseRaycaster>(
+                     FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+        {
+            if (!raycaster || raycaster == ownRaycaster ||
+                !raycaster.enabled || !raycaster.gameObject.activeInHierarchy)
+                continue;
+
+            raycaster.enabled = false;
+            suspendedRaycasters.Add(raycaster);
+        }
+    }
+
+    void RestoreSuspendedRaycasts()
+    {
+        foreach (var raycaster in suspendedRaycasters)
+        {
+            if (raycaster)
+                raycaster.enabled = true;
+        }
+
+        suspendedRaycasters.Clear();
+    }
+
+    void OnDestroy()
+    {
+        RestoreSuspendedRaycasts();
     }
 }
