@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 7289089ad6cef8743a3e344127d3e3c5
+timeCreated: 1533128384
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Marker_green.prefab
+  uploadId: 398103

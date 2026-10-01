@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 495db4e12b898144da5352adb67177e2
+timeCreated: 1533129730
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Wall
+    megaphone.prefab
+  uploadId: 398103
