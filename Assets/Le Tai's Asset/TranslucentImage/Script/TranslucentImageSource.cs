@@ -315,8 +315,17 @@ public partial class TranslucentImageSource : MonoBehaviour
 
     void OnDestroy()
     {
-        if (BlurredScreen)
-            BlurredScreen.Release();
+        DisposeBlurredScreen();
+    }
+
+    void DisposeBlurredScreen()
+    {
+        var texture = BlurredScreen;
+        BlurredScreen = null;
+        if (!texture) return;
+        blurredScreenChanged?.Invoke();
+        if (Application.isPlaying) BlurTextureRetirement.Retire(texture);
+        else DestroyImmediate(texture);
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -486,16 +495,25 @@ public partial class TranslucentImageSource : MonoBehaviour
 
     void CreateNewBlurredScreen(Vector2Int camPixelSize)
     {
-        if (BlurredScreen)
-            BlurredScreen.Release();
+        DisposeBlurredScreen();
 
 #if USE_VR
         if (XRSettings.enabled)
         {
-            BlurredScreen        = new RenderTexture(XRSettings.eyeTextureDesc);
-            BlurredScreen.width  = Mathf.RoundToInt(BlurredScreen.width * BlurRegion.width) >> Downsample;
-            BlurredScreen.height = Mathf.RoundToInt(BlurredScreen.height * BlurRegion.height) >> Downsample;
-            BlurredScreen.depth  = 0;
+            var eye = XRSettings.eyeTextureDesc;
+            // Construct an owned offscreen target. Do not copy XR swapchain flags.
+            var descriptor = new RenderTextureDescriptor(
+                Mathf.Max(1, Mathf.RoundToInt(eye.width * BlurRegion.width) >> Downsample),
+                Mathf.Max(1, Mathf.RoundToInt(eye.height * BlurRegion.height) >> Downsample),
+                eye.graphicsFormat, UnityEngine.Experimental.Rendering.GraphicsFormat.None, 1) {
+                dimension = eye.dimension,
+                volumeDepth = eye.volumeDepth,
+                msaaSamples = 1,
+                useMipMap = false,
+                autoGenerateMips = false,
+                vrUsage = VRTextureUsage.None
+            };
+            BlurredScreen = new RenderTexture(descriptor);
         }
         else
 #endif
@@ -527,6 +545,9 @@ public partial class TranslucentImageSource : MonoBehaviour
             BlurredScreen.Create();
 
         blurredScreenChanged?.Invoke();
+#if REHEAR_QUEST_DIAGNOSTICS
+        Debug.Log($"[QuestBlur] {gameObject.scene.name}/{gameObject.name}: {BlurredScreen.width}x{BlurredScreen.height}, {BlurredScreen.dimension}, slices={BlurredScreen.volumeDepth}, MSAA={BlurredScreen.antiAliasing}, created={BlurredScreen.IsCreated()}");
+#endif
     }
 
     TextureDimension lastEyeTexDim;

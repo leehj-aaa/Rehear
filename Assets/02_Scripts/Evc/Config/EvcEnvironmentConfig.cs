@@ -20,7 +20,20 @@ namespace Rehear.Evc.Config
         [SerializeField] private bool enableDemoFallback;
 
         public EvcEnvironment Environment => environment;
-        public string ServerBaseUrl => (serverBaseUrl ?? string.Empty).TrimEnd('/');
+#if UNITY_EDITOR
+        // Session-only opt-in. Never serialized into a scene or included in APKs.
+        public static bool UseLocalRecordingServer { get; set; }
+#endif
+        public string ServerBaseUrl
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (UseLocalRecordingServer) return "http://127.0.0.1:8093";
+#endif
+                return (serverBaseUrl ?? string.Empty).TrimEnd('/');
+            }
+        }
         public int TimeoutSeconds => Mathf.Max(1, timeoutSeconds);
         public int TransientRetryCount => Mathf.Clamp(transientRetryCount, 0, 5);
         public bool EnableDemoFallback => enableDemoFallback &&
@@ -30,6 +43,9 @@ namespace Rehear.Evc.Config
         public bool TryValidate(out string error)
         {
             error = string.Empty;
+#if UNITY_EDITOR
+            if (UseLocalRecordingServer) return true;
+#endif
             if (!Uri.TryCreate(ServerBaseUrl, UriKind.Absolute, out var uri))
             {
                 error = "EVC 서버 URL이 설정되지 않았습니다.";

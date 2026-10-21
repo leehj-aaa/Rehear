@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: b6703e7ec11b0054183b1e330ca214ca
+timeCreated: 1533129333
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Round
+    table.prefab
+  uploadId: 398103

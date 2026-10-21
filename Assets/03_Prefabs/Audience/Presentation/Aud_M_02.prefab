@@ -611,7 +611,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 47a33342245d2824bb635ecdfcc48289, type: 2}
+  - {fileID: 2100000, guid: 6ff84f419c916694485896be943c5b91, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4493,7 +4493,7 @@ Transform:
   - {fileID: 6225586976091300327}
   - {fileID: 4495415115701466195}
   - {fileID: 5535789440369827973}
-  - {fileID: 2013774225022727291}
+  - {fileID: 3448839353584929922}
   m_Father: {fileID: 8515823260326698938}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2878952447113577176
@@ -7166,6 +7166,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5451703894675185705}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4535679099330887526
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3448839353584929922}
+  m_Layer: 0
+  m_Name: PhoneGripPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3448839353584929922
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4535679099330887526}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.5390446, y: 0.732422, z: 0.37112108, w: 0.18777153}
+  m_LocalPosition: {x: -0.0936, y: 0.0331, z: -0.0323}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2013774225022727291}
+  m_Father: {fileID: 5856342751880218857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4543139412936675401
 GameObject:
   m_ObjectHideFlags: 0
@@ -8182,7 +8214,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8994284946258225471, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+  - {fileID: 2100000, guid: 6e4883c383cfc1245933944021c2d93e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -8559,7 +8591,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4539990841504716707, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+  - {fileID: 2100000, guid: 093edf295707b2143aa66a8e8f037ae6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9840,7 +9872,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4539990841504716707, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+  - {fileID: 2100000, guid: 093edf295707b2143aa66a8e8f037ae6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11008,7 +11040,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8994284946258225471, guid: b62b75b4bd0016a49a2ee2db4a5f14ed, type: 3}
+  - {fileID: 2100000, guid: 6e4883c383cfc1245933944021c2d93e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14082,9 +14114,11 @@ MonoBehaviour:
   presenterDurationRange: {x: 2.5, y: 6}
   slideDurationRange: {x: 1.5, y: 4}
   aroundDurationRange: {x: 0.8, y: 2.5}
-  gazeWeight: 0.368
-  maximumHeadAngle: 26.7
+  gazeWeight: 0.95
+  maximumHeadAngle: 55
   directionSmoothSpeed: 1.2
+  gazeBlendInSpeed: 2.2
+  gazeReleaseSpeed: 0.65
   randomTargetOffsetRange: {x: 0.12, y: 0.08, z: 0.05}
   printStateLog: 0
 --- !u!114 &4183416550484928097
@@ -14105,13 +14139,18 @@ MonoBehaviour:
   idleClipOverride: {fileID: 0}
   defaultIdleVariation: BL_03.quiet_stable_posture
   randomizeIdleStartTime: 1
-  blendDuration: 0.7
+  blendDuration: 1.42
   printAnimationLog: 1
   photoPhone: {fileID: 8992111272448253165}
   devicePhone: {fileID: 1292390886865017882}
   photoShutter: {fileID: 8300000, guid: 9fa4c104697dd37439b1594bd3645c1b, type: 3}
   photoShutterVolume: 0.1
   photoShutterNormalizedTime: 0.3654321
+  photoTurnSmoothTime: 0.55
+  returnTurnSmoothTime: 0.75
+  photoTurnMaxSpeed: 55
+  returnTurnMaxSpeed: 40
+  photoRootTurnFraction: 0.35
 --- !u!114 &5678203662319351345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15106,7 +15145,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4fb76364ebfe8b341aaeddce4cd08f19, type: 2}
+  - {fileID: 2100000, guid: 24ed7215657d3504fb48f4d279656f57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16290,7 +16329,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5856342751880218857}
+    m_TransformParent: {fileID: 3448839353584929922}
     m_Modifications:
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalScale.x
@@ -16306,31 +16345,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.08283623
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.015245736
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.06819287
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.22373317
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.3665191
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.4926945
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.7568747
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3032176635680216034, guid: 4b658ae02ca4e154f80cea2d74db1ef1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

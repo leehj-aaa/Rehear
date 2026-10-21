@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b109475f78f8de84aad3020cdd5fc764
+timeCreated: 1533127003
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Banner.prefab
+  uploadId: 398103

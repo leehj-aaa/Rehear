@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 120e476c417f2524399e4be1b587160f
+timeCreated: 1533128238
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Marker_red.prefab
+  uploadId: 398103

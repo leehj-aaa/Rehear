@@ -15,7 +15,8 @@ Shader "Rehear/UI/Rounded Translucent Panel"
         _UseFigmaGlow("Use Figma additive radial", Float) = 0
         _FigmaDesignSize("Figma design dimensions", Vector) = (804,577,0,0)
         _FigmaGlowRect("Figma radial bounds", Vector) = (-111,-322,1041,519)
-        [HideInInspector] _BlurTex("Background blur", 2D) = "black" {}
+        // _BlurTex is declared by UNITY_DECLARE_SCREENSPACE_TEXTURE below.
+        // A fixed 2D ShaderLab property rejects the XR texture array.
         [HideInInspector] _CropRegion("Blur crop", Vector) = (0,0,1,1)
         _StencilComp("Stencil Comparison", Float) = 8
         _Stencil("Stencil ID", Float) = 0

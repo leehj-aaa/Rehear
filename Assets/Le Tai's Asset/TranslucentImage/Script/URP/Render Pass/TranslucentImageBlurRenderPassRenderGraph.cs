@@ -32,6 +32,7 @@ public partial class TranslucentImageBlurRenderPass
     }
 
     readonly Dictionary<RenderTexture, RTHandle> blurredScreenHdlDict = new();
+    readonly List<RenderTexture> retiredBlurTextures = new();
 
     List<TextureHandle[]> scratchesList;
     string[]              scratchNames;
@@ -58,10 +59,19 @@ public partial class TranslucentImageBlurRenderPass
         {
             hdl?.Release();
         }
+        blurredScreenHdlDict.Clear();
     }
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
     {
+        retiredBlurTextures.Clear();
+        foreach (var entry in blurredScreenHdlDict)
+        {
+            if (entry.Key) continue;
+            entry.Value?.Release();
+            retiredBlurTextures.Add(entry.Key);
+        }
+        foreach (var texture in retiredBlurTextures) blurredScreenHdlDict.Remove(texture);
         var blurSources   = currentPassData.blurSources;
         var blurAlgorithm = currentPassData.blurAlgorithm;
 

@@ -29,13 +29,19 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
     static Trace trace;
     static readonly Dictionary<string,string> latest = new Dictionary<string,string>();
     static readonly List<GameObject> hidden = new List<GameObject>();
+    static GameObject temporarilyHiddenSessionReady;
     static double lastTime;
     static float elapsed;
     static int cursor;
     static bool paused;
     static bool typingDemo;
     static bool conversationDemo, conversationStarted;
-    static float LoopDuration => conversationDemo?14f:typingDemo?20f:trace.duration;
+    static bool playerHeadDemo;
+    static GameObject virtualPlayerHead;
+    static Material virtualPlayerHeadMaterial;
+    static Vector3 virtualPlayerHeadCenter;
+    static Vector3 virtualPlayerHeadMoveAxis;
+    static float LoopDuration => playerHeadDemo?3600f:conversationDemo?14f:typingDemo?20f:trace.duration;
     static readonly Dictionary<AudienceAnimationPlayer,float> typingAt = new Dictionary<AudienceAnimationPlayer,float>();
     static double diagnosticAt;
     static AudienceGazeController[] gazes;
@@ -62,6 +68,14 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
         {
             if(scene.isDirty) throw new InvalidOperationException("Save your current scene before opening the preview.");
             scene = EditorSceneManager.OpenScene("Assets/01_Scene/Scene_02_Presentation.unity");
+        }
+        var sessionReady = scene.GetRootGameObjects()
+            .SelectMany(gameObject => gameObject.GetComponentsInChildren<PresentationSessionReady>(true))
+            .FirstOrDefault();
+        if(sessionReady && sessionReady.gameObject.activeSelf)
+        {
+            temporarilyHiddenSessionReady = sessionReady.gameObject;
+            temporarilyHiddenSessionReady.SetActive(false);
         }
         trace = JsonUtility.FromJson<Trace>(File.ReadAllText(TracePath));
         typeof(RehearSessionReadySetup).GetMethod("ShowAudiencePreview", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null,null);
@@ -102,7 +116,7 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
     static void Restart()
     {
         if(!root) return;
-        reviewMode=false;typingDemo=false; conversationDemo=false;conversationStarted=false; typingAt.Clear();
+        reviewMode=false;typingDemo=false; conversationDemo=false;conversationStarted=false;playerHeadDemo=false; typingAt.Clear();
         elapsed=0; cursor=0; paused=false; latest.Clear(); lastTime=EditorApplication.timeSinceStartup;
         nextGaze=new float[bodies.Length];
         for(int i=0;i<gazes.Length;i++) if(gazes[i]) nextGaze[i]=gazes[i].ResetManualGaze();
@@ -132,6 +146,44 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
         Restart();conversationDemo=true;cursor=trace.frames.Length;
     }
 
+    static void StartPlayerHeadPreview()
+    {
+        if(!root) Open();
+        Restart();
+        playerHeadDemo=true;
+        cursor=trace.frames.Length;
+        if(virtualPlayerHead) Object.DestroyImmediate(virtualPlayerHead);
+        if(virtualPlayerHeadMaterial) Object.DestroyImmediate(virtualPlayerHeadMaterial);
+        var scene=EditorSceneManager.GetActiveScene();
+        var bindings=scene.GetRootGameObjects()
+            .SelectMany(gameObject=>gameObject.GetComponentsInChildren<PresentationAudienceBindings>(true))
+            .FirstOrDefault();
+        if(!bindings || !bindings.presenterTarget) throw new InvalidOperationException("Presenter target is unavailable.");
+        virtualPlayerHead=GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        virtualPlayerHead.name="Virtual Player Head (Editor Only)";
+        virtualPlayerHead.tag="EditorOnly";
+        virtualPlayerHead.hideFlags=HideFlags.DontSave;
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(virtualPlayerHead,scene);
+        virtualPlayerHeadCenter=bindings.presenterTarget.position+
+            bindings.presenterTarget.forward*1.15f-bindings.presenterTarget.right*.85f;
+        virtualPlayerHeadMoveAxis=bindings.presenterTarget.right;
+        virtualPlayerHead.transform.position=virtualPlayerHeadCenter;
+        virtualPlayerHead.transform.localScale=Vector3.one*.22f;
+        var collider=virtualPlayerHead.GetComponent<Collider>();
+        if(collider) Object.DestroyImmediate(collider);
+        virtualPlayerHeadMaterial=new Material(Shader.Find("Universal Render Pipeline/Lit")) { hideFlags=HideFlags.DontSave };
+        virtualPlayerHeadMaterial.color=new Color(.08f,.85f,1f,1f);
+        virtualPlayerHead.GetComponent<Renderer>().sharedMaterial=virtualPlayerHeadMaterial;
+        foreach(var gaze in gazes) if(gaze)
+        {
+            gaze.ConfigureTargets(virtualPlayerHead.transform,bindings.slideTarget,bindings.aroundTargets);
+            gaze.ApplyEvaluationState(1f,1f);
+            gaze.ApplyServerGaze("presenter",3600f,0f);
+        }
+        SceneView.RepaintAll();
+        File.WriteAllText("Temp/RehearAudienceMotion.txt","RUNNING: virtual player head gaze demo; 6 actors target the cyan head. Editor-only, not saved.\n");
+    }
+
     [MenuItem("Rehear/Audience/Stop Reaction Preview")]
     static void StopPreview()
     {
@@ -139,7 +191,14 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
             if(Selection.activeTransform && Selection.activeTransform.IsChildOf(root.transform)) Selection.activeObject=null;
             Object.DestroyImmediate(root);
         }
-        root=null; actors=null; bodies=null;reviewMode=false;
+        root=null; actors=null; bodies=null;reviewMode=false;focusedReview=false;
+        playerHeadDemo=false;
+        if(virtualPlayerHead) Object.DestroyImmediate(virtualPlayerHead);
+        virtualPlayerHead=null;
+        if(virtualPlayerHeadMaterial) Object.DestroyImmediate(virtualPlayerHeadMaterial);
+        virtualPlayerHeadMaterial=null;
+        if(temporarilyHiddenSessionReady) temporarilyHiddenSessionReady.SetActive(true);
+        temporarilyHiddenSessionReady=null;
         foreach(var item in focusedSuspended)if(item)item.SetActive(true);
         focusedSuspended.Clear();
         foreach(var item in hidden) if(item) SceneVisibilityManager.instance.Show(item,true);
@@ -157,9 +216,12 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
                 if(command=="stop") StopPreview();
                 else if(command=="typing") StartTypingPreview();
                 else if(command=="conversation") StartConversationPreview();
+                else if(command=="player-head") StartPlayerHeadPreview();
                 else if(command=="review") StartReview();
                 else if(command=="review-props") StartFocusedPropsReview();
                 else if(command=="photo-capture") CaptureFocusedPhoto();
+                else if(command=="photo-turn-trace") TraceFocusedPhotoTurn();
+                else if(command=="photo-freeze") FreezeFocusedPhoto();
                 else if(command=="review-check") CheckReview();
                 else if(command=="review-seatadjust") {
                     StartReview();
@@ -193,6 +255,9 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
         try
         {
             elapsed+=dt;
+            if(playerHeadDemo && virtualPlayerHead)
+                virtualPlayerHead.transform.position=virtualPlayerHeadCenter+
+                    virtualPlayerHeadMoveAxis*Mathf.Sin(elapsed*.8f)*.55f;
             EvaluatePreview(dt);
             if(!reviewMode && elapsed>=LoopDuration) {if(conversationDemo)StartConversationPreview();else if(typingDemo)StartTypingPreview();else Restart();}
             if(now-diagnosticAt>=1)
@@ -260,7 +325,7 @@ public sealed partial class RehearAudienceMotionPreview : EditorWindow
     void OnGUI()
     {
         if(reviewMode) {DrawReview();return;}
-        EditorGUILayout.LabelField(conversationDemo?"맨 뒤 두 사람 · 옆 대화 → 듣는 자세 복귀":typingDemo?"타이핑 · 방향 전환 → 입력 → 복귀":"청중별 반응 · 2분 반복",EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(playerHeadDemo?"가상 플레이어 머리 응시":conversationDemo?"맨 뒤 두 사람 · 옆 대화 → 듣는 자세 복귀":typingDemo?"타이핑 · 방향 전환 → 입력 → 복귀":"청중별 반응 · 2분 반복",EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("예시 평가 데이터로 실제 서버 선택 로직과 청중 동작을 재생합니다. 실제 발표·음성 연결 테스트는 아닙니다.",MessageType.Info);
         EditorGUILayout.LabelField($"{elapsed:0.0} / {(conversationDemo?14:typingDemo?20:120)}초");
         GUILayout.BeginHorizontal();

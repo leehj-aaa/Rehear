@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e900f3352f3fba64195a42fd62f6d960
+timeCreated: 1533128632
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: -1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/Materials/Marker.002.mat
+  uploadId: 398103

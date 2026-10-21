@@ -165,12 +165,12 @@ namespace Rehear.Evc.Presentation
             }
 
             questionFlowStarted = true;
-            SetState(
-                PresentationFlowState.Finishing,
-                string.Empty
-            );
+            reactionCancellation?.Cancel();
+            audienceCoordinator?.EnterQuestionPhase();
             try
             {
+                audienceCoordinator?.SetQuestionGenerationWaiting(true);
+                SetState(PresentationFlowState.Finishing, string.Empty);
                 if (isActivePresentation)
                 {
                     if (!presentationFinalizedForQuestions && audioCapture != null && updateService != null)
@@ -205,6 +205,10 @@ namespace Rehear.Evc.Presentation
                 SetState(PresentationFlowState.Failed, ToUserMessage(exception));
                 throw;
             }
+            finally
+            {
+                if (audienceCoordinator) audienceCoordinator.SetQuestionGenerationWaiting(false);
+            }
         }
 
         public void PrepareFinishWithoutQuestions()
@@ -219,12 +223,15 @@ namespace Rehear.Evc.Presentation
             audioCapture?.StopCapture();
             updateService?.StopAccepting();
             clock.Stop();
+            reactionCancellation?.Cancel();
+            audienceCoordinator?.EnterQuestionPhase();
             Questions = Array.Empty<GeneratedQuestion>();
             SetState(PresentationFlowState.QuestionsReady, string.Empty);
         }
 
         public void StopFlow()
         {
+            if (audienceCoordinator) audienceCoordinator.SetQuestionGenerationWaiting(false);
             lifetimeCancellation?.Cancel();
             audioCapture?.StopCapture();
             audienceCoordinator?.CancelAll();

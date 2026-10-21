@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: cde678444678e1543abe2c44c659eb56
+timeCreated: 1533129237
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Microphone.prefab
+  uploadId: 398103

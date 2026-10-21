@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 845bcb94a3899a94995e061c234a4ab1
+timeCreated: 1535102630
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/room.prefab
+  uploadId: 398103

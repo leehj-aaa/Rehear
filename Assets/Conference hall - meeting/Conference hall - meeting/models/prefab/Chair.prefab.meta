@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 81b7b04cfcf2e904d9eb6175b7d487fe
+timeCreated: 1533127074
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Chair.prefab
+  uploadId: 398103

@@ -1,5 +1,23 @@
 # 기존 ReHear 서버에 Azure·답변 기반 질문 연결
 
+## 2026-09-17 운영 API 확인
+
+`https://rehear.chobab.app`에 음성 및 답변 기반 후속 질문 API가 배포되어 있습니다.
+`check_production_qa.py`로 합성 발표 음성을 보내 운영 STT·평가, 질문 2개 생성,
+질문 TTS, 답변 STT·저장, 답변 기반 다음 질문 교체까지 실제 호출을 통과했습니다.
+검증은 PIN 없는 별도 세션을 만들고 마지막에 삭제했습니다.
+결과: `Builds/ProductionQA/check-report.json`.
+
+APK의 EVC 설정과 AzureSpeechConfig는 위 HTTPS 운영 서버를 사용합니다.
+PC 촬영용 로컬 전환은 Editor에만 적용되며 일반 APK에는 적용되지 않습니다.
+API 키는 서버에 유지합니다. 아래 배포 대기 내용은 9월 8일 당시 기록입니다.
+이번 검증은 서버 API 검증이며, 새 APK의 실제 Quest 마이크·립싱크 검증은 별도입니다.
+
+재검증(실제 API 사용량 발생):
+`Server/AzureSpeech/.venv/Scripts/python.exe Server/Integration/check_production_qa.py`
+
+## 2026-09-08 작업 기록
+
 기존 서버: `https://github.com/4githu/sushisite`
 
 수정 작업 브랜치: `dev/bora`

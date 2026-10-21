@@ -11,13 +11,18 @@ public class AudienceAnimationPlayer : MonoBehaviour
     [SerializeField] private AnimationClip idleClipOverride;
     [SerializeField] private string defaultIdleVariation = "BL_03.quiet_stable_posture";
     [SerializeField] private bool randomizeIdleStartTime = true;
-    [SerializeField, Range(.1f, 2f)] private float blendDuration = .7f;
+    [SerializeField, Range(.3f, 2.5f)] private float blendDuration = 1.4f;
     [SerializeField] private bool printAnimationLog = true;
     [SerializeField] private GameObject photoPhone;
     [SerializeField] private GameObject devicePhone;
     [SerializeField] private AudioClip photoShutter;
     [SerializeField, Range(0,1)] private float photoShutterVolume=.10f;
     [SerializeField, Range(0,1)] private float photoShutterNormalizedTime=.30f;
+    [SerializeField, Range(.2f, 1.5f)] private float photoTurnSmoothTime=.55f;
+    [SerializeField, Range(.2f, 2f)] private float returnTurnSmoothTime=.75f;
+    [SerializeField, Range(15f, 120f)] private float photoTurnMaxSpeed=55f;
+    [SerializeField, Range(15f, 120f)] private float returnTurnMaxSpeed=40f;
+    [SerializeField, Range(.15f, .65f)] private float photoRootTurnFraction=.35f;
     private AudioSource photoAudio;
 #if UNITY_EDITOR
     public static System.Action<AudienceAnimationPlayer,AudioClip,float> PreviewPhotoShutter;
@@ -44,7 +49,14 @@ public class AudienceAnimationPlayer : MonoBehaviour
     private AnimationClip pendingTypingClip;
     private string pendingTypingVariation;
     private float pendingTypingDuration, pendingTypingIntensity;
+    private AnimationClip pendingPhotoClip;
+    private string pendingPhotoVariation;
+    private float pendingPhotoDuration, pendingPhotoIntensity;
     private bool ownsSeatFacing;
+    private float seatFacingYawVelocity;
+    private float seatFacingTurnVariation;
+    private float photoTorsoYaw, photoTorsoYawTarget, photoTorsoYawVelocity;
+    private Transform photoFacingSpine;
     private bool questionTurn, questionPaused;
     private bool questionGestureStarted, questionSpeechReady;
     private Transform[] questionHands;
@@ -65,9 +77,9 @@ public class AudienceAnimationPlayer : MonoBehaviour
         }
     }
     private static bool IsTyping(string variation) => variation == "ACT_01.laptoptyping";
+    private static bool IsPhoto(string variation) => variation == "ACT_02.photoslide";
     public Transform DeviceLookTarget => devicePhone && devicePhone.activeInHierarchy ? devicePhone.transform : null;
     public bool IsTakingPhoto => photoPhone && photoPhone.activeInHierarchy;
-    private AudiencePhotoPose photoPose;
     public float ConversationWeight
     {
         get
@@ -79,11 +91,38 @@ public class AudienceAnimationPlayer : MonoBehaviour
             return Mathf.Clamp01(weight);
         }
     }
+    public float HeadNodWeight
+    {
+        get
+        {
+            if (!mixer.IsValid()) return 0;
+            float weight = 0;
+            foreach (var voice in voices)
+                if (IsHeadNod(voice.variation)) weight += mixer.GetInputWeight(voice.port);
+            return Mathf.Clamp01(weight);
+        }
+    }
+    private static bool IsHeadNod(string variation) =>
+        !string.IsNullOrEmpty(variation) &&
+        variation.IndexOf("nod", System.StringComparison.OrdinalIgnoreCase) >= 0;
     public AudienceGender Gender => gender;
-    public bool IsBusy => target != null || transitioning || pendingTypingClip;
+    public bool IsBusy => target != null || transitioning || pendingTypingClip || pendingPhotoClip;
 
     private void Reset() => targetAnimator = GetComponentInChildren<Animator>();
-    private void OnEnable() => CreateAnimationGraph();
+    private void OnEnable()
+    {
+        EnsureSeatFacingTiming();
+        seatFacingYawVelocity=0;
+        CreateAnimationGraph();
+    }
+    private void EnsureSeatFacingTiming()
+    {
+        if(seatFacingTurnVariation>0) return;
+        // Editor previews build playable graphs manually, so OnEnable is not
+        // guaranteed to run. Keep the per-audience timing deterministic there.
+        uint hash=(uint)Animator.StringToHash(name);
+        seatFacingTurnVariation=Mathf.Lerp(.9f,1.12f,(hash&1023)/1023f);
+    }
     private void OnDisable() => DestroyAnimationGraph();
     private void OnDestroy() => DestroyAnimationGraph();
     private void Update() { if (!questionPaused) Advance(Time.deltaTime); }
@@ -164,16 +203,8 @@ public class AudienceAnimationPlayer : MonoBehaviour
     {
         UpdateQuestionSpeechCue();
         ApplySeatAdjustPose();
+        ApplyPhotoFacingPose();
         ApplyDeviceGrip();
-        if(IsTakingPhoto && mixer.IsValid()) {
-            float photoWeight=0;
-            foreach(var voice in voices)if(voice.variation=="ACT_02.photoslide")photoWeight+=mixer.GetInputWeight(voice.port);
-            var gaze=GetComponent<AudienceGazeController>();
-            if(gaze && gaze.SlideTarget){
-                if(photoPose==null)photoPose=new AudiencePhotoPose(transform);
-                photoPose.Apply(photoPhone.transform,gaze.SlideTarget,photoWeight);
-            }
-        }
         UpdatePhotoShutter();
         var assignment=GetComponent<AudienceSeatAssignment>();
         if(!mixer.IsValid() || !assignment || !assignment.Seat || !assignment.Seat.HasLaptop || !assignment.Seat.laptopAnchor) return;
@@ -182,6 +213,16 @@ public class AudienceAnimationPlayer : MonoBehaviour
         if(weight<=0) return;
         if(typingPose==null)typingPose=new AudienceTypingPose(transform);
         typingPose.Apply(assignment.Seat.laptopAnchor,weight);
+    }
+
+    private void ApplyPhotoFacingPose()
+    {
+        if(Mathf.Abs(photoTorsoYaw)<.001f) return;
+        if(!photoFacingSpine)
+            foreach(var bone in GetComponentsInChildren<Transform>(true))
+                if(bone.name=="spine_01") { photoFacingSpine=bone; break; }
+        if(photoFacingSpine)
+            photoFacingSpine.rotation=Quaternion.AngleAxis(photoTorsoYaw,Vector3.up)*photoFacingSpine.rotation;
     }
 
     private Transform[] gripJoints;
@@ -347,7 +388,19 @@ public class AudienceAnimationPlayer : MonoBehaviour
                 return true;
             }
         }
-        pendingTypingClip=null;
+        if(IsPhoto(variationId))
+        {
+            if(!seat || !seat.Seat) return false;
+            ownsSeatFacing=true;
+            if(target == null || !IsPhoto(target.variation))
+            {
+                if(!pendingPhotoClip) BeginTransition(core,core != null ? coreWeight : 0);
+                pendingPhotoClip=clip; pendingPhotoVariation=variationId;
+                pendingPhotoDuration=requestedDuration; pendingPhotoIntensity=intensity;
+                return true;
+            }
+        }
+        pendingTypingClip=null; pendingPhotoClip=null;
         PlayClip(variationId,clip,requestedDuration,intensity);
         return true;
     }
@@ -402,10 +455,16 @@ public class AudienceAnimationPlayer : MonoBehaviour
             playable.SetApplyFootIK(false);
             playable.SetApplyPlayableIK(false);
             playable.SetSpeed(1);
-            // Stable looping listening clips need not all begin at the same frame.
-            // One-shot actions always start at their authored beginning (hands/props).
+            // Enter looping listening clips close to their authored neutral start.
+            // Starting at an arbitrary point can crossfade into a completely different
+            // limb pose and produces a visible pop. A small deterministic offset keeps
+            // listeners from moving in lockstep without skipping into mid-gesture.
             if (isCore && clip.isLooping && randomizeIdleStartTime && !variationId.StartsWith("AP_", System.StringComparison.Ordinal))
-                playable.SetTime(Random.Range(0, clip.length));
+            {
+                uint phaseHash = (uint)Animator.StringToHash(name + "|" + variationId);
+                float normalizedOffset = Mathf.Lerp(0f, .08f, (phaseHash & 1023) / 1023f);
+                playable.SetTime(clip.length * normalizedOffset);
+            }
             playableGraph.Connect(playable, 0, mixer, port);
             mixer.SetInputWeight(port, 0);
             next = new Voice { playable = playable, clip = clip, variation = variationId, port = port };
@@ -422,6 +481,7 @@ public class AudienceAnimationPlayer : MonoBehaviour
 
     private void BeginTransition(Voice next, float weight)
     {
+        EnsureSeatFacingTiming();
         // Snapshot ALL live weights, including an unfinished previous blend.
         // Never destroy the outgoing pose or insert an idle frame at command arrival.
         idleFrom = mixer.GetInputWeight(0);
@@ -429,14 +489,14 @@ public class AudienceAnimationPlayer : MonoBehaviour
         target = next;
         targetWeight = next != null ? weight : 0;
         transitionElapsed = 0;
-        transitionDuration = Mathf.Max(.1f, blendDuration);
+        transitionDuration = Mathf.Max(.1f, blendDuration*seatFacingTurnVariation);
         transitioning = true;
     }
 
     public void StopAction()
     {
         ReleaseConversationPartner();
-        pendingTypingClip=null;
+        pendingTypingClip=null; pendingPhotoClip=null;
         core = null;
         if (mixer.IsValid()) BeginTransition(null, 0);
         else SetPhotoPhoneVisible(false);
@@ -467,7 +527,9 @@ public class AudienceAnimationPlayer : MonoBehaviour
         {
             transitionElapsed += delta;
             float t = Mathf.Clamp01(transitionElapsed / transitionDuration);
-            t = t * t * (3 - 2 * t);
+            // Cosine easing has gentler mid-blend acceleration than smootherstep.
+            // This avoids the visually abrupt weight hand-off around 50 percent.
+            t = .5f - .5f * Mathf.Cos(Mathf.PI * t);
             float backgroundWeight = core != null && target != core ? (1 - targetWeight) * coreWeight : 0;
             mixer.SetInputWeight(0, Mathf.Lerp(idleFrom, 1 - targetWeight - backgroundWeight, t));
             foreach (var voice in voices)
@@ -511,15 +573,24 @@ public class AudienceAnimationPlayer : MonoBehaviour
     private void UpdateSeatFacing(float delta)
     {
         if(!ownsSeatFacing) return;
+        EnsureSeatFacingTiming();
         var assignment=GetComponent<AudienceSeatAssignment>();
         var seat=assignment ? assignment.Seat : null;
-        if(!seat) { pendingTypingClip=null; ownsSeatFacing=false; return; }
+        if(!seat) { pendingTypingClip=null; pendingPhotoClip=null; ownsSeatFacing=false; return; }
         if((pendingTypingClip || (target != null && IsTyping(target.variation))) && (!seat.HasLaptop || !seat.laptopAnchor))
         {
             pendingTypingClip=null;
             BeginTransition(null,0);
         }
         bool faceLaptop=pendingTypingClip || (target != null && IsTyping(target.variation));
+        float photoWeight=0;
+        if(mixer.IsValid())
+            foreach(var voice in voices)
+                if(IsPhoto(voice.variation)) photoWeight+=mixer.GetInputWeight(voice.port);
+        // Keep the root facing the screen until the outgoing photo pose has
+        // completely faded. This prevents the torso blend and root return from
+        // pulling in opposite directions.
+        bool faceSlide=pendingPhotoClip || (target != null && IsPhoto(target.variation)) || photoWeight>.01f;
         var pose=GetComponent<AudienceSeatedPose>();
         var correction=pose ? pose.facingCorrection : Quaternion.identity;
         var facing=seat.transform.rotation;
@@ -529,8 +600,41 @@ public class AudienceAnimationPlayer : MonoBehaviour
             direction.y=0;
             if(direction.sqrMagnitude>.0001f) facing=Quaternion.LookRotation(direction,Vector3.up);
         }
+        else if(faceSlide)
+        {
+            var gaze=GetComponent<AudienceGazeController>();
+            var slide=gaze ? gaze.SlideTarget : null;
+            if(slide)
+            {
+                var direction=slide.position-seat.transform.position;
+                direction.y=0;
+                if(direction.sqrMagnitude>.0001f) facing=Quaternion.LookRotation(direction,Vector3.up);
+            }
+        }
         var desired=facing*correction;
-        transform.rotation=Quaternion.Slerp(transform.rotation,desired,1f-Mathf.Exp(-6f*Mathf.Max(0,delta)));
+        photoTorsoYawTarget=0;
+        if(faceSlide)
+        {
+            // A seated person turns mostly from the waist. Rotating the entire
+            // character makes the feet and knees skate around the chair.
+            var seated=seat.transform.rotation*correction;
+            float totalYaw=Mathf.DeltaAngle(seated.eulerAngles.y,desired.eulerAngles.y);
+            photoTorsoYawTarget=totalYaw*(1f-photoRootTurnFraction);
+            var euler=desired.eulerAngles;
+            desired=Quaternion.Euler(euler.x,seated.eulerAngles.y+totalYaw*photoRootTurnFraction,euler.z);
+        }
+        // Ease the seated root into and out of the slide-facing pose. A bounded
+        // angular speed prevents a large target change from snapping in one frame.
+        bool turningToAction=faceLaptop||faceSlide;
+        float smoothTime=(turningToAction?photoTurnSmoothTime:returnTurnSmoothTime)*seatFacingTurnVariation;
+        float maxSpeed=(turningToAction?photoTurnMaxSpeed:returnTurnMaxSpeed)/seatFacingTurnVariation;
+        float turnDelta=Mathf.Min(.05f,Mathf.Max(0,delta));
+        float yaw=Mathf.SmoothDampAngle(transform.eulerAngles.y,desired.eulerAngles.y,
+            ref seatFacingYawVelocity,smoothTime,maxSpeed,turnDelta);
+        photoTorsoYaw=Mathf.SmoothDampAngle(photoTorsoYaw,photoTorsoYawTarget,
+            ref photoTorsoYawVelocity,smoothTime,maxSpeed,turnDelta);
+        var desiredEuler=desired.eulerAngles;
+        transform.rotation=Quaternion.Euler(desiredEuler.x,yaw,desiredEuler.z);
         // Turn around the seated hip, not the FBX's offset root pivot.
         if(pose) transform.position=seat.transform.position-transform.rotation*Vector3.Scale(pose.localHip,transform.localScale);
         float angle=Quaternion.Angle(transform.rotation,desired);
@@ -540,7 +644,19 @@ public class AudienceAnimationPlayer : MonoBehaviour
             pendingTypingClip=null;
             PlayClip(pendingTypingVariation,clip,pendingTypingDuration,pendingTypingIntensity);
         }
-        if(!faceLaptop && angle<.1f) {transform.rotation=desired; ownsSeatFacing=false;}
+        float torsoAngle=Mathf.Abs(Mathf.DeltaAngle(photoTorsoYaw,photoTorsoYawTarget));
+        if(pendingPhotoClip && Mathf.Max(angle,torsoAngle)<3f)
+        {
+            var clip=pendingPhotoClip;
+            pendingPhotoClip=null;
+            PlayClip(pendingPhotoVariation,clip,pendingPhotoDuration,pendingPhotoIntensity);
+        }
+        if(!faceLaptop && !faceSlide && angle<.1f && torsoAngle<.1f)
+        {
+            transform.rotation=desired;
+            seatFacingYawVelocity=0; photoTorsoYaw=photoTorsoYawTarget=photoTorsoYawVelocity=0;
+            ownsSeatFacing=false;
+        }
     }
 
     private void SetPhotoPhoneVisible(bool visible, bool deviceVisible = false)
@@ -554,7 +670,8 @@ public class AudienceAnimationPlayer : MonoBehaviour
         SetPhotoPhoneVisible(false);
         if (playableGraph.IsValid()) playableGraph.Destroy();
         voices.Clear(); target = core = null; transitioning = false;
-        pendingTypingClip=null; ownsSeatFacing=false;
+        pendingTypingClip=null; pendingPhotoClip=null; ownsSeatFacing=false; seatFacingYawVelocity=0;
+        photoTorsoYaw=photoTorsoYawTarget=photoTorsoYawVelocity=0; photoFacingSpine=null;
         questionTurn = questionPaused = false;
     }
 }

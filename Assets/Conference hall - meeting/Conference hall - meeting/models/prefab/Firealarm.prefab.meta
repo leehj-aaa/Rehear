@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: eae4d2d2622ca314d9fff37b9a0862cd
+timeCreated: 1533127494
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 126884
+  packageName: Conference hall - meeting
+  packageVersion: 1.0
+  assetPath: Assets/Conference hall - meeting/Conference hall - meeting/models/prefab/Firealarm.prefab
+  uploadId: 398103

@@ -30,6 +30,16 @@ namespace Rehear.Evc.Audience
         void ApplyAudienceState(float engagement, float clarity);
     }
 
+    public interface IAudienceQuestionWaitReceiver
+    {
+        void SetQuestionGenerationWaiting(bool waiting);
+    }
+
+    public interface IAudienceQuestionPhaseReceiver
+    {
+        void SetQuestionPhaseActive(bool active);
+    }
+
     public sealed class AudienceAgent : MonoBehaviour
     {
         [SerializeField] private string agentId;
