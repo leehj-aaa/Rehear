@@ -283,33 +283,22 @@ private bool WasNumberPressed(
 
         ClearError();
 
-        if (currentIndex >= 4 &&
-            numberKeyboardPanel != null)
-        {
-            numberKeyboardPanel.SetActive(false);
-        }
+        // Keep Backspace reachable after the fourth digit, before submitting.
+        if (numberKeyboardPanel != null) numberKeyboardPanel.SetActive(true);
     }
 
-    // PIN 번호를 처음부터 다시 입력합니다.
+    // Keep the existing UnityEvent binding; erase only the last entered digit.
     public void ResetInput()
     {
-        if (isLoading || !InputVisible)
+        if (isLoading || !InputVisible || currentPin.Length == 0)
             return;
 
-        currentPin = "";
-        currentIndex = 0;
-
-        if (pinTextSlots != null)
-        {
-            foreach (TMP_Text slot in pinTextSlots)
-            {
-                if (slot != null)
-                    slot.text = "";
-            }
-        }
+        currentPin = currentPin.Substring(0, currentPin.Length - 1);
+        currentIndex = currentPin.Length;
+        if (pinTextSlots != null && currentIndex < pinTextSlots.Length && pinTextSlots[currentIndex])
+            pinTextSlots[currentIndex].text = "";
 
         ClearError();
-
         if (numberKeyboardPanel != null)
             numberKeyboardPanel.SetActive(true);
     }

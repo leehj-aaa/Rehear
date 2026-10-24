@@ -24,7 +24,7 @@ MonoBehaviour:
   m_RequireOpaqueTexture: 0
   m_OpaqueDownsampling: 1
   m_SupportsTerrainHoles: 0
-  m_SupportsHDR: 0
+  m_SupportsHDR: 1
   m_HDRColorBufferPrecision: 0
   m_MSAA: 4
   m_RenderScale: 1
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_AdditionalLightsShadowResolutionTierLow: 256
   m_AdditionalLightsShadowResolutionTierMedium: 512
   m_AdditionalLightsShadowResolutionTierHigh: 1024
-  m_ReflectionProbeBlending: 0
+  m_ReflectionProbeBlending: 1
   m_ReflectionProbeBoxProjection: 0
   m_ReflectionProbeAtlas: 0
   m_ShadowDistance: 2.5

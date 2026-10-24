@@ -6,6 +6,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
         _PanelSize("Panel size", Vector) = (1200,866,0,0)
         _Radius("Corner radius", Float) = 48
         _BorderWidth("White border", Float) = 2
+        _BorderColor("Border color", Color) = (1,1,1,1)
         _UseBlur("Use background blur", Float) = 1
         _GlassTint("White glass tint", Range(0,1)) = 0.45
         _FillAlphaOffset("Fill alpha offset", Range(0,1)) = 0
@@ -57,8 +58,11 @@ Shader "Rehear/UI/Rounded Translucent Panel"
             fixed4 _TextureSampleAdd;
             float4 _PanelSize;
             float _Radius, _BorderWidth, _UseBlur, _GlassTint, _FillAlphaOffset;
+            sampler2D _RehearSceneViewBlurTex;
+            float _RehearSceneViewBlurEnabled;
             float _TopGlowStrength;
             half4 _TopGlowColor;
+            half4 _BorderColor;
             struct VertexInput
             {
                 float4 vertex : POSITION;
@@ -107,7 +111,9 @@ Shader "Rehear/UI/Rounded Translucent Panel"
                 {
                     float2 screenUV = input.screenPosition.xy / input.screenPosition.w;
                     float2 blurUV = (screenUV - _CropRegion.xy) / max(_CropRegion.zw - _CropRegion.xy, 0.0001);
-                    half3 background = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_BlurTex, UnityStereoTransformScreenSpaceTex(blurUV)).rgb;
+                    half3 background = _RehearSceneViewBlurEnabled > 0.5
+                        ? tex2D(_RehearSceneViewBlurTex, screenUV).rgb
+                        : UNITY_SAMPLE_SCREENSPACE_TEXTURE(_BlurTex, UnityStereoTransformScreenSpaceTex(blurUV)).rgb;
                     result.rgb = lerp(background, foreground.rgb, _GlassTint);
                     #ifndef UNITY_COLORSPACE_GAMMA
                     if (_UseFigmaGlow > 0.5)
@@ -128,7 +134,7 @@ Shader "Rehear/UI/Rounded Translucent Panel"
                 #else
                 result.rgb += radial.rgb * radial.a * radialBounds * _UseFigmaGlow;
                 #endif
-                result.rgb = lerp(result.rgb, half3(1,1,1), edge);
+                result.rgb = lerp(result.rgb, _BorderColor.rgb, edge);
                 result.a = lerp(result.a, 1, edge) * coverage;
                 #ifdef UNITY_UI_CLIP_RECT
                 result.a *= UnityGet2DClipping(input.localPosition.xy, _ClipRect);

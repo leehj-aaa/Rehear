@@ -25,13 +25,16 @@ public sealed class AudienceSeating : MonoBehaviour
     private void Awake() => Initialize(Environment.TickCount);
     public void Initialize(int seed)
     {
-        if (initialized) return;
+        if (initialized && laptopRandom != null) return;
         if(audiencePrefabs != null && audiencePrefabs.Length == 6)
         {
             members=new AudienceAgent[6];
             for(int i=0;i<6;i++)
             {
-                var instance=Instantiate(audiencePrefabs[i],transform);
+                // Reuse an already seated actor, including after an Editor domain reload.
+                var existing = GetComponentsInChildren<AudienceAgent>(true)
+                    .FirstOrDefault(a => a.gameObject.name == audiencePrefabs[i].name);
+                var instance=existing ? existing.gameObject : Instantiate(audiencePrefabs[i],transform);
                 instance.name=audiencePrefabs[i].name;
                 var agent=instance.GetComponent<AudienceAgent>();
                 if(!agent) agent=instance.AddComponent<AudienceAgent>();

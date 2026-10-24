@@ -284,6 +284,8 @@ public partial class TranslucentImage : Image, IActiveRegionProvider
     {
         if (!source) return;
 
+        source.blurredScreenChanged -= SetBlurTex;
+        source.blurRegionChanged -= SetBlurRegion;
         source.RegisterActiveRegionProvider(this);
         source.blurredScreenChanged += SetBlurTex;
         source.blurRegionChanged    += SetBlurRegion;
@@ -302,7 +304,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider
 
     void SetBlurTex()
     {
-        if (!source)
+        if (!this || !source)
             return;
 
         materialForRendering.SetTexture(ShaderID.BLUR_TEX, source.BlurredScreen);
@@ -310,6 +312,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider
 
     void SetBlurRegion()
     {
+        if (!this) return;
         if (
             !source
          || !canvas
@@ -326,6 +329,12 @@ public partial class TranslucentImage : Image, IActiveRegionProvider
         {
             materialForRendering.SetVector(ShaderID.CROP_REGION, RectUtils.ToMinMaxVector(source.BlurRegion));
         }
+    }
+
+    protected override void OnDestroy()
+    {
+        DisconnectSource(_sourcePrev);
+        base.OnDestroy();
     }
 
     void OnDirtyMaterial()

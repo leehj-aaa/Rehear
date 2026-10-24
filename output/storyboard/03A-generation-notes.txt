@@ -1,0 +1,13 @@
+Method: built-in image_gen image editing.
+Final asset: 03A-room-laptop-corrected.png
+References: existing 03A, 01B room, 16A room.
+
+Room continuity prompt: Keep the same illustrated woman, bob haircut, white blouse,
+navy trousers and HMD putting-on action. Match 01B and 16A: window on LEFT,
+bookshelf behind, desk/laptop/lamp on RIGHT. Keep warm afternoon lighting and
+semi-realistic editorial illustration style. No captions or additional people.
+
+Correction prompt: Edit only the laptop. Its display and keyboard must face the
+seated woman on the left, with coherent hinge/base perspective. Use 01B as the
+functional orientation reference. Show a simple pale-blue presentation page.
+Preserve the woman, HMD, pose, room, lighting, camera, controller and desk objects.

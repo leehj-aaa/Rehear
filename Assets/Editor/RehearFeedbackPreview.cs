@@ -73,13 +73,7 @@ internal static class RehearFeedbackPreview
                 if(command=="only-feedback") {
                     Stop();
                     var target=SceneManager.GetSceneByPath("Assets/01_Scene/Scene_03_Feedback.unity");
-                    if(!target.isLoaded)target=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_03_Feedback.unity",OpenSceneMode.Additive);
-                    SceneManager.SetActiveScene(target);
-                    for(int i=SceneManager.sceneCount-1;i>=0;i--) {
-                        var other=SceneManager.GetSceneAt(i);if(other==target)continue;
-                        if(other.isDirty)EditorSceneManager.SaveScene(other);
-                        EditorSceneManager.CloseScene(other,true);
-                    }
+                    if(!target.isLoaded || SceneManager.sceneCount != 1)throw new InvalidOperationException("Open only Scene_03_Feedback before previewing.");
                     Show();return;
                 }
                 if(command=="audio-check") { CheckAudio(); return; }
@@ -117,7 +111,7 @@ internal static class RehearFeedbackPreview
         if(previous) FeedbackAudienceApplause.Capture(previous.GetComponent<AudienceSeating>());
         typeof(RehearAudienceMotionPreview).GetMethod("StopPreview",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,null);
         feedback=SceneManager.GetSceneByPath("Assets/01_Scene/Scene_03_Feedback.unity");
-        if(!feedback.isLoaded) feedback=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_03_Feedback.unity",OpenSceneMode.Additive);
+        if(!feedback.isLoaded || SceneManager.sceneCount != 1) throw new InvalidOperationException("Open only Scene_03_Feedback before previewing. Additional scenes are not loaded automatically.");
         SceneManager.SetActiveScene(feedback);
         for(int i=0;i<SceneManager.sceneCount;i++) {
             var scene=SceneManager.GetSceneAt(i); if(scene==feedback)continue;
@@ -127,8 +121,8 @@ internal static class RehearFeedbackPreview
         }
         var roots=feedback.GetRootGameObjects();
         var template=roots.Single(g=>g.name=="FeedbackAudience");
-        audienceRoot=Object.Instantiate(template); audienceRoot.name="Feedback Applause Preview (Editor Only)";
-        SceneManager.MoveGameObjectToScene(audienceRoot,feedback); audienceRoot.hideFlags=HideFlags.DontSave; Suspend(template);
+        audienceRoot=template; audienceRoot.SetActive(true);
+        // Animate the existing audience; do not clone or add a second seating.
         var owner=audienceRoot.GetComponent<FeedbackAudienceApplause>(); owner.InitializeAudience(); bodies=owner.OrderedAudience();
         graphs=bodies.Select(b=> {
             b.enabled=true;
@@ -142,8 +136,8 @@ internal static class RehearFeedbackPreview
 
         var manager=roots.SelectMany(g=>g.GetComponentsInChildren<Scene03Manager>(true)).Single();
         var score=(TMP_Text)typeof(Scene03Manager).GetField("scoreText",Private).GetValue(manager);
-        originalCanvas=score.GetComponentInParent<Canvas>();
-        canvasRoot=Object.Instantiate(originalCanvas.gameObject); canvasRoot.name="Feedback Result Preview (Editor Only)";
+        originalCanvas=score.GetComponentInParent<Canvas>(true);
+        canvasRoot=Object.Instantiate(originalCanvas.gameObject);canvasRoot.SetActive(true); canvasRoot.name="Feedback Result Preview (Editor Only)";
         SceneManager.MoveGameObjectToScene(canvasRoot,feedback); canvasRoot.hideFlags=HideFlags.DontSave; Suspend(originalCanvas.gameObject);
         Transform Map(Transform t) => canvasRoot.transform.Find(AnimationUtility.CalculateTransformPath(t,originalCanvas.transform));
         foreach(var go in (GameObject[])typeof(Scene03Manager).GetField("resultObjects",Private).GetValue(manager))
@@ -301,7 +295,7 @@ internal static class RehearFeedbackPreview
         if(blurCamera)Object.DestroyImmediate(blurCamera.gameObject);
         blurCamera=null;
         if(blurTarget){blurTarget.Release();Object.DestroyImmediate(blurTarget);}blurTarget=null;
-        if(audienceRoot) Object.DestroyImmediate(audienceRoot);
+        foreach(var body in bodies??Array.Empty<AudienceAnimationPlayer>())if(body)typeof(AudienceAnimationPlayer).GetMethod("DestroyAnimationGraph",Private).Invoke(body,null);
         if(canvasRoot) Object.DestroyImmediate(canvasRoot);
         audienceRoot=null; canvasRoot=null; bodies=null; graphs=null;
         foreach(var go in suspended) if(go) go.SetActive(true);
@@ -319,6 +313,7 @@ internal static class RehearFeedbackPreview
         }
         var captureObject=new GameObject("Feedback diagnostic camera");
         var camera=captureObject.AddComponent<Camera>();camera.CopyFrom(sourceCamera);
+        var data=camera.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Base;data.cameraStack.Clear();data.allowXRRendering=false;data.renderPostProcessing=false;
         camera.transform.SetPositionAndRotation(sourceCamera.transform.position,sourceCamera.transform.rotation);
         camera.cullingMask=-1;camera.scene=feedback;
         var previousTarget=camera.targetTexture;var stereo=camera.stereoTargetEye;

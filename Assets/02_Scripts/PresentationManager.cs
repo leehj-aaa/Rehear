@@ -36,6 +36,10 @@ public class PresentationManager : MonoBehaviour
 
     private void Start()
     {
+        var toggle = FindFirstObjectByType<PodiumScriptToggle>();
+        var font = toggle && toggle.label ? toggle.label.font : TMPro.TMP_Settings.defaultFontAsset;
+        if (previousSlideHint) ScriptScroller.EnsureDirectionCaption(previousSlideHint.gameObject, "슬라이드", font);
+        if (nextSlideHint) ScriptScroller.EnsureDirectionCaption(nextSlideHint.gameObject, "슬라이드", font);
         currentIndex = 0;
 
         // Firebase 다운로드 중에도 기존 발표자료를 바로 표시한다.

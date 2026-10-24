@@ -126,6 +126,9 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
 
     internal RendererType rendererType;
 
+#if UNITY_EDITOR
+    RehearSceneViewBlurPass sceneViewGlassPass;
+#endif
     readonly Dictionary<Camera, List<TranslucentImageSource>> blurSourceCache = new();
     readonly Dictionary<Camera, Camera>                       baseCameraCache = new();
 
@@ -177,6 +180,9 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
     protected override void Dispose(bool disposing)
     {
         pass?.Dispose();
+#if UNITY_EDITOR
+        sceneViewGlassPass?.Dispose();
+#endif
         CoreUtils.Destroy(previewMaterial);
     }
 
@@ -209,6 +215,7 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
     {
         var cameraData = renderingData.cameraData;
+
         var sourceList = GetBlurSources(cameraData.camera);
 
         if (sourceList.Count == 0)
@@ -225,6 +232,15 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
     )
     {
         var cameraData = renderingData.cameraData;
+#if UNITY_EDITOR
+        if (cameraData.cameraType == CameraType.SceneView)
+        {
+            sceneViewGlassPass ??= new RehearSceneViewBlurPass();
+            renderer.EnqueuePass(sceneViewGlassPass);
+            return;
+        }
+#endif
+
 
         if (cameraData.cameraType != CameraType.Game)
             return;

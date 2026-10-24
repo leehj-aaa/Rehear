@@ -1,0 +1,1 @@
+PASS: active during talk; label=발표 마치기; interactable; EndPresentation click handler; same podium action retained for Q&A. No network session started.

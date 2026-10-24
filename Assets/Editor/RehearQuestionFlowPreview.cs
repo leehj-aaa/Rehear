@@ -94,11 +94,11 @@ internal static class RehearQuestionFlowPreview
         Stop();typeof(RehearFeedbackPreview).GetMethod("Stop",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,null);
         typeof(RehearAudienceMotionPreview).GetMethod("StopPreview",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,null);
         var scene=SceneManager.GetSceneByPath("Assets/01_Scene/Scene_02_Presentation.unity");
-        if(!scene.isLoaded)scene=EditorSceneManager.OpenScene("Assets/01_Scene/Scene_02_Presentation.unity",OpenSceneMode.Additive);
+        if(!scene.isLoaded || SceneManager.sceneCount != 1)throw new InvalidOperationException("Open only Scene_02_Presentation before previewing. Additional scenes are not loaded automatically.");
         SceneManager.SetActiveScene(scene);
         for(int i=0;i<SceneManager.sceneCount;i++){var other=SceneManager.GetSceneAt(i);if(other!=scene)foreach(var g in other.GetRootGameObjects())Suspend(g);}
         var roots=scene.GetRootGameObjects();var seating=roots.SelectMany(g=>g.GetComponentsInChildren<AudienceSeating>(true)).Single();
-        root=Object.Instantiate(seating.gameObject);root.name="Question Flow Preview (Editor Only)";SceneManager.MoveGameObjectToScene(root,scene);root.hideFlags=HideFlags.DontSave;Suspend(seating.gameObject);
+        root=seating.gameObject;root.SetActive(true);
         root.GetComponent<AudienceSeating>().Initialize(1234);
         bodies=root.GetComponentsInChildren<AudienceAnimationPlayer>();
         graphs=bodies.Select(b=>{
@@ -122,9 +122,13 @@ internal static class RehearQuestionFlowPreview
         clip=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Editor/QuestionFlowPreview.wav");if(!clip)throw new Exception("Question example WAV is missing.");
         BuildVisemes();
         var controller=roots.SelectMany(g=>g.GetComponentsInChildren<PresentationController>(true)).Single();
-        var canvas=controller.endPresentationButton.GetComponentInParent<Canvas>();
+        if(controller.sessionReady)Suspend(controller.sessionReady.gameObject);
+        if(controller.scriptPanel)Suspend(controller.scriptPanel);
+        if(controller.pausePanel)Suspend(controller.pausePanel);
+        typeof(PresentationController).GetMethod("ConfigurePodiumQaButton",Private).Invoke(controller,null);
+        var canvas=controller.endPresentationButton.GetComponentInParent<Canvas>(true);
         uiRoot=Object.Instantiate(canvas.gameObject);uiRoot.name="Question UI Preview (Editor Only)";SceneManager.MoveGameObjectToScene(uiRoot,scene);uiRoot.hideFlags=HideFlags.DontSave;Suspend(canvas.gameObject);
-        Transform Map(Transform original)=>uiRoot.transform.Find(AnimationUtility.CalculateTransformPath(original,canvas.transform));
+        Transform Map(Transform original)=>original==canvas.transform?uiRoot.transform:original.IsChildOf(canvas.transform)?uiRoot.transform.Find(AnimationUtility.CalculateTransformPath(original,canvas.transform)):null;
         var button=Map(controller.endPresentationButton.transform);button.gameObject.SetActive(true);actionLabel=button.GetComponentInChildren<TMP_Text>(true);
         if(controller.startPresentationButton)Map(controller.startPresentationButton.transform)?.gameObject.SetActive(false);
         if(controller.scriptPanel && controller.scriptPanel.transform.IsChildOf(canvas.transform))Map(controller.scriptPanel.transform)?.gameObject.SetActive(false);
@@ -154,7 +158,7 @@ internal static class RehearQuestionFlowPreview
     static void Suspend(GameObject go){if(go.activeSelf){suspended.Add(go);go.SetActive(false);}}
     static void Stop()
     {
-        if(root){Audio("StopAllPreviewClips");if(speaker)speaker.StopSpeech();EditorUtility.audioMasterMute=previousMute;Object.DestroyImmediate(root);}
+        if(root){Audio("StopAllPreviewClips");if(speaker)speaker.StopSpeech();EditorUtility.audioMasterMute=previousMute;foreach(var body in bodies??Array.Empty<AudienceAnimationPlayer>())if(body)typeof(AudienceAnimationPlayer).GetMethod("DestroyAnimationGraph",Private).Invoke(body,null);}
         if(uiRoot)Object.DestroyImmediate(uiRoot);root=null;uiRoot=null;speaker=null;actionLabel=null;bodies=null;graphs=null;gazes=null;
         foreach(var go in suspended)if(go)go.SetActive(true);suspended.Clear();visemes.Clear();SceneView.RepaintAll();
     }

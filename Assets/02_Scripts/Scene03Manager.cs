@@ -54,12 +54,13 @@ public class Scene03Manager : MonoBehaviour
     }
 
     // 웹 UI와 동일한 의미 색상: 우수(민트), 보통(앰버), 개선(레드)
-    private static readonly Color ExcellentTextColor = Hex("31C79A");
-    private static readonly Color AverageTextColor = Hex("FFBD21");
-    private static readonly Color ImproveTextColor = Hex("FF4C48");
+    private static readonly Color ExcellentTextColor = Hex("08704D");
+    private static readonly Color AverageTextColor = Hex("805300");
+    private static readonly Color ImproveTextColor = Hex("B51B26");
 
     private void Start()
     {
+        ApplySummaryLayout();
         if (completionSign) completionSign.text = "수고하셨습니다";
         ShowResults();
         ApplyReport();
@@ -72,6 +73,7 @@ public class Scene03Manager : MonoBehaviour
 
     public void DisplayReport(ReportFeedback report)
     {
+        ApplySummaryLayout();
         if (report == null)
         {
             Debug.LogWarning(
@@ -134,13 +136,13 @@ public class Scene03Manager : MonoBehaviour
         if (engagementRing) engagementRing.Value = engagement / 100f;
         if (credibilityRing) credibilityRing.Value = credibility / 100f;
         if (clarityRing) clarityRing.Value = clarity / 100f;
-        var descriptions = report.score_card.descriptions;
-        SetDescription(engagementDescription, descriptions?.engagement, engagement >= 70 ? "청중의 관심을\n유지했어요" : "청중의 관심을 끌도록\n핵심을 강조해보세요");
-        SetDescription(credibilityDescription, descriptions?.credibility, credibility >= 70 ? "내용을 믿을 만하게\n전달했어요" : "구체적인 근거를 더해\n전달해보세요");
-        SetDescription(clarityDescription, descriptions?.clarity, clarity >= 70 ? "핵심을 분명하게\n전달했어요" : "핵심을 더 분명하게\n전달해보세요");
+        // VR shows a brief explanation; the full AI analysis remains in the web report.
+        SetDescription(engagementDescription, null, engagement >= 70 ? "청중의 관심을\n유지했어요" : "청중의 관심을 끌도록\n핵심을 강조해보세요");
+        SetDescription(credibilityDescription, null, credibility >= 70 ? "내용을 믿을 만하게\n전달했어요" : "구체적인 근거를 더해\n전달해보세요");
+        SetDescription(clarityDescription, null, clarity >= 70 ? "핵심을 분명하게\n전달했어요" : "핵심을 더 분명하게\n전달해보세요");
         string metric = clarity <= engagement && clarity <= credibility ? "명확도" : engagement <= credibility ? "몰입도" : "신뢰도";
         if (practiceTitle) practiceTitle.text = "다음 연습 · " + metric;
-        SetDescription(practiceDescription, report.ai_insight?.description, metric == "명확도" ? "핵심 문장을 짧게 말하고, 잠깐 쉬어보세요." : metric == "몰입도" ? "핵심 메시지를 강조하고, 청중에게 질문해보세요." : "주장을 뒷받침하는 구체적인 근거를 덧붙여보세요.");
+        SetDescription(practiceDescription, null, metric == "명확도" ? "핵심 문장을 짧게 말하고, 잠깐 쉬어보세요." : metric == "몰입도" ? "핵심 메시지를 강조하고, 청중에게 질문해보세요." : "주장을 뒷받침하는 구체적인 근거를 덧붙여보세요.");
 
         Debug.Log(
             "[피드백] AI 리포트 적용 완료" +
@@ -170,6 +172,73 @@ public class Scene03Manager : MonoBehaviour
         if (target) target.text = string.IsNullOrWhiteSpace(supplied) ? fallback : supplied;
     }
 
+    bool summaryConfigured;
+    readonly System.Collections.Generic.List<Material> summaryMaterials = new();
+    public void ApplySummaryLayout()
+    {
+        if (summaryConfigured) return;
+        summaryConfigured = true;
+        if (resultObjects == null) return;
+        foreach (var root in resultObjects)
+        {
+            if (!root) continue;
+            var glass = root.GetComponent<LeTai.Asset.TranslucentImage.TranslucentImage>();
+            if (glass)
+            {
+                glass.foregroundOpacity = .52f;
+                glass.material = new Material(glass.material);
+                summaryMaterials.Add(glass.material);
+                glass.material.SetFloat("_GlassTint", .52f);
+                glass.material.SetFloat("_UseFigmaGlow", 0f);
+            }
+            foreach (var text in root.GetComponentsInChildren<TMP_Text>(true))
+            {
+                if (text.name == "Web Hint") text.text = "자세한 결과는 웹에서 확인하세요";
+                if(text.name=="Points")
+                {
+                    text.enableAutoSizing=true;text.fontSizeMin=22;text.fontSizeMax=36;
+                    text.textWrappingMode=TextWrappingModes.NoWrap;
+                    text.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,110);
+                }
+                if (text == scoreText) continue; // Preserve the original numeric face and gradient.
+                if (text == engagementDescription || text == clarityDescription || text == credibilityDescription)
+                {
+                    text.fontSize = 24;
+                    text.color = Hex("030812");
+                    text.textWrappingMode = TextWrappingModes.Normal;
+                    text.overflowMode = TextOverflowModes.Ellipsis;
+                    text.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 86);
+                }
+                if (text == practiceDescription)
+                {
+                    text.enableAutoSizing = true; text.fontSizeMin = 23; text.fontSizeMax = 28;
+                    text.color = Hex("030812");
+                }
+            }
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+            {
+                var label = button.GetComponentInChildren<TMP_Text>(true);
+                if (button.name == "Retry")
+                {
+                    if (label) label.text = "다시 연습";
+                    var image = button.targetGraphic;
+                    image.material = new Material(image.material);
+                    summaryMaterials.Add(image.material);
+                    image.material.SetFloat("_FillAlphaOffset", 0);
+                    image.material.SetFloat("_BorderWidth", 0);
+                    image.color = UiColor("5C6069");
+                }
+                if (button.name == "End" && label) label.text = "VR 종료";
+            }
+            if(clarityRing)clarityRing.color=UiColor("536F00");
+            foreach(var image in root.GetComponentsInChildren<Image>(true))
+            {
+                if(image.name=="clarity Figma Icon")image.color=new Color(.20f,.25f,.04f,1);
+                if(image.name=="Figma Logo")image.color=Hex("030812");
+            }
+        }
+    }
+
     private void ApplyRating(TMP_Text text, Image badge, int score)
     {
         if (text == null)
@@ -193,8 +262,8 @@ public class Scene03Manager : MonoBehaviour
                 break;
         }
 
-        // The Figma metric color identifies the metric, not the rating tier.
-        text.color = text == engagementText ? Hex("0033FF") : text == credibilityText ? Hex("4522C4") : Hex("9FE300");
+        // Ring color identifies the metric; rating color conveys the result tier.
+        text.color = QualitySettings.activeColorSpace==ColorSpace.Linear?textColor.linear:textColor;
         if (badge != null)
             badge.enabled = false;
     }
@@ -286,5 +355,16 @@ public class Scene03Manager : MonoBehaviour
     {
         ColorUtility.TryParseHtmlString("#" + rgb, out Color color);
         return color;
+    }
+    private static Color UiColor(string rgb)
+    {
+        var color=Hex(rgb);
+        return QualitySettings.activeColorSpace==ColorSpace.Linear?color.linear:color;
+    }
+
+    private void OnDestroy()
+    {
+        foreach(var material in summaryMaterials)
+            if(material){if(Application.isPlaying)Destroy(material);else DestroyImmediate(material);}
     }
 }

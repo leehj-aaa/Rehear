@@ -1,6 +1,7 @@
 using LeTai.Asset.TranslucentImage;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 /// <summary>Keeps the UI-only camera aligned without a second XR pose driver.</summary>
 [ExecuteAlways]
@@ -10,6 +11,19 @@ public sealed class TutorialBlurCameraSync : MonoBehaviour
     public Camera uiCamera;
     public TranslucentImageSource blurSource;
     public TranslucentImage[] panels;
+    public void RegisterPanels(GameObject root)
+    {
+        var registered = new List<TranslucentImage>();
+        if (panels != null) foreach (var panel in panels)
+            if (panel) registered.Add(panel);
+        foreach (var panel in root.GetComponentsInChildren<TranslucentImage>(true))
+        {
+            panel.source = blurSource;
+            if (!registered.Contains(panel)) registered.Add(panel);
+        }
+        panels = registered.ToArray();
+        Update();
+    }
 
     private void OnEnable() => RenderPipelineManager.beginCameraRendering += BeforeCamera;
     private void OnDisable() => RenderPipelineManager.beginCameraRendering -= BeforeCamera;
@@ -34,6 +48,13 @@ public sealed class TutorialBlurCameraSync : MonoBehaviour
     private void BeforeCamera(ScriptableRenderContext context, Camera camera)
     {
         if (camera != sceneCamera || !uiCamera) return;
+        // The overlay must never draw the room or audience a second time.
+        int uiLayer = LayerMask.NameToLayer("UI");
+        if (uiLayer >= 0)
+        {
+            uiCamera.cullingMask = 1 << uiLayer;
+            sceneCamera.cullingMask &= ~(1 << uiLayer);
+        }
         uiCamera.transform.SetPositionAndRotation(sceneCamera.transform.position, sceneCamera.transform.rotation);
         uiCamera.nearClipPlane = sceneCamera.nearClipPlane;
         uiCamera.farClipPlane = sceneCamera.farClipPlane;

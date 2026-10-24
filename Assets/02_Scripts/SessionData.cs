@@ -22,6 +22,8 @@ public class Page1
     // Optional web field in minutes. Zero means the web has not supplied it.
     public int qa_duration_minutes;
     public string used_language;
+    // Interface language is independent of the speech/evaluation language.
+    public string ui_language;
 }
 
 [Serializable]

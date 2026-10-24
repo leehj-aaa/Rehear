@@ -49,6 +49,8 @@ public static class RuntimeSessionData
 
         UsedLanguage =
             page1?.used_language ?? "ko";
+        RehearUiLocalization.SetLanguage(string.IsNullOrWhiteSpace(page1?.ui_language)
+            ? RehearUiLocalization.Language : page1.ui_language);
 
         PresentationScript =
             page2?.presentation_script_content ?? "";

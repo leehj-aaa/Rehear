@@ -26,7 +26,7 @@ public sealed class PodiumScriptToggle : MonoBehaviour
     public void Refresh()
     {
         previousVisible = scriptPanel && scriptPanel.activeSelf;
-        if (label) label.text = previousVisible ? "대본 끄기" : "대본 켜기";
+        if (label) label.text = previousVisible ? "대본 숨기기" : "대본 보기";
         if (background) background.color = previousVisible
             ? new Color32(0, 51, 255, 255) : new Color32(53, 56, 65, 255);
     }
