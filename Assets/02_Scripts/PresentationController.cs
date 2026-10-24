@@ -25,6 +25,11 @@ public class PresentationController : MonoBehaviour
     public Button startPresentationButton;
     public Button endPresentationButton;
 
+    [Header("발표 시작 오류 UI")]
+    [Tooltip("이미 사용했거나 사용할 수 없는 PIN으로 발표 시작을 요청했을 때 표시할 패널입니다.")]
+    [SerializeField]
+    private GameObject usedPinErrorPanel;
+
     [SerializeField]
     private TextMeshProUGUI scriptButtonText;
 
@@ -167,6 +172,9 @@ public class PresentationController : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
+        if (usedPinErrorPanel != null)
+            usedPinErrorPanel.SetActive(false);
+
         // The podium end button continues into Q&A; retire the old wall button.
         if (endPresentationButton)
         {
@@ -181,6 +189,8 @@ public class PresentationController : MonoBehaviour
         if (sessionReady && RuntimeSessionData.IsLoaded)
             sessionReady.gameObject.SetActive(true);
 
+        // Keep the ray visible while the user confirms the session or starts the presentation.
+        XRPointerVisibility.SetVisible(true);
         RefreshSessionButtons();
     }
 
@@ -190,7 +200,11 @@ public class PresentationController : MonoBehaviour
         if (startPresentationButton)
         {
             startPresentationButton.gameObject.SetActive(!hasStarted && startError == null);
-            startPresentationButton.interactable = !isStarting && !isPaused && !IsConfirmingSession;
+            startPresentationButton.interactable =
+                !isStarting &&
+                !isPaused &&
+                !IsConfirmingSession &&
+                !(usedPinErrorPanel && usedPinErrorPanel.activeSelf);
             var label = startPresentationButton.GetComponentInChildren<TMP_Text>(true);
             if (label) label.text = isStarting ? "발표 준비 중…" : "발표 시작하기";
             RefreshStartError(label);
@@ -339,6 +353,7 @@ public class PresentationController : MonoBehaviour
             if (isRunning)
             {
                 hasStarted = true;
+                XRPointerVisibility.SetVisible(false);
                 SetScriptPanelVisible(true);
                 nextEvcSegmentTime =
                     Time.unscaledTime +
@@ -363,6 +378,14 @@ public class PresentationController : MonoBehaviour
                     "\n오류 코드: " + apiException.ErrorCode +
                     "\n메시지: " + apiException.Message
                 );
+
+                if (string.Equals(
+                        apiException.ErrorCode,
+                        "pre_session_unavailable",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    ShowUsedPinErrorPanel();
+                }
             }
             else
             {
@@ -383,6 +406,30 @@ public class PresentationController : MonoBehaviour
         }
     }
 
+    private void ShowUsedPinErrorPanel()
+    {
+        if (usedPinErrorPanel == null)
+        {
+            Debug.LogWarning(
+                "[EVC] Used PIN Error Panel이 연결되지 않아 오류 안내를 표시할 수 없습니다."
+            );
+            return;
+        }
+
+        usedPinErrorPanel.SetActive(true);
+        usedPinErrorPanel.transform.SetAsLastSibling();
+        XRPointerVisibility.SetVisible(true);
+        RefreshSessionButtons();
+    }
+
+    public void ReturnToPinFromUsedPinError()
+    {
+        flowController?.StopFlow();
+        RuntimeSessionData.Clear();
+        PresentationSessionContext.Current.ClearAll();
+        SceneManager.LoadScene("Scene_00");
+    }
+
     public async void EndPresentation()
     {
         if (!hasStarted || isStarting || isPaused || IsConfirmingSession) return;
@@ -398,6 +445,7 @@ public class PresentationController : MonoBehaviour
         isRunning = false;
         isPaused = false;
         qaManager?.SetPaused(false);
+        XRPointerVisibility.SetVisible(true);
         SetScriptPanelVisible(false);
         StopTimerAudio();
         if (pausePanel) pausePanel.SetActive(false);
@@ -691,6 +739,9 @@ public class PresentationController : MonoBehaviour
         if (qaButton != null)
             qaButton.gameObject.SetActive(true);
 
+        // The user now needs to point at the finish/Q&A action.
+        XRPointerVisibility.SetVisible(true);
+
         // Reaching the planned duration starts overtime. Only the explicit end
         // action stops recording and selects Q&A or feedback, including zero Q&A.
     }
@@ -705,7 +756,10 @@ public class PresentationController : MonoBehaviour
 
     public async void PauseGame()
     {
-        if (isStarting || isPaused || IsConfirmingSession) return;
+        // Ignore the grip pause shortcut until the presentation has actually
+        // started. Opening the pause UI here would cover the start button and
+        // its close path could hide the ray needed to begin.
+        if (!hasStarted || isStarting || isPaused || IsConfirmingSession) return;
         wasRunningBeforePause = isRunning;
         isPaused = true;
         qaManager?.SetPaused(true);
@@ -717,6 +771,8 @@ public class PresentationController : MonoBehaviour
             pausePanel.SetActive(true);
             pausePanel.transform.SetAsLastSibling();
         }
+
+        XRPointerVisibility.SetVisible(true);
 
         timerAudioSource?.Pause();
 
@@ -789,6 +845,11 @@ public class PresentationController : MonoBehaviour
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        // Hide the ray only when returning to an actively running presentation.
+        // Pre-start, overtime and Q&A states still require pointer interaction.
+        XRPointerVisibility.SetVisible(
+            !isRunning || isTimerFinished || isQAPhaseStarted);
 
         timerAudioSource?.UnPause();
     }
@@ -1117,6 +1178,7 @@ public class PresentationController : MonoBehaviour
     public void StartQA()
     {
         StopTimerAudio();
+        XRPointerVisibility.SetVisible(true);
         SetScriptPanelVisible(false);
         qaManager?.StartQAPhase(qaButton);
         UpdateTimerDisplay();
