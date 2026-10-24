@@ -200,6 +200,15 @@ internal static class ConferenceSeatLayoutRequests
             previousLength = layout.TableLength;
             if (layout.Chairs.Where((t, i) => Vector3.Distance(t.position, first[i]) > .001f).Any())
                 throw new Exception("Repeated layout drifts.");
+            var podium = GameObject.Find("_Props/Counter");
+            if (podium)
+            {
+                float front = Mathf.Max(layout.Table.GetComponent<Renderer>().bounds.max.x,
+                    layout.Chairs.Take(layout.ChairCapacity).SelectMany(c => c.GetComponentsInChildren<Renderer>()).Max(r => r.bounds.max.x));
+                float clearance = podium.GetComponent<Renderer>().bounds.min.x - front;
+                if (clearance < .2f) throw new Exception("Audience furniture crosses the podium line at " + n);
+                lines.AppendLine($"PASS {n} people: furniture behind podium by {clearance:F3}m");
+            }
             float distance = float.MaxValue;
             for (int a = 0; a < layout.ChairCapacity; a++) for (int b = a + 1; b < layout.ChairCapacity; b++) distance = Mathf.Min(distance, Vector3.Distance(layout.Chairs[a].position, layout.Chairs[b].position));
             if (distance < .6f) throw new Exception("Chairs overlap at " + n);

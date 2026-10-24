@@ -10,6 +10,7 @@ public sealed class ConferenceSeatLayout : MonoBehaviour
     [SerializeField, Range(MinimumSeats, MaximumSeats)] private int seatCount = MinimumSeats;
     [SerializeField, Min(.6f)] private float chairSpacing = .85f;
     [SerializeField, Min(.25f)] private float tableEndMargin = .5f;
+    [SerializeField, Min(0)] private float rearwardOffset = 1f;
     [SerializeField] private Transform table;
     [SerializeField] private Transform[] chairs = Array.Empty<Transform>();
     [SerializeField] private AudienceSeat[] seatPool = Array.Empty<AudienceSeat>();
@@ -78,7 +79,8 @@ public sealed class ConferenceSeatLayout : MonoBehaviour
         float length = count == MinimumSeats ? originalLength : Mathf.Max(originalLength, (perSide - 1) * chairSpacing + 2 * tableEndMargin);
         var scale = originalTableScale; scale[lengthAxis] *= length / originalLength; table.localScale = scale;
         // Preserve the tabletop's center even if the imported mesh has an offset pivot.
-        Vector3 beforeCenter = fixedTableCenter;
+        Vector3 placementOffset = Vector3.left * rearwardOffset;
+        Vector3 beforeCenter = fixedTableCenter + placementOffset;
         Vector3 currentCenter = table.TransformPoint(tableCenter);
         table.position += beforeCenter - currentCenter;
         Vector3 center = table.TransformPoint(tableCenter);
@@ -94,8 +96,8 @@ public sealed class ConferenceSeatLayout : MonoBehaviour
             if (i >= ChairCapacity) continue;
             if (count == MinimumSeats)
             {
-                chairs[i].SetPositionAndRotation(originalChairs[i], chairRotations[i]);
-                seatPool[i].transform.SetPositionAndRotation(originalSeats[i], seatRotations[i]);
+                chairs[i].SetPositionAndRotation(originalChairs[i] + placementOffset, chairRotations[i]);
+                seatPool[i].transform.SetPositionAndRotation(originalSeats[i] + placementOffset, seatRotations[i]);
             }
             else
             {
