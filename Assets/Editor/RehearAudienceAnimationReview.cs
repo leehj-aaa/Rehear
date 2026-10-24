@@ -204,7 +204,7 @@ public sealed partial class RehearAudienceMotionPreview
         RehearPhotoAudioPreview.Suppress=true;
         try {
             SelectReview(0);
-            var body=bodies.Single(item=>item.name.StartsWith("Aud_W_01",StringComparison.OrdinalIgnoreCase));
+            var body=bodies.Single(item=>item.name.StartsWith("Aud_W_01_FT2_Business",StringComparison.OrdinalIgnoreCase));
             var pelvis=body.GetComponentsInChildren<Transform>().Single(item=>item.name=="pelvis");
             var spine=body.GetComponentsInChildren<Transform>().Single(item=>item.name=="spine_01");
             var seat=body.GetComponent<AudienceSeatAssignment>().Seat;

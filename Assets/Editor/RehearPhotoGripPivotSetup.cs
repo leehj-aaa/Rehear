@@ -27,13 +27,13 @@ internal static class RehearPhotoGripPivotSetup
     private static void Apply()
     {
         var report = new StringBuilder();
-        // Exact Aud_W_01 values confirmed in the inspector while the authored
+        // Exact Aud_W_01_FT2_Business values confirmed in the inspector while the authored
         // PhotoSlide pose is frozen. Do not infer these from an older saved pivot.
         var sourcePosition = new Vector3(-0.0936f, 0.0331f, -0.0323f);
         var sourceEuler = new Vector3(-19.95f, 134.089f, 81.225f);
         var sourceRotation = Quaternion.Euler(sourceEuler);
         var sourceScale = Vector3.one;
-        report.AppendLine($"SOURCE Aud_W_01 inspector: pivotLocal={sourcePosition:F4}, pivotEuler={sourceEuler:F3}");
+        report.AppendLine($"SOURCE Aud_W_01_FT2_Business inspector: pivotLocal={sourcePosition:F4}, pivotEuler={sourceEuler:F3}");
         foreach (var path in Directory.GetFiles("Assets/03_Prefabs/Audience/Presentation", "Aud_*.prefab")
                      .Select(value => value.Replace('\\', '/')).OrderBy(value => value, StringComparer.Ordinal))
         {

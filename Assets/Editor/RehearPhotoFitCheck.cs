@@ -21,7 +21,7 @@ using Object=UnityEngine.Object;
         var thumbs=new List<Vector3[]>();var tips=new List<Vector3[]>();
         var catalog=AssetDatabase.LoadAssetAtPath<AudienceAnimationCatalog>("Assets/Settings/AudienceAnimationCatalog.asset");
         foreach(var path in Directory.GetFiles("Assets/03_Prefabs/Audience/Presentation","Aud_*.prefab")){
-            if(!path.EndsWith("Aud_M_01.prefab")&&!path.EndsWith("Aud_W_01.prefab"))continue;
+            if(!path.EndsWith("Aud_M_01_MY2_SmartCasual.prefab")&&!path.EndsWith("Aud_W_01_FT2_Business.prefab"))continue;
             var root=PrefabUtility.LoadPrefabContents(path.Replace('\\','/'));
             try{
                 var body=root.GetComponentInChildren<AudienceAnimationPlayer>();
@@ -77,7 +77,7 @@ using Object=UnityEngine.Object;
         var best=candidates.OrderBy(c=>c.score).ThenBy(c=>c.delta.sqrMagnitude+c.angles.sqrMagnitude*.0000001f).Take(8).ToArray();
         foreach(var candidate in best)report.AppendLine($"CANDIDATE delta={candidate.delta:F4} rotation={candidate.angles} penetrations={candidate.count} contactScore={candidate.score:F3}");
         File.WriteAllText("Temp/RehearPhotoFit.txt",report.ToString());
-        var preview=PrefabUtility.LoadPrefabContents("Assets/03_Prefabs/Audience/Presentation/Aud_W_01.prefab");
+        var preview=PrefabUtility.LoadPrefabContents("Assets/03_Prefabs/Audience/Presentation/Aud_W_01_FT2_Business.prefab");
         try{
             var body=preview.GetComponentInChildren<AudienceAnimationPlayer>();
             var phone=(GameObject)typeof(AudienceAnimationPlayer).GetField("photoPhone",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(body);

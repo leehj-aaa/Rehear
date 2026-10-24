@@ -115,7 +115,7 @@ internal static class RehearQuestionFlowPreview
             gaze.ConfigureTargets(bindings.presenterTarget,bindings.slideTarget,bindings.aroundTargets);
             gaze.ResetManualGaze();
         }
-        questionBody=bodies.Single(b=>b.name.StartsWith("Aud_W_03",StringComparison.OrdinalIgnoreCase));
+        questionBody=bodies.Single(b=>b.name.StartsWith("Aud_W_03_FF2_Casual",StringComparison.OrdinalIgnoreCase));
         speaker=questionBody.GetComponent<AudienceQuestionSpeaker>();if(!speaker)speaker=questionBody.gameObject.AddComponent<AudienceQuestionSpeaker>();
         typeof(AudienceQuestionSpeaker).GetMethod("Initialize",Private).Invoke(speaker,null);
         AssetDatabase.ImportAsset("Assets/Editor/QuestionFlowPreview.wav",ImportAssetOptions.ForceSynchronousImport);

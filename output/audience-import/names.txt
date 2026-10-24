@@ -1,0 +1,11 @@
+Aud_M_01 -> Aud_M_01_MY2_SmartCasual
+Aud_M_02 -> Aud_M_02_MU2_Casual
+Aud_M_03 -> Aud_M_03_MU2_SmartCasual
+Aud_W_01 -> Aud_W_01_FT2_Business
+Aud_W_02 -> Aud_W_02_FK2_Business
+Aud_W_03 -> Aud_W_03_FF2_Casual
+Aud_M_04 -> Aud_M_04_ME2_Casual
+Aud_M_05 -> Aud_M_05_MG2_Business
+Aud_W_04 -> Aud_W_04_FM2_SmartCasual
+Aud_W_05 -> Aud_W_05_FH2_Business
+updatedReferences=23

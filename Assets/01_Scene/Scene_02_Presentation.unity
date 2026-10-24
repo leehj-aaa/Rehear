@@ -343,43 +343,6 @@ Transform:
   - {fileID: 117988102}
   m_Father: {fileID: 790946163}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!84 &7028796
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Main Camera Translucent Image Source
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 6
-  m_Width: 402
-  m_Height: 179
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 4
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_UseDynamicScaleExplicit: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &8320492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1851,6 +1814,43 @@ Transform:
   - {fileID: 404051790}
   m_Father: {fileID: 529905731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &38275326
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Main Camera Translucent Image Source
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 6
+  m_Width: 402
+  m_Height: 178
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 4
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_UseDynamicScaleExplicit: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &39081597
 GameObject:
   m_ObjectHideFlags: 0
@@ -16894,7 +16894,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 29ab1db5339cf7c4faa377a2404ad368, type: 2}
+  - {fileID: 2100000, guid: 2dcf76f773ec57947a4bf071efae8381, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17670,7 +17670,7 @@ GameObject:
   - component: {fileID: 370264744}
   - component: {fileID: 370264742}
   m_Layer: 0
-  m_Name: Aud_W_03
+  m_Name: Aud_W_03_FF2_Casual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19000,7 +19000,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 404a4685c6ed2f54dbda8f7463101a66, type: 2}
+  - {fileID: 2100000, guid: 571dce0f1ac047a47b54b882754d347c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19446,7 +19446,7 @@ GameObject:
   - component: {fileID: 396972867}
   - component: {fileID: 396972866}
   m_Layer: 0
-  m_Name: Aud_W_02
+  m_Name: Aud_W_02_FK2_Business
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30571,7 +30571,7 @@ GameObject:
   - component: {fileID: 623741507}
   - component: {fileID: 623741506}
   m_Layer: 0
-  m_Name: Aud_M_03
+  m_Name: Aud_M_03_MU2_SmartCasual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38982,7 +38982,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 49618fee8a1e1014fa17963b75e961ac, type: 2}
+  - {fileID: 2100000, guid: 427e90f41c3f86747879191dcaa84919, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -55275,7 +55275,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 49618fee8a1e1014fa17963b75e961ac, type: 2}
+  - {fileID: 2100000, guid: 81614669c883a604aa7e54e46e2e962a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -64158,7 +64158,7 @@ GameObject:
   - component: {fileID: 1300384960}
   - component: {fileID: 1300384959}
   m_Layer: 0
-  m_Name: Aud_W_01
+  m_Name: Aud_W_01_FT2_Business
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70383,7 +70383,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6cd916cbcba543845a70d0e8ab87b4de, type: 2}
+  - {fileID: 2100000, guid: 6d333a6661af0964c8cd83fadbca61b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -73424,7 +73424,7 @@ GameObject:
   - component: {fileID: 1448326683}
   - component: {fileID: 1448326682}
   m_Layer: 0
-  m_Name: Aud_M_01
+  m_Name: Aud_M_01_MY2_SmartCasual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -95222,7 +95222,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BlurTex:
-        m_Texture: {fileID: 7028796}
+        m_Texture: {fileID: 38275326}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FigmaGlowTex:
@@ -95462,6 +95462,7 @@ MonoBehaviour:
   scriptPanel: {fileID: 1157154995}
   startPresentationButton: {fileID: 1681240319}
   endPresentationButton: {fileID: 316063349}
+  usedPinErrorPanel: {fileID: 0}
   scriptButtonText: {fileID: 0}
   qaManager: {fileID: 1738587707}
   useEvcPipeline: 1
@@ -101285,7 +101286,7 @@ GameObject:
   - component: {fileID: 1945967526}
   - component: {fileID: 1945967525}
   m_Layer: 0
-  m_Name: Aud_M_02
+  m_Name: Aud_M_02_MU2_Casual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -104638,7 +104639,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c8c3d82f73caf524f98ac34820645217, type: 2}
+  - {fileID: 2100000, guid: 6d333a6661af0964c8cd83fadbca61b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -24,7 +24,7 @@ internal static class RehearAudienceGazeChecks
         var randomState = UnityEngine.Random.state;
         try
         {
-            foreach (string name in new[] { "Aud_M_01", "Aud_M_02", "Aud_M_03", "Aud_W_01", "Aud_W_02", "Aud_W_03" })
+            foreach (string name in new[] { "Aud_M_01_MY2_SmartCasual", "Aud_M_02_MU2_Casual", "Aud_M_03_MU2_SmartCasual", "Aud_W_01_FT2_Business", "Aud_W_02_FK2_Business", "Aud_W_03_FF2_Casual" })
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/03_Prefabs/Audience/Presentation/{name}.prefab");
                 var actor = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);

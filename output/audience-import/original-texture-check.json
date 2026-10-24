@@ -1,0 +1,58 @@
+[
+  {
+    "code": "mu2",
+    "map": "BaseColor",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/M_3/Skin_Head_MU2_BaseColor_4K.png"
+  },
+  {
+    "code": "mu2",
+    "map": "Normal",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/M_3/Skin_Head_MU2_Normal_4K.png"
+  },
+  {
+    "code": "ft2",
+    "map": "BaseColor",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/Skin_Head_FT2_BaseColor_4K.png"
+  },
+  {
+    "code": "ft2",
+    "map": "Normal",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/Skin_Head_FT2_Normal_4K.png"
+  },
+  {
+    "code": "fk2",
+    "map": "BaseColor",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/F_3/Skin_Head_FK2_BaseColor_4K.png"
+  },
+  {
+    "code": "fk2",
+    "map": "Normal",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/F_3/Skin_Head_FK2_Normal_4K.png"
+  },
+  {
+    "code": "ff2",
+    "map": "BaseColor",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/F_2/Skin_Head_FF2_BaseColor_4K.png"
+  },
+  {
+    "code": "ff2",
+    "map": "Normal",
+    "matchedOriginal": true,
+    "restored": false,
+    "path": "Assets/Textures/F_2/Skin_Head_FF2_Normal_4K.png"
+  }
+]

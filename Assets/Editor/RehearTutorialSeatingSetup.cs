@@ -31,7 +31,7 @@ internal static class RehearTutorialSeatingSetup
         var table = all.Single(t => t.name == "Conference_table");
         var chairRoot = scene.GetRootGameObjects().Single(g => g.name == "Chair").transform;
         string[] chairs = { "Chair", "Chair (1)", "Chair (2)", "Chair (3)", "Chair (4)", "Chair (5)" };
-        string[] people = { "Aud_M_01", "Aud_W_01", "Aud_W_03", "Aud_M_03", "Aud_W_02", "Aud_M_02" };
+        string[] people = { "Aud_M_01_MY2_SmartCasual", "Aud_W_01_FT2_Business", "Aud_W_03_FF2_Casual", "Aud_M_03_MU2_SmartCasual", "Aud_W_02_FK2_Business", "Aud_M_02_MU2_Casual" };
         // Two evenly spaced chairs on either long side; two aligned at the rear.
         Vector2[] offsets = {
             new Vector2(.60f, -1.16f), new Vector2(-.45f, -1.16f),

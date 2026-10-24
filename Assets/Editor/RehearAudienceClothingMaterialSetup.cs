@@ -16,8 +16,8 @@ internal static class RehearAudienceClothingMaterialSetup
 
     static readonly string[] AudiencePrefabs =
     {
-        "Aud_M_01.prefab", "Aud_M_02.prefab", "Aud_M_03.prefab",
-        "Aud_W_01.prefab", "Aud_W_02.prefab", "Aud_W_03.prefab"
+        "Aud_M_01_MY2_SmartCasual.prefab", "Aud_M_02_MU2_Casual.prefab", "Aud_M_03_MU2_SmartCasual.prefab",
+        "Aud_W_01_FT2_Business.prefab", "Aud_W_02_FK2_Business.prefab", "Aud_W_03_FF2_Casual.prefab"
     };
 
     static RehearAudienceClothingMaterialSetup()

@@ -21,7 +21,7 @@ static class RehearSeatedClipAudit
     {
         var report=new StringBuilder();
         var catalog=AssetDatabase.LoadAssetAtPath<AudienceAnimationCatalog>("Assets/Settings/AudienceAnimationCatalog.asset");
-        var instance=PrefabUtility.LoadPrefabContents("Assets/03_Prefabs/Audience/Presentation/Aud_M_01.prefab");
+        var instance=PrefabUtility.LoadPrefabContents("Assets/03_Prefabs/Audience/Presentation/Aud_M_01_MY2_SmartCasual.prefab");
         try {
             var player=instance.GetComponentInChildren<AudienceAnimationPlayer>(); player.enabled=false;
             var animator=instance.GetComponentInChildren<Animator>(); animator.enabled=false;
@@ -77,7 +77,7 @@ static class RehearSeatedClipAudit
     {
         var trace=JsonUtility.FromJson<RehearAudienceMotionPreview.Trace>(File.ReadAllText("Temp/AudienceReactionPreview.json"));
         var report=new StringBuilder();
-        var names=new[]{"Aud_W_01","Aud_M_01","Aud_W_03","Aud_M_02","Aud_W_02","Aud_M_03"};
+        var names=new[]{"Aud_W_01_FT2_Business","Aud_M_01_MY2_SmartCasual","Aud_W_03_FF2_Casual","Aud_M_02_MU2_Casual","Aud_W_02_FK2_Business","Aud_M_03_MU2_SmartCasual"};
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         for(int n=0;n<names.Length;n++) {
             var root=PrefabUtility.LoadPrefabContents($"Assets/03_Prefabs/Audience/Presentation/{names[n]}.prefab");

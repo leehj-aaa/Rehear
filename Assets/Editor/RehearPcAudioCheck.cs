@@ -117,12 +117,12 @@ internal static class RehearPcAudioCheck
             AudioListener.volume = 1;
             var camera = new GameObject("PC audition camera", typeof(Camera), typeof(AudioListener));
             camera.transform.position = new Vector3(0, 1.4f, 0);
-            var actor = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03_Prefabs/Audience/Presentation/Aud_W_03.prefab"));
+            var actor = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03_Prefabs/Audience/Presentation/Aud_W_03_FF2_Casual.prefab"));
             actor.transform.SetPositionAndRotation(new Vector3(0, 0, 3), Quaternion.Euler(0, 180, 0));
             var light = new GameObject("Audition light", typeof(Light)).GetComponent<Light>();
             light.type = LightType.Directional;
             light.transform.rotation = Quaternion.Euler(40, -30, 0);
-            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath("Builds/SpeechCheck/Aud_W_03-YuJin.wav")).AbsoluteUri, AudioType.WAV);
+            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath("Builds/SpeechCheck/Aud_W_03_FF2_Casual-YuJin.wav")).AbsoluteUri, AudioType.WAV);
             var operation = request.SendWebRequest();
             while (!operation.isDone) await Task.Yield();
             if (request.result != UnityWebRequest.Result.Success) throw new Exception(request.error);

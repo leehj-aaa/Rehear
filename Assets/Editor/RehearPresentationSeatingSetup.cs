@@ -884,7 +884,7 @@ internal static class RehearPresentationSeatingSetup
         layout.seats=new AudienceSeat[6];
         string[] rows={"front","middle","rear","rear","middle","front"};
         string[] sides={"left","left","left","right","right","right"};
-        string[] occupants={"Aud_M_01","Aud_W_01","Aud_W_03","Aud_M_03","Aud_W_02","Aud_M_02"};
+        string[] occupants={"Aud_M_01_MY2_SmartCasual","Aud_W_01_FT2_Business","Aud_W_03_FF2_Casual","Aud_M_03_MU2_SmartCasual","Aud_W_02_FK2_Business","Aud_M_02_MU2_Casual"};
         var table=all.Single(t=>t.name=="Conference_table").GetComponent<Renderer>().bounds;
         for(int i=0;i<6;i++)
         {

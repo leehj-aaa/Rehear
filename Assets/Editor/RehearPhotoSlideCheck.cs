@@ -56,10 +56,10 @@ internal static class RehearPhotoSlideCheck
                     float until=clip.length*step/4;
                     while(time<until){float dt=Mathf.Min(1f/60,until-time);typeof(AudienceAnimationPlayer).GetMethod("Advance",F).Invoke(body,new object[]{dt});graph.Evaluate(dt);body.ApplyPropPoses();time+=dt;}
                     report.AppendLine($"PHOTO {root.name} t={time:F2}/{clip.length:F2} active={phone.activeSelf} parent={phone.transform.parent.name} left={phone.transform.InverseTransformPoint(left.position):F3} right={phone.transform.InverseTransformPoint(right.position):F3} scale={phone.transform.lossyScale:F3}");
-                    if(root.name=="Aud_W_03"||root.name=="Aud_M_01"){
+                    if(root.name=="Aud_W_03_FF2_Casual"||root.name=="Aud_M_01_MY2_SmartCasual"){
                         typeof(RehearPhoneSetup).GetMethod("Capture",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,new object[]{root,phone});
                         File.Copy("Temp/RehearPhonePreview-"+root.name+".png",$"Temp/PhotoSlide-{root.name}-{step}.png",true);
-                        if(root.name=="Aud_W_03"&&step==2){
+                        if(root.name=="Aud_W_03_FF2_Casual"&&step==2){
                             var saved=phone.transform.position;
                             for(int n=0;n<3;n++){
                                 phone.transform.position=saved+phone.transform.TransformVector(new Vector3(-.055f+n*.005f,0,.021f+n*.007f));
