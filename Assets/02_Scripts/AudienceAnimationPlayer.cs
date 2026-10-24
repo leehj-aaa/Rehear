@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -108,6 +108,16 @@ public class AudienceAnimationPlayer : MonoBehaviour
     public AudienceGender Gender => gender;
     public bool IsBusy => target != null || transitioning || pendingTypingClip || pendingPhotoClip;
 
+#if UNITY_EDITOR
+    public void SampleEditorSeatedPose()
+    {
+        if (Application.isPlaying || !catalog) return;
+        if (!catalog.TryGetClip(defaultIdleVariation, gender, out var clip)) return;
+        var position = transform.position; var rotation = transform.rotation;
+        (idleClipOverride ? idleClipOverride : clip).SampleAnimation(gameObject, 0);
+        transform.SetPositionAndRotation(position, rotation);
+    }
+#endif
     private void Reset() => targetAnimator = GetComponentInChildren<Animator>();
     private void OnEnable()
     {

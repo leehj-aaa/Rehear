@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Rehear.Evc.Audience;
 using Rehear.Evc.Audio;
 using Rehear.Evc.Contracts;
@@ -88,7 +89,7 @@ namespace Rehear.Evc.Editor
                             errors.Add("Missing Script: " + GetPath(transforms[index]));
                     }
 
-                    var agents = root.GetComponentsInChildren<AudienceAgent>(true);
+                    var agents = root.GetComponentsInChildren<AudienceAgent>(true).Where(a=>a.gameObject.activeInHierarchy).ToArray();
                     for (var index = 0; index < agents.Length; index++)
                     {
                         if (!ids.Add(agents[index].AgentId))
@@ -99,17 +100,17 @@ namespace Rehear.Evc.Editor
                     // prefab pool rather than requiring duplicate scene characters.
                     foreach (var seating in root.GetComponentsInChildren<AudienceSeating>(true))
                     {
-                        if (seating.audiencePrefabs == null || seating.audiencePrefabs.Length != 6 ||
-                            seating.actionRegistries == null || seating.actionRegistries.Length != 6 ||
-                            seating.seats == null || seating.seats.Length != 6)
-                        { errors.Add("Audience seating requires six prefabs, registries and seats."); continue; }
+                        if (seating.audiencePrefabs == null || seating.audiencePrefabs.Length < 6 || seating.audiencePrefabs.Length > 10 ||
+                            seating.seats == null || seating.seats.Length != seating.audiencePrefabs.Length)
+                        { errors.Add("Audience seating requires six to ten matching prefabs and seats."); continue; }
                         var seatIds = new HashSet<string>();
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < seating.seats.Length; i++)
                         {
                             if (!seating.audiencePrefabs[i] || !seating.seats[i])
                             { errors.Add("Missing audience seating reference at " + i); continue; }
                             if (!seatIds.Add(seating.seats[i].SeatId)) errors.Add("Duplicate seat id.");
-                            if (!ids.Add(EvcContractRules.RequiredAudienceIds[i])) errors.Add("Duplicate spawned audience id.");
+                            string id="audience_"+(i+1).ToString("00");
+                            if (!agents.Any(a=>a.AgentId==id) && !ids.Add(id)) errors.Add("Duplicate spawned audience id.");
                         }
                     }
 
@@ -130,8 +131,8 @@ namespace Rehear.Evc.Editor
                     if (!ids.Contains(required))
                         errors.Add("Missing audience id: " + required);
                 }
-                if (ids.Count != EvcContractRules.AudienceCount)
-                    errors.Add("Presentation scene must contain exactly six audience IDs.");
+                if (ids.Count < 6 || ids.Count > 10)
+                    errors.Add("Presentation scene must contain six to ten audience IDs.");
 
                 if (flows.Count != 1)
                     errors.Add("Presentation scene must contain exactly one PresentationFlowController.");

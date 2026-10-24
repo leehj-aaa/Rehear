@@ -213,8 +213,11 @@ namespace Rehear.Evc.Audience
                 if (!agentLookup.ContainsKey(id))
                     errors.Add("Missing audience agent: " + id);
             }
-            if (agentLookup.Count != EvcContractRules.AudienceCount)
-                errors.Add("The scene must contain exactly six unique audience agents.");
+            if (agentLookup.Count < 6 || agentLookup.Count > 10)
+                errors.Add("The scene must contain six to ten unique audience agents.");
+            for (int index = 1; index <= agentLookup.Count; index++)
+                if (!agentLookup.ContainsKey("audience_" + index.ToString("00")))
+                    errors.Add("Missing audience agent: audience_" + index.ToString("00"));
             return errors;
         }
 

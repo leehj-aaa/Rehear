@@ -16,9 +16,9 @@ public sealed class AudienceSeatAssignment : MonoBehaviour
     public bool TryGetConversationVariation(out string variation)
     {
         variation = null;
-        if (!seat || seat.row != "rear" || seat.Occupant != this) return false;
+        if (!isActiveAndEnabled || !seat || !seat.gameObject.activeInHierarchy || seat.row != "rear" || seat.Occupant != this) return false;
         var partner = seat.conversationPartner;
-        if (!partner || partner == seat || partner.row != "rear" || partner.side == seat.side ||
+        if (!partner || !partner.gameObject.activeInHierarchy || partner == seat || partner.row != "rear" || partner.side == seat.side ||
             partner.conversationPartner != seat || !partner.Occupant ||
             partner.Occupant.Seat != partner || !partner.Occupant.gameObject.activeInHierarchy) return false;
         // Seat facing is stable even when the character is currently turning to a laptop.
