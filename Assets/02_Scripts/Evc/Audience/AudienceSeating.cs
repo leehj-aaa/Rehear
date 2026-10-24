@@ -16,6 +16,8 @@ public sealed class AudienceSeating : MonoBehaviour
     public GameObject[] laptops;
     public GameObject[] laptopPrefabs = Array.Empty<GameObject>();
     [Range(0, 10)] public int initialLaptopCount = 2;
+    public bool scaleLaptopCountWithAudience = true;
+    public int InitialLaptopTarget => scaleLaptopCountWithAudience ? Mathf.RoundToInt((seats?.Length ?? 0) * .4f) : initialLaptopCount;
     private System.Random laptopRandom;
     private readonly List<GameObject> laptopPool = new List<GameObject>();
     public IReadOnlyList<GameObject> SpawnedLaptops => laptopPool;
@@ -89,7 +91,7 @@ public sealed class AudienceSeating : MonoBehaviour
         {
             if (laptopPrefabs.Any(p => !p)) throw new InvalidOperationException("Missing laptop prefab.");
             foreach (var legacy in laptops ?? Array.Empty<GameObject>()) if (legacy) legacy.SetActive(false);
-            for (int i = 0; i < Mathf.Clamp(initialLaptopCount, 0, count); i++) laptopPool.Add(CreateLaptop());
+            for (int i = 0; i < Mathf.Clamp(InitialLaptopTarget, 0, count); i++) laptopPool.Add(CreateLaptop());
         }
         else laptopPool.AddRange((laptops ?? Array.Empty<GameObject>()).Where(l=>l));
         float floor = seats.Min(s=>s.transform.position.y);
@@ -142,6 +144,8 @@ public sealed class AudienceSeating : MonoBehaviour
     private void Apply(AudienceAgent[] order, bool[] equipped)
     {
         int needed=equipped.Count(v=>v);
+        if (laptopPrefabs != null && laptopPrefabs.Length > 0 && needed > laptopPrefabs.Distinct().Count())
+            throw new InvalidOperationException("Not enough distinct laptop models for this assignment.");
         if(needed>0 && laptopPool.Count==0 && (laptopPrefabs == null || laptopPrefabs.Length == 0)) throw new InvalidOperationException("No laptop model configured.");
         while(laptopPool.Count<needed) laptopPool.Add(CreateLaptop());
         foreach(var laptop in laptopPool) laptop.SetActive(false);
@@ -170,8 +174,9 @@ public sealed class AudienceSeating : MonoBehaviour
     private GameObject CreateLaptop()
     {
         var prefab = laptopPrefabs != null && laptopPrefabs.Length > 0
-            ? laptopPrefabs[laptopRandom.Next(laptopPrefabs.Length)]
+            ? laptopPrefabs.FirstOrDefault(p => !laptopPool.Any(l => l.name == p.name))
             : laptopPool[0];
+        if (!prefab) throw new InvalidOperationException("Every configured laptop model is already assigned.");
         var instance = SpawnPrefab(prefab);
         instance.name = prefab.name;
         instance.SetActive(false);

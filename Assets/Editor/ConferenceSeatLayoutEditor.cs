@@ -134,7 +134,7 @@ internal static class ConferenceSeatLayoutRequests
                 var liveSeating = UnityEngine.Object.FindFirstObjectByType<AudienceSeating>();
                 if (liveSeating.members.Length != liveLayout.SeatCount || liveSeating.seats.Length != liveLayout.SeatCount ||
                     liveSeating.seats.Any(s => !s.Occupant || s.Occupant.Seat != s) ||
-                    liveSeating.seats.Count(s => s.HasLaptop) != liveSeating.initialLaptopCount ||
+                    liveSeating.seats.Count(s => s.HasLaptop) != liveSeating.InitialLaptopTarget ||
                     liveSeating.seats.Count(s => s.Occupant.TryGetConversationVariation(out _)) != 2)
                     throw new Exception("Live audience initialization mismatch.");
                 foreach (var coordinator in UnityEngine.Object.FindObjectsByType<Rehear.Evc.Audience.AudienceReactionCoordinator>(FindObjectsSortMode.None))
@@ -262,7 +262,18 @@ internal static class ConferenceSeatLayoutRequests
                 Require(seating.members.Length == count && seating.members.Select(a => a.AgentId).Distinct().Count() == count, "Member count mismatch.");
                 Require(seating.seats.All(s => s.Occupant && s.Occupant.Seat == s), "Unassigned seat.");
                 Require(seating.seats.Select(s => s.Occupant).Distinct().Count() == count, "Duplicate occupant.");
-                Require(seating.seats.Count(s => s.HasLaptop) == 2, "Laptop count mismatch.");
+                Require(seating.seats.Count(s => s.HasLaptop) == Mathf.RoundToInt(count * .4f), "Laptop count mismatch.");
+                Require(seating.SpawnedLaptops.Select(l => l.name).Distinct().Count() == seating.InitialLaptopTarget, "Duplicate laptop model.");
+                var laptopBounds = seating.SpawnedLaptops.Where(l => l.activeSelf).Select(l => {
+                    var renderers = l.GetComponentsInChildren<Renderer>();
+                    var bounds = renderers[0].bounds; foreach (var r in renderers.Skip(1)) bounds.Encapsulate(r.bounds); return bounds;
+                }).ToArray();
+                for (int a = 0; a < laptopBounds.Length; a++) for (int b = a + 1; b < laptopBounds.Length; b++)
+                {
+                    var one = laptopBounds[a]; var two = laptopBounds[b];
+                    Require(Mathf.Min(one.max.x, two.max.x) <= Mathf.Max(one.min.x, two.min.x) ||
+                        Mathf.Min(one.max.z, two.max.z) <= Mathf.Max(one.min.z, two.min.z), "Laptops overlap.");
+                }
                 foreach (var seat in seating.seats)
                 {
                     Require(seat.Occupant.Allows("ACT_01.laptoptyping") == seat.HasLaptop, "Typing allowed without laptop.");
@@ -276,10 +287,10 @@ internal static class ConferenceSeatLayoutRequests
                 Require(leftVariation != rightVariation, "Rear conversation directions match.");
                 var profiles = seating.seats.Select((s, i) => new Rehear.Evc.Contracts.AudienceDto {
                     agent_id = seating.members[count - i - 1].AgentId,
-                    profile = new Rehear.Evc.Contracts.AudienceSeatingProfile { row = s.row, seat = s.side, has_laptop = i % 2 == 0 }
+                    profile = new Rehear.Evc.Contracts.AudienceSeatingProfile { row = s.row, seat = s.side, has_laptop = i < seating.InitialLaptopTarget }
                 }).ToArray();
                 seating.ApplyServerProfiles(profiles);
-                Require(seating.seats.Count(s => s.HasLaptop) == (count + 1) / 2, "Profile laptop remap failed.");
+                Require(seating.seats.Count(s => s.HasLaptop) == seating.InitialLaptopTarget, "Profile laptop remap failed.");
                 Require(seating.seats.All(s => s.Occupant && s.Occupant.Seat == s), "Profile seat remap failed.");
                 var before = seating.seats.Select(s => s.Occupant).ToArray();
                 var invalid = profiles.ToArray(); invalid[1] = invalid[0];
@@ -294,7 +305,7 @@ internal static class ConferenceSeatLayoutRequests
                     }).ToArray());
                     Require(seating.seats.Select(s => s.Occupant).Distinct().Count() == count, "Legacy profiles lost additional participants.");
                 }
-                report.AppendLine($"PASS {count} people: unique seating; laptop anchors and typing eligibility; profile remap; only rear pair conversations with opposite directions.");
+                report.AppendLine($"PASS {count} people: unique seating; proportional laptops without overlap; laptop anchors and typing eligibility; profile remap; only rear pair conversations with opposite directions.");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); EditorSceneManager.ClosePreviewScene(preview); }
         }
